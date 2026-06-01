@@ -1,0 +1,2516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Free Backsplash Estimate Tool | Crafted Backsplash — Omaha &amp; Lincoln, NE</title>
+  <meta name="description" content="Get a free, instant kitchen backsplash labor estimate in about 2 minutes. Draw your space, pick your tile, and see a price range — no contractor visit needed. Serving Omaha, Lincoln, and surrounding Nebraska.">
+  <link rel="icon" href="Project Images/Crafted Backsplash Logo.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+/* ================================================================
+   CRAFTED BACKSPLASH ESTIMATOR v3
+   Accessibility-first. Large text, high contrast, big targets.
+   Canvas tool: Draw | Label Edges | Place Outlets/Switches
+   CONFIG block is near the bottom of the <script> tag.
+================================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --charcoal:  #1a1a1a;
+  --gold:      #8B1A1A;   /* brand crimson */
+  --gold-lt:   #c44040;   /* lighter crimson */
+  --gold-dk:   #5c0f0f;   /* deep crimson */
+  --bg:        #f7f4f1;
+  --white:     #ffffff;
+  --gray-1:    #f0ece6;
+  --gray-2:    #d5cec4;
+  --gray-3:    #7a7268;
+  --red:       #c0392b;
+  --radius:    14px;
+  --shadow:    0 4px 28px rgba(0,0,0,0.11);
+
+  /* Edge label colors */
+  --trim-col:      #e74c3c;
+  --cabinet-col:   #2980b9;
+  --counter-col:   #8B1A1A;
+  --window-col:    #16a085;
+  --appliance-col: #8e44ad;
+}
+
+/* ── Base ── */
+html { font-size: 17px; }
+body {
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--charcoal);
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 20px 16px 64px;
+  line-height: 1.5;
+}
+
+#cb-wrap { width: 100%; max-width: 740px; }
+
+/* ── Header ── */
+#cb-header { text-align: center; margin-bottom: 10px; }
+#cb-brand  { font-size: 12px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gold-dk); margin-bottom: 4px; }
+#cb-title  { font-size: 24px; font-weight: 900; color: var(--charcoal); margin-bottom: 16px; line-height: 1.25; font-family: 'Playfair Display', Georgia, serif; }
+
+/* ── Progress ── */
+#cb-prog-track { background: var(--gray-2); border-radius: 99px; height: 7px; margin-bottom: 6px; overflow: hidden; }
+#cb-prog-fill  { background: var(--gold); height: 100%; border-radius: 99px; transition: width .4s ease; }
+#cb-step-lbl   { font-size: 13px; color: var(--gray-3); text-align: right; margin-bottom: 18px; font-weight: 600; }
+
+/* ── Card ── */
+.cb-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 32px 28px 26px;
+  margin-bottom: 14px;
+}
+.cb-badge    { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+.cb-title    { font-size: 22px; font-weight: 900; color: var(--charcoal); margin-bottom: 6px; line-height: 1.25; }
+.cb-subtitle { font-size: 16px; color: var(--gray-3); margin-bottom: 24px; line-height: 1.5; }
+
+/* ── Educational callout ── */
+.edu {
+  background: #fdf0f0;
+  border-left: 4px solid var(--gold);
+  border-radius: 0 10px 10px 0;
+  padding: 13px 15px;
+  margin: 10px 0 20px;
+  font-size: 15px;
+  color: #3a1010;
+  line-height: 1.6;
+}
+.edu-tag { font-size: 11px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: var(--gold-dk); display: block; margin-bottom: 4px; }
+.edu strong { color: var(--gold-dk); }
+
+/* ── Options grid ── */
+.opts      { display: grid; gap: 10px; }
+.opts.c2   { grid-template-columns: 1fr 1fr; }
+.opts.c3   { grid-template-columns: 1fr 1fr 1fr; }
+
+.opt {
+  border: 2.5px solid var(--gray-2);
+  border-radius: 12px;
+  padding: 16px 14px 14px;
+  cursor: pointer;
+  transition: border-color .18s, background .18s;
+  position: relative;
+  min-height: 56px;
+}
+.opt:hover { border-color: var(--gold-lt); background: #fdf0f0; }
+.opt.sel   { border-color: var(--gold); background: #fdf0f0; }
+.opt.sel::after { content: '✓'; position: absolute; top: 11px; right: 13px; color: var(--gold); font-weight: 900; font-size: 16px; }
+.opt-icon  { font-size: 10px; margin-bottom: 8px; line-height: 1; }
+.opt-icon svg { display: block; }
+.opt-label { font-size: 16px; font-weight: 800; color: var(--charcoal); margin-bottom: 3px; }
+.opt-sub   { font-size: 14px; color: var(--gray-3); line-height: 1.4; }
+.opt-cost  { font-size: 13px; font-weight: 700; color: var(--gold-dk); margin-top: 5px; }
+.opt-tip   { font-size: 14px; color: #3a1010; background: #fdf0f0; border-radius: 7px; padding: 8px 11px; margin-top: 9px; line-height: 1.55; display: none; }
+.opt.sel .opt-tip { display: block; }
+
+/* ── Inputs ── */
+.field { margin-bottom: 16px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.lbl  { display: block; font-size: 15px; font-weight: 700; color: var(--charcoal); margin-bottom: 7px; }
+.lbl .opt-note { font-weight: 400; color: var(--gray-3); }
+.inp  {
+  width: 100%;
+  border: 2.5px solid var(--gray-2);
+  border-radius: 9px;
+  padding: 12px 14px;
+  font-size: 16px;
+  color: var(--charcoal);
+  background: var(--white);
+  transition: border-color .2s;
+  font-family: inherit;
+  min-height: 48px;
+}
+.inp:focus { outline: none; border-color: var(--gold); }
+.err { color: var(--red); font-size: 14px; margin-top: 5px; display: none; }
+.err.show { display: block; }
+
+/* ── Checkboxes ── */
+.checks { display: flex; flex-direction: column; gap: 10px; }
+.chk {
+  display: flex; align-items: flex-start; gap: 14px; cursor: pointer;
+  padding: 14px 15px; border: 2.5px solid var(--gray-2); border-radius: 12px; transition: border-color .18s;
+}
+.chk:hover { border-color: var(--gold-lt); }
+.chk input { width: 22px; height: 22px; margin-top: 1px; accent-color: var(--gold); flex-shrink: 0; cursor: pointer; }
+.chk-lbl { font-size: 16px; font-weight: 700; color: var(--charcoal); margin-bottom: 2px; }
+.chk-sub { font-size: 14px; color: var(--gray-3); line-height: 1.4; }
+
+/* ── Stepper ── */
+.stepper { display: flex; align-items: center; border: 2.5px solid var(--gray-2); border-radius: 9px; overflow: hidden; width: fit-content; }
+.stepper button { background: var(--gray-1); border: none; width: 48px; height: 48px; font-size: 24px; cursor: pointer; color: var(--charcoal); font-family: inherit; transition: background .15s; }
+.stepper button:hover { background: var(--gold-lt); }
+.stepper span { width: 52px; text-align: center; font-size: 20px; font-weight: 900; }
+
+/* ── Est bar ── */
+#cb-est-bar {
+  background: var(--charcoal); border-radius: 11px;
+  padding: 14px 20px; display: flex; align-items: center;
+  justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px;
+}
+.est-lbl  { font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--gold-lt); margin-bottom: 2px; }
+.est-val  { font-size: 22px; font-weight: 900; color: var(--white); }
+.est-note { font-size: 13px; color: var(--gray-3); }
+
+/* ── Navigation ── */
+#cb-nav  { display: flex; flex-direction: column; gap: 10px; }
+#nav-row { display: flex; gap: 10px; }
+
+.btn-back {
+  background: none; border: 2.5px solid var(--gray-2); border-radius: 9px;
+  padding: 14px 22px; font-size: 16px; font-weight: 700; color: var(--gray-3);
+  cursor: pointer; transition: all .18s; font-family: inherit; white-space: nowrap; min-height: 52px;
+}
+.btn-back:hover { border-color: var(--charcoal); color: var(--charcoal); }
+
+.btn-next {
+  flex: 1; background: var(--charcoal); border: none; border-radius: 9px;
+  padding: 14px 20px; font-size: 17px; font-weight: 900; color: var(--white);
+  cursor: pointer; transition: background .18s; font-family: inherit; min-height: 52px;
+}
+.btn-next:hover { background: var(--gold-dk); }
+.btn-next:disabled { background: var(--gray-2); cursor: not-allowed; }
+
+/* ── ESCAPE HATCH — large and obvious ── */
+#btn-escape {
+  width: 100%;
+  background: var(--white);
+  border: 2.5px solid var(--gold);
+  border-radius: 10px;
+  padding: 15px 20px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--charcoal);
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all .18s;
+  min-height: 54px;
+  letter-spacing: 0.01em;
+}
+#btn-escape:hover { background: #fdf0f0; border-color: var(--gold-dk); }
+#btn-escape .esc-icon { font-size: 20px; }
+
+/* ══════════════════════════════════════
+   CANVAS DRAWING TOOL
+══════════════════════════════════════ */
+
+/* Measure path selector */
+.mpath-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 22px; }
+.mpath-card {
+  border: 2.5px solid var(--gray-2); border-radius: 12px;
+  padding: 20px 14px; cursor: pointer; text-align: center; transition: all .18s;
+}
+.mpath-card:hover  { border-color: var(--gold-lt); background: #fdf0f0; }
+.mpath-card.active { border-color: var(--gold); background: #fdf0f0; }
+.mpath-card.skip-c { border-color: var(--gold-lt); border-style: dashed; }
+.mpath-card.skip-c:hover { border-color: var(--gold-dk); background: #fdf0f0; }
+.mpath-icon  { font-size: 32px; margin-bottom: 8px; }
+.mpath-lbl   { font-size: 16px; font-weight: 800; color: var(--charcoal); margin-bottom: 4px; }
+.mpath-sub   { font-size: 13px; color: var(--gray-3); line-height: 1.4; }
+
+/* Canvas toolbar */
+#canvas-toolbar {
+  display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+  background: var(--gray-1); border-radius: 10px 10px 0 0;
+  padding: 10px 12px; border: 2px solid var(--gray-2); border-bottom: none;
+}
+.tool-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--white); border: 2px solid var(--gray-2); border-radius: 8px;
+  padding: 8px 13px; font-size: 14px; font-weight: 700; color: var(--gray-3);
+  cursor: pointer; font-family: inherit; transition: all .18s; min-height: 40px; white-space: nowrap;
+}
+.tool-btn:hover { border-color: var(--gold); color: var(--charcoal); }
+.tool-btn.active { background: var(--charcoal); border-color: var(--charcoal); color: var(--white); }
+.tool-btn.active:hover { background: var(--gold-dk); border-color: var(--gold-dk); }
+.tool-sep { width: 1px; background: var(--gray-2); height: 32px; margin: 0 3px; }
+.scale-wrap { margin-left: auto; display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 700; color: var(--gray-3); }
+.scale-wrap select { font-size: 14px; border: 2px solid var(--gray-2); border-radius: 7px; padding: 6px 10px; font-family: inherit; background: var(--white); min-height: 38px; }
+
+/* Canvas area */
+#canvas-wrap { position: relative; border: 2.5px solid var(--gray-2); overflow: hidden; background: #faf9f6; border-radius: 0 0 10px 10px; }
+#draw-canvas { display: block; width: 100%; cursor: crosshair; touch-action: none; }
+#canvas-tip  { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; color: var(--gray-3); font-size: 15px; line-height: 1.6; pointer-events: none; padding: 24px; }
+#canvas-tip .ti { font-size: 40px; margin-bottom: 10px; }
+/* Instruction bar that lives BELOW the canvas, never overlaps the drawing */
+#canvas-hint {
+  background: #fdf0f0;
+  border: 1.5px solid var(--gold-lt);
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  padding: 10px 16px;
+  font-size: 14px;
+  color: var(--charcoal);
+  line-height: 1.5;
+  display: none;
+}
+#canvas-hint .hint-icon { font-size: 18px; margin-right: 6px; vertical-align: middle; }
+#canvas-hint strong { color: var(--gold-dk); }
+
+/* Edge label popup */
+#edge-label-ui {
+  display: none;
+  background: var(--charcoal); border-radius: 0 0 10px 10px;
+  padding: 14px 16px; border-top: 3px solid var(--gold);
+}
+.el-title { font-size: 14px; font-weight: 800; color: var(--white); margin-bottom: 10px; letter-spacing: 0.02em; }
+.el-btns  { display: flex; gap: 7px; flex-wrap: wrap; }
+.el-btn   {
+  border: 2px solid transparent; border-radius: 7px;
+  padding: 8px 14px; font-size: 14px; font-weight: 700; cursor: pointer;
+  font-family: inherit; transition: all .15s; min-height: 38px;
+}
+
+/* Canvas summary bar */
+#canvas-summary {
+  display: none;
+  background: var(--charcoal); border-radius: 9px;
+  margin: 10px 0 4px; overflow: hidden;
+}
+#canvas-summary > div:first-child { display: flex; align-items: stretch; }
+.sum-item { flex: 1; text-align: center; padding: 10px 8px; }
+.sum-val  { font-size: 17px; font-weight: 900; color: var(--white); }
+.sum-lbl  { font-size: 10px; color: var(--gold-lt); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin-top: 2px; }
+.sum-div  { width: 1px; background: rgba(255,255,255,0.15); margin: 6px 0; }
+
+/* Legend */
+#edge-legend { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0 6px; }
+.leg-item { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--charcoal); }
+.leg-dot  { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+
+/* Manual measurement */
+.mrow { display: flex; align-items: center; gap: 8px; margin-bottom: 11px; flex-wrap: wrap; }
+.mlbl { font-size: 14px; font-weight: 700; color: var(--gray-3); min-width: 58px; }
+.mx   { font-size: 18px; color: var(--gray-2); font-weight: 300; }
+.msf  { font-size: 14px; color: var(--gray-3); min-width: 74px; }
+.msf span { font-weight: 800; color: var(--charcoal); }
+.rm-sec { background: none; border: none; color: var(--gray-3); font-size: 22px; cursor: pointer; padding: 0 6px; line-height: 1; }
+.rm-sec:hover { color: var(--red); }
+#add-sec-btn { background: none; border: 2px dashed var(--gray-2); border-radius: 9px; padding: 9px 16px; font-size: 15px; color: var(--gray-3); cursor: pointer; transition: all .18s; margin-top: 4px; font-family: inherit; }
+#add-sec-btn:hover { border-color: var(--gold); color: var(--gold-dk); }
+.mtotal { background: var(--gray-1); border-radius: 9px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; margin-top: 12px; }
+.mtotal strong { font-size: 18px; font-weight: 900; }
+
+/* Skip screen */
+#cb-skip { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 40px 28px; text-align: center; }
+.sk-icon  { font-size: 52px; margin-bottom: 14px; }
+.sk-title { font-size: 26px; font-weight: 900; color: var(--charcoal); margin-bottom: 8px; }
+.sk-sub   { font-size: 16px; color: var(--gray-3); line-height: 1.6; margin-bottom: 28px; max-width: 440px; margin-left: auto; margin-right: auto; }
+.sk-opts  { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 22px; }
+.sk-opt   { border: 2.5px solid var(--gray-2); border-radius: 13px; padding: 24px 18px; }
+.sk-opt-icon  { font-size: 36px; margin-bottom: 10px; }
+.sk-opt-title { font-size: 17px; font-weight: 900; color: var(--charcoal); margin-bottom: 6px; }
+.sk-opt-sub   { font-size: 14px; color: var(--gray-3); margin-bottom: 16px; line-height: 1.5; }
+.sk-btn { display: block; width: 100%; border-radius: 9px; padding: 14px; font-size: 16px; font-weight: 800; cursor: pointer; font-family: inherit; transition: all .18s; text-decoration: none; border: none; min-height: 50px; }
+.sk-gold { background: var(--gold); color: var(--white); }
+.sk-gold:hover { background: var(--gold-dk); color: var(--white); }
+.sk-out  { background: none; border: 2.5px solid var(--charcoal) !important; color: var(--charcoal); }
+.sk-out:hover { background: var(--charcoal); color: var(--white); }
+.sk-resume { font-size: 15px; color: var(--gray-3); margin-top: 12px; }
+.sk-resume a { color: var(--gold-dk); cursor: pointer; text-decoration: underline; font-weight: 700; }
+
+/* Thank you */
+#cb-ty { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 44px 28px; text-align: center; }
+.ty-icon  { font-size: 56px; margin-bottom: 14px; }
+.ty-title { font-size: 28px; font-weight: 900; color: var(--charcoal); margin-bottom: 8px; }
+.ty-sub   { font-size: 16px; color: var(--gray-3); line-height: 1.7; max-width: 420px; margin: 0 auto 26px; }
+.ty-est   { background: var(--charcoal); border-radius: 13px; padding: 22px; margin-bottom: 22px; }
+.ty-est-lbl { font-size: 12px; color: var(--gold-lt); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; font-weight: 800; }
+.ty-est-val { font-size: 36px; font-weight: 900; color: var(--white); margin-bottom: 4px; }
+.ty-est-note { font-size: 13px; color: var(--gray-3); }
+.ty-steps { text-align: left; background: var(--gray-1); border-radius: 11px; padding: 20px 22px; margin-bottom: 22px; }
+.ty-step  { display: flex; gap: 14px; margin-bottom: 15px; }
+.ty-step:last-child { margin: 0; }
+.ty-num   { width: 28px; height: 28px; background: var(--gold); border-radius: 50%; font-size: 14px; font-weight: 900; color: var(--white); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.ty-txt   { font-size: 15px; color: var(--charcoal); line-height: 1.5; }
+.ty-txt strong { display: block; font-size: 16px; }
+.ty-cta   { display: block; width: 100%; background: var(--gold); color: var(--white); border: none; border-radius: 11px; padding: 17px; font-size: 18px; font-weight: 900; cursor: pointer; font-family: inherit; transition: all .18s; text-decoration: none; margin-bottom: 10px; min-height: 56px; text-align: center; }
+.ty-cta:hover { background: var(--gold-dk); color: var(--white); }
+.ty-book  { background: var(--gold); font-size: 20px; padding: 20px; margin-bottom: 0; }
+.ty-book:hover { background: var(--gold-dk); }
+.ty-call  { background: transparent; color: var(--gray-3); border: 2px solid var(--gray-2); font-size: 15px; padding: 12px; min-height: auto; margin-top: 0; margin-bottom: 20px; }
+.ty-call:hover { background: var(--gray-1); color: var(--charcoal); }
+.ty-or    { text-align: center; font-size: 13px; color: var(--gray-3); margin: 10px 0; }
+.ty-disc { font-size: 13px; color: var(--gray-3); line-height: 1.6; margin-top: 14px; }
+
+/* Results */
+.res-box   { background: var(--charcoal); border-radius: 13px; padding: 22px; margin-bottom: 18px; text-align: center; }
+.res-lbl   { font-size: 12px; color: var(--gold-lt); letter-spacing: 1px; text-transform: uppercase; font-weight: 800; margin-bottom: 5px; }
+.res-val   { font-size: 38px; font-weight: 900; color: var(--white); margin-bottom: 3px; }
+.res-note  { font-size: 13px; color: var(--gray-3); }
+.res-table { background: var(--gray-1); border-radius: 11px; padding: 14px 18px; margin-bottom: 16px; }
+.res-row   { display: flex; justify-content: space-between; font-size: 15px; padding: 5px 0; border-bottom: 1px solid var(--gray-2); }
+.res-row:last-child { border: none; font-weight: 900; font-size: 16px; padding-top: 10px; }
+.res-row span:first-child { color: var(--gray-3); }
+
+/* Responsive */
+@media (max-width: 540px) {
+  html { font-size: 16px; }
+  .cb-card { padding: 22px 16px 20px; }
+  .opts.c2, .opts.c3 { grid-template-columns: 1fr 1fr; }
+  .field-row { grid-template-columns: 1fr; }
+  .mpath-grid { grid-template-columns: 1fr; }
+  .sk-opts   { grid-template-columns: 1fr; }
+  .canvas-toolbar { flex-wrap: wrap; }
+  #edge-legend { display: none; }
+}
+  </style>
+</head>
+<body>
+<div id="cb-wrap">
+
+  <!-- Header -->
+  <div id="cb-header">
+    <div id="cb-brand">Crafted Backsplash · Omaha &amp; Lincoln, NE</div>
+    <div id="cb-title">Get Your Free Instant Estimate</div>
+    <div id="cb-prog-track" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" aria-label="Estimation progress"><div id="cb-prog-fill" style="width:10%"></div></div>
+    <div id="cb-step-lbl">Step 1 of 10</div>
+  </div>
+
+  <!-- Running estimate bar -->
+  <div id="cb-est-bar" style="display:none">
+    <div>
+      <div class="est-lbl">Current Labor Estimate</div>
+      <div class="est-val" id="est-val">—</div>
+    </div>
+    <div class="est-note" id="est-note"></div>
+  </div>
+
+  <!-- Content -->
+  <div id="cb-content"></div>
+
+  <!-- Navigation -->
+  <div id="cb-nav">
+    <div id="nav-row">
+      <button class="btn-back" id="btn-back" style="display:none">← Back</button>
+      <button class="btn-next" id="btn-next">Continue →</button>
+    </div>
+    <!-- ESCAPE HATCH — large and clearly readable -->
+    <button id="btn-escape" onclick="showSkip()">
+      <span class="esc-icon">📅</span>
+      No time for this — Just schedule a free measure
+    </button>
+  </div>
+
+</div>
+
+<script>
+'use strict';
+
+// ============================================================
+//  CONFIG — update before going live
+// ============================================================
+const CFG = {
+  BRAND:        'Crafted Backsplash',
+  PHONE:        '(402) 555-0000',
+  PHONE_RAW:    '4025550000',
+  CALENDLY:     'https://calendly.com/YOUR_LINK',
+  ZAPIER:       'https://hooks.zapier.com/hooks/catch/YOUR_ID/YOUR_KEY/',
+};
+
+// ============================================================
+//  FORM STATE
+// ============================================================
+const S = {
+  step:         0,
+  firstName:'', lastName:'', phone:'', email:'', address:'', zip:'',
+  measureMode:  null,
+  sqft:         0,
+  tileType:     null, tileFormat: null, pattern:  null,
+  groutJoint:   null, groutType:  null,
+  edgeTreat:    null, trimLinFt:  0,
+  demo:         false, drywallRepair: false, outlets: 0, special: false,
+  surfaceType:  null,   // 'clean' | 'existing-tile' | 'other'
+  timeline:     null,
+  // Photo step
+  tileMode:        'photo',
+  tileUrl:         '',
+  spacePhotoCount: 0,
+  hasTilePhoto:    false,
+};
+
+// File storage — not serializable so kept outside S
+let SPACE_FILES = [];
+let TILE_FILE   = null;
+
+function rerenderPhotoStep() {
+  const st = STEPS[S.step];
+  if (!st || st.badge.indexOf('Step 8')<0) return;
+  const card = document.querySelector('.cb-card');
+  if (!card) return;
+  // Preserve card shell, replace inner HTML
+  card.innerHTML = `<div class="cb-badge">${st.badge}</div>
+    <div class="cb-title">${st.title}</div>
+    <div class="cb-subtitle">${st.sub}</div>
+    ${st.render()}`;
+  if (st.bind) st.bind();
+}
+
+// ============================================================
+//  CANVAS DRAWING STATE
+// ============================================================
+const DS = {
+  canvas: null, ctx: null, W: 0, H: 0,
+  GRID: 24,        // pixels per grid square
+  SCALE: 6,        // inches per grid square
+  tool: 'draw',         // 'draw' | 'select' | 'outlet' | 'switch'
+  shapes: [],           // fully saved sections [{points, sqFt, edgeLabels, outlets, switches}]
+  stagingShape: null,   // closed polygon awaiting full edge labeling before save
+  inProg: [],           // points being placed
+  outlets: [],          // [{x,y}] — for the section currently being built
+  switches: [],         // [{x,y}]
+  selEdge: null,        // {si, ei}  si=-1 means stagingShape
+  selEdgeRaw: null,     // raw mouse position when edge was selected (for split point)
+  hovEdge: null,
+  mouse: null,
+};
+
+const EDGE_DEF = {
+  trim:      { label: 'Open Edge — Needs Trim', short: 'Trim',      col: '#e74c3c' },
+  cabinet:   { label: 'Upper Cabinet Edge',      short: 'Cabinet',   col: '#2980b9' },
+  counter:   { label: 'Countertop Edge',         short: 'Counter',   col: '#8B1A1A' },
+  window:    { label: 'Window Edge',             short: 'Window',    col: '#16a085' },
+  appliance: { label: 'Appliance Edge',          short: 'Appliance', col: '#8e44ad' },
+  corner:    { label: 'Inside Wall Corner',       short: 'Corner',    col: '#d35400' },
+};
+
+// ============================================================
+//  PRICING ENGINE
+// ============================================================
+function calcEst() {
+  const sq   = S.sqft || 30;
+  const bill = sq * 1.12;
+  const base = {ceramic:12,porcelain:15,glass:22,stone:19,mosaic:22,'large-format':18}[S.tileType]||14;
+  const pat  = {straight:1,'running-bond':1,'third-offset':1,'third-stairstep':1,vertical:1.05,diagonal:1.25,herringbone:1.45,chevron:1.65,'random-stone':1.45,hexagon:1.35,penny:1.15,complex:1.80}[S.pattern]||1;
+  const fmt  = {'tiny-mosaic':1.15,subway:1,medium:1,large:1.10,jumbo:1.18}[S.tileFormat]||1;
+  let lab    = bill * base * pat * fmt;
+  if (S.groutType==='epoxy')  lab += bill * 4.0;
+  if (S.demo)                  lab += sq * 10;
+  if (S.drywallRepair)         lab += 225;
+  lab += (S.outlets||0) * 55;
+  const tr = {bullnose:7,'schluter-alum':11,'schluter-accent':14,'pencil-liner':11,mitered:18,none:0}[S.edgeTreat]||0;
+  lab += (S.trimLinFt||0) * tr;
+  const low  = Math.max(300, Math.round(lab*.85/25)*25);
+  const high = Math.round(lab*1.15/25)*25;
+  const mat  = Math.round(sq*({ceramic:5,porcelain:8,glass:20,stone:22,mosaic:14,'large-format':10}[S.tileType]||7)*1.12/25)*25;
+  return { low, high, mat, bill: Math.round(bill) };
+}
+
+const $   = id => document.getElementById(id);
+const fmt = n  => '$' + n.toLocaleString('en-US');
+
+function updEstBar() {
+  if (!S.tileType) { $('cb-est-bar').style.display='none'; return; }
+  const {low,high,bill} = calcEst();
+  $('cb-est-bar').style.display = 'flex';
+  $('est-val').textContent = fmt(low)+' – '+fmt(high);
+  $('est-note').textContent = bill+' sq ft billed';
+}
+
+// ============================================================
+//  SVG ICONS — Pattern previews
+// ============================================================
+const PICONS = {
+  // Straight stack: aligned grid
+  straight: `<svg viewBox="0 0 56 42" width="56" height="42" xmlns="http://www.w3.org/2000/svg">
+    <rect x="1" y="1" width="17" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="20" y="1" width="17" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="39" y="1" width="16" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="1" y="15" width="17" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="20" y="15" width="17" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="39" y="15" width="16" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="1" y="29" width="17" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="20" y="29" width="17" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="39" y="29" width="16" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+  </svg>`,
+
+  // Running bond: 1/2 offset — joints line up every other row
+  'running-bond': `<svg viewBox="0 0 56 42" width="56" height="42" xmlns="http://www.w3.org/2000/svg">
+    <rect x="1"  y="1"  width="17" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="20" y="1"  width="17" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="39" y="1"  width="16" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="-8" y="15" width="17" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="11" y="15" width="17" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="30" y="15" width="17" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="49" y="15" width="8"  height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="1"  y="29" width="17" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="20" y="29" width="17" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="39" y="29" width="16" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+  </svg>`,
+
+  // Running bond 1/3 offset ZIPPER: joints form a continuous diagonal zigzag
+  // Each row alternates between 0 and +1/3 shift (the joint lines "zip" together diagonally)
+  'third-offset': `<svg viewBox="0 0 56 42" width="56" height="42" xmlns="http://www.w3.org/2000/svg">
+    <!-- Row 1: base position -->
+    <rect x="1"  y="1"  width="17" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="20" y="1"  width="17" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="39" y="1"  width="16" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <!-- Row 2: +1/3 offset right -->
+    <rect x="7"  y="15" width="17" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="26" y="15" width="17" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="45" y="15" width="10" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="-10" y="15" width="15" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <!-- Row 3: back to base (zipper — joints return to align with row 1) -->
+    <rect x="1"  y="29" width="17" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="20" y="29" width="17" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="39" y="29" width="16" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+  </svg>`,
+
+  // Running bond 1/3 offset STAIR-STEP: each row advances +1/3, creating a continuous staircase
+  'third-stairstep': `<svg viewBox="0 0 56 42" width="56" height="42" xmlns="http://www.w3.org/2000/svg">
+    <!-- Row 1: base -->
+    <rect x="1"  y="1"  width="17" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="20" y="1"  width="17" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="39" y="1"  width="16" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <!-- Row 2: +1/3 offset -->
+    <rect x="-5" y="15" width="17" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="14" y="15" width="17" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="33" y="15" width="17" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="52" y="15" width="4"  height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <!-- Row 3: +2/3 offset (stair continues in same direction) -->
+    <rect x="-11" y="29" width="17" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="8"  y="29" width="17" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="27" y="29" width="17" height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="46" y="29" width="9"  height="12" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+  </svg>`,
+
+  vertical: `<svg viewBox="0 0 56 42" width="56" height="42" xmlns="http://www.w3.org/2000/svg">
+    <rect x="1"  y="1"  width="12" height="19" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="15" y="1"  width="12" height="19" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="29" y="1"  width="12" height="19" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="43" y="1"  width="12" height="19" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="1"  y="22" width="12" height="19" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="15" y="22" width="12" height="19" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="29" y="22" width="12" height="19" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="43" y="22" width="12" height="19" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+  </svg>`,
+
+  diagonal: `<svg viewBox="0 0 56 42" width="56" height="42" xmlns="http://www.w3.org/2000/svg">
+    <g transform="translate(28,21) rotate(45) translate(-28,-21)">
+    <rect x="-4" y="-4" width="14" height="14" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="12" y="-4" width="14" height="14" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="28" y="-4" width="14" height="14" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="44" y="-4" width="14" height="14" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="-4" y="12" width="14" height="14" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="12" y="12" width="14" height="14" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="28" y="12" width="14" height="14" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="44" y="12" width="14" height="14" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="-4" y="28" width="14" height="14" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="12" y="28" width="14" height="14" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="28" y="28" width="14" height="14" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="44" y="28" width="14" height="14" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    </g>
+  </svg>`,
+
+  // Herringbone: explicit individual rects — no SVG <pattern> element.
+  // Period = 21×28px. L1 group = [HH pair] + [V tile] at right (y=0 and y=28).
+  // L2 group = [V tile] + [HH pair] (y=14), offset by +7 to interlock gap-free.
+  // Tile: H=14×7, V=7×14. All same fill; grout bg shows through 1px insets.
+  herringbone: `<svg viewBox="0 0 56 44" width="56" height="44" xmlns="http://www.w3.org/2000/svg">
+    <rect width="56" height="44" fill="#9a9188"/>
+    <!-- Row 0 — L1 units (HH+V) at x=0, 21, 42 -->
+    <rect x="0.5"  y="0.5"  width="13" height="6"  fill="#e8e2d8"/>
+    <rect x="0.5"  y="7.5"  width="13" height="6"  fill="#e8e2d8"/>
+    <rect x="14.5" y="0.5"  width="6"  height="13" fill="#e8e2d8"/>
+    <rect x="21.5" y="0.5"  width="13" height="6"  fill="#e8e2d8"/>
+    <rect x="21.5" y="7.5"  width="13" height="6"  fill="#e8e2d8"/>
+    <rect x="35.5" y="0.5"  width="6"  height="13" fill="#e8e2d8"/>
+    <rect x="42.5" y="0.5"  width="13" height="6"  fill="#e8e2d8"/>
+    <rect x="42.5" y="7.5"  width="13" height="6"  fill="#e8e2d8"/>
+    <!-- Row 1 — L2 units (V+HH) at x=0, 21, 42 -->
+    <rect x="0.5"  y="14.5" width="6"  height="13" fill="#e8e2d8"/>
+    <rect x="7.5"  y="14.5" width="13" height="6"  fill="#e8e2d8"/>
+    <rect x="7.5"  y="21.5" width="13" height="6"  fill="#e8e2d8"/>
+    <rect x="21.5" y="14.5" width="6"  height="13" fill="#e8e2d8"/>
+    <rect x="28.5" y="14.5" width="13" height="6"  fill="#e8e2d8"/>
+    <rect x="28.5" y="21.5" width="13" height="6"  fill="#e8e2d8"/>
+    <rect x="42.5" y="14.5" width="6"  height="13" fill="#e8e2d8"/>
+    <rect x="49.5" y="14.5" width="13" height="6"  fill="#e8e2d8"/>
+    <rect x="49.5" y="21.5" width="13" height="6"  fill="#e8e2d8"/>
+    <!-- Row 2 — L1 units at y=28 -->
+    <rect x="0.5"  y="28.5" width="13" height="6"  fill="#e8e2d8"/>
+    <rect x="0.5"  y="35.5" width="13" height="6"  fill="#e8e2d8"/>
+    <rect x="14.5" y="28.5" width="6"  height="13" fill="#e8e2d8"/>
+    <rect x="21.5" y="28.5" width="13" height="6"  fill="#e8e2d8"/>
+    <rect x="21.5" y="35.5" width="13" height="6"  fill="#e8e2d8"/>
+    <rect x="35.5" y="28.5" width="6"  height="13" fill="#e8e2d8"/>
+    <rect x="42.5" y="28.5" width="13" height="6"  fill="#e8e2d8"/>
+    <rect x="42.5" y="35.5" width="13" height="6"  fill="#e8e2d8"/>
+  </svg>`,
+
+  // Chevron: individual parallelogram tiles in alternating lean-right / lean-left rows.
+  // Tile: 14 wide × 7 tall, slant=5. 4 tiles/row, 6 rows. Seams create true V-zigzag.
+  // Lean-right row: polygon(14k, y)(14k+14, y)(14k+9, y+7)(14k-5, y+7)
+  // Lean-left  row: polygon(14k-5, y)(14k+9, y)(14k+14, y+7)(14k, y+7)
+  // Rows interlock gap-free; negative x clips cleanly at viewBox edge.
+  chevron: `<svg viewBox="0 0 56 44" width="56" height="44" xmlns="http://www.w3.org/2000/svg" overflow="hidden">
+    <rect width="56" height="44" fill="#9a9188"/>
+    <!-- Row 0 lean-right (y=0–7) -->
+    <polygon points="0,0 14,0 9,7 -5,7"    fill="#e8e2d8" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="14,0 28,0 23,7 9,7"   fill="#e8e2d8" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="28,0 42,0 37,7 23,7"  fill="#e8e2d8" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="42,0 56,0 51,7 37,7"  fill="#e8e2d8" stroke="#9a9188" stroke-width="1"/>
+    <!-- Row 1 lean-left (y=7–14) -->
+    <polygon points="-5,7 9,7 14,14 0,14"   fill="#e8e2d8" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="9,7 23,7 28,14 14,14"  fill="#e8e2d8" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="23,7 37,7 42,14 28,14" fill="#e8e2d8" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="37,7 51,7 56,14 42,14" fill="#e8e2d8" stroke="#9a9188" stroke-width="1"/>
+    <!-- Row 2 lean-right (y=14–21) -->
+    <polygon points="0,14 14,14 9,21 -5,21"   fill="#e8e2d8" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="14,14 28,14 23,21 9,21"  fill="#e8e2d8" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="28,14 42,14 37,21 23,21" fill="#e8e2d8" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="42,14 56,14 51,21 37,21" fill="#e8e2d8" stroke="#9a9188" stroke-width="1"/>
+    <!-- Row 3 lean-left (y=21–28) -->
+    <polygon points="-5,21 9,21 14,28 0,28"   fill="#e8e2d8" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="9,21 23,21 28,28 14,28"  fill="#e8e2d8" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="23,21 37,21 42,28 28,28" fill="#e8e2d8" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="37,21 51,21 56,28 42,28" fill="#e8e2d8" stroke="#9a9188" stroke-width="1"/>
+    <!-- Row 4 lean-right (y=28–35) -->
+    <polygon points="0,28 14,28 9,35 -5,35"   fill="#e8e2d8" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="14,28 28,28 23,35 9,35"  fill="#e8e2d8" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="28,28 42,28 37,35 23,35" fill="#e8e2d8" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="42,28 56,28 51,35 37,35" fill="#e8e2d8" stroke="#9a9188" stroke-width="1"/>
+    <!-- Row 5 lean-left (y=35–42) -->
+    <polygon points="-5,35 9,35 14,42 0,42"   fill="#e8e2d8" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="9,35 23,35 28,42 14,42"  fill="#e8e2d8" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="23,35 37,35 42,42 28,42" fill="#e8e2d8" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="37,35 51,35 56,42 42,42" fill="#e8e2d8" stroke="#9a9188" stroke-width="1"/>
+  </svg>`,
+
+  // Random stone / ledger: irregular organic polygon shapes
+  'random-stone': `<svg viewBox="0 0 56 44" width="56" height="44" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="1,1   22,1  24,10  8,12  1,8"   fill="#d4ccc0" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="24,1  40,1  42,8  28,12  24,10" fill="#c8c0b4" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="41,1  55,4  55,14 38,14 40,8"   fill="#ddd6cc" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="1,13  8,13  14,8  28,13 22,22  6,20  1,16"  fill="#c0b8ac" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="28,13 38,15 36,24 20,23 22,22"  fill="#d4ccc0" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="38,15 55,15 55,26 40,26 36,24"  fill="#ccc4b8" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="1,21  6,21  14,26 10,32 1,30"   fill="#ddd6cc" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="6,21  20,24 24,30 14,34 10,32 14,26" fill="#c8c0b4" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="20,24 36,25 38,34 24,36 24,30"  fill="#d4ccc0" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="36,25 55,27 55,38 38,36 38,34"  fill="#c0b8ac" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="1,31  10,33 14,35 8,42  1,42"   fill="#ccc4b8" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="10,33 24,37 22,43 8,43  8,42"   fill="#d4ccc0" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="24,37 38,37 40,43 22,43"         fill="#ddd6cc" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="38,37 55,39 55,43 40,43"         fill="#c8c0b4" stroke="#9a9188" stroke-width="1"/>
+  </svg>`,
+
+  // Penny / mosaic round: circles in an offset grid
+  penny: `<svg viewBox="0 0 56 44" width="56" height="44" xmlns="http://www.w3.org/2000/svg">
+    <!-- Row 1 circles -->
+    <circle cx="6"  cy="6"  r="5" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <circle cx="17" cy="6"  r="5" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <circle cx="28" cy="6"  r="5" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <circle cx="39" cy="6"  r="5" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <circle cx="50" cy="6"  r="5" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <!-- Row 2: offset by half -->
+    <circle cx="1"  cy="17" r="5" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <circle cx="11" cy="17" r="5" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <circle cx="22" cy="17" r="5" fill="#d4ccc0" stroke="#9a9188" stroke-width="1"/>
+    <circle cx="33" cy="17" r="5" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <circle cx="44" cy="17" r="5" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <circle cx="55" cy="17" r="5" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <!-- Row 3 -->
+    <circle cx="6"  cy="28" r="5" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <circle cx="17" cy="28" r="5" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <circle cx="28" cy="28" r="5" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <circle cx="39" cy="28" r="5" fill="#d4ccc0" stroke="#9a9188" stroke-width="1"/>
+    <circle cx="50" cy="28" r="5" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <!-- Row 4: offset -->
+    <circle cx="1"  cy="39" r="5" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <circle cx="11" cy="39" r="5" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <circle cx="22" cy="39" r="5" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <circle cx="33" cy="39" r="5" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <circle cx="44" cy="39" r="5" fill="#d4ccc0" stroke="#9a9188" stroke-width="1"/>
+    <circle cx="55" cy="39" r="5" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+  </svg>`,
+
+  // Hexagon: six-sided honeycomb tiles
+  hexagon: `<svg viewBox="0 0 56 44" width="56" height="44" xmlns="http://www.w3.org/2000/svg">
+    <defs><clipPath id="hxclip"><rect width="56" height="44"/></clipPath></defs>
+    <g clip-path="url(#hxclip)">
+    <!-- Flat-top hexagons in honeycomb offset grid. Hex size r=9 (center-to-vertex) -->
+    <!-- Row 1: centers at y=9, x=10,28,46 -->
+    <polygon points="10,0  19,5  19,15  10,20  1,15  1,5"   fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="28,0  37,5  37,15  28,20  19,15 19,5"  fill="#d4ccc0" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="46,0  55,5  55,15  46,20  37,15 37,5"  fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <!-- Row 2: centers at y=24, x=1,19,37,55 (offset by half-hex width) -->
+    <polygon points="1,17   10,22  10,32  1,37  -8,32  -8,22" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="19,17  28,22  28,32  19,37  10,32  10,22" fill="#ddd6cc" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="37,17  46,22  46,32  37,37  28,32  28,22" fill="#d4ccc0" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="55,17  64,22  64,32  55,37  46,32  46,22" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <!-- Row 3: same x as row 1 -->
+    <polygon points="10,34  19,39  19,49  10,54  1,49   1,39"  fill="#d4ccc0" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="28,34  37,39  37,49  28,54  19,49  19,39" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <polygon points="46,34  55,39  55,49  46,54  37,49  37,39" fill="#ddd6cc" stroke="#9a9188" stroke-width="1"/>
+    </g>
+  </svg>`,
+
+  complex: `<svg viewBox="0 0 56 42" width="56" height="42" xmlns="http://www.w3.org/2000/svg">
+    <rect x="18" y="14" width="20" height="14" rx="1" fill="#8B1A1A" stroke="#5c0f0f" stroke-width="1.5"/>
+    <rect x="1" y="1" width="16" height="11" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="1" y="14" width="16" height="11" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="1" y="27" width="16" height="14" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="39" y="1" width="16" height="11" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="39" y="14" width="16" height="11" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="39" y="27" width="16" height="14" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="18" y="1" width="20" height="11" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="18" y="30" width="20" height="11" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+  </svg>`,
+};
+
+// tile type shapes (tile material — step 2)
+const TICONS = {
+  ceramic:       `<svg viewBox="0 0 40 40" width="40" height="40"><rect x="2" y="2" width="36" height="36" rx="3" fill="#d4c4b0" stroke="#a09080" stroke-width="1.5"/><rect x="6" y="6" width="28" height="28" rx="2" fill="#e8ddd0"/></svg>`,
+  porcelain:     `<svg viewBox="0 0 40 40" width="40" height="40"><rect x="2" y="2" width="36" height="36" rx="1" fill="#f0f0f0" stroke="#c0c0c0" stroke-width="1.5"/></svg>`,
+  glass:         `<svg viewBox="0 0 40 40" width="40" height="40"><rect x="2" y="2" width="36" height="36" rx="3" fill="#a8d4e8" fill-opacity=".7" stroke="#4a90d9" stroke-width="1.5"/><rect x="6" y="5" width="10" height="6" rx="2" fill="#fff" fill-opacity=".5"/></svg>`,
+  stone:         `<svg viewBox="0 0 40 40" width="40" height="40"><rect x="2" y="2" width="36" height="36" rx="2" fill="#c8c0b4" stroke="#908880" stroke-width="1.5"/><line x1="2" y1="14" x2="38" y2="10" stroke="#a09888" stroke-width="1.5"/><line x1="2" y1="26" x2="38" y2="30" stroke="#a09888" stroke-width="1"/><line x1="14" y1="2" x2="10" y2="38" stroke="#a09888" stroke-width="0.8"/><line x1="28" y1="2" x2="30" y2="38" stroke="#a09888" stroke-width="0.8"/></svg>`,
+  mosaic:        `<svg viewBox="0 0 40 40" width="40" height="40"><rect x="1" y="1" width="8" height="8" rx="1" fill="#d4c4b0" stroke="#a09080" stroke-width=".8"/><rect x="11" y="1" width="8" height="8" rx="1" fill="#8B1A1A" stroke="#5c0f0f" stroke-width=".8"/><rect x="21" y="1" width="8" height="8" rx="1" fill="#d4c4b0" stroke="#a09080" stroke-width=".8"/><rect x="31" y="1" width="8" height="8" rx="1" fill="#d4c4b0" stroke="#a09080" stroke-width=".8"/><rect x="1" y="11" width="8" height="8" rx="1" fill="#d4c4b0" stroke="#a09080" stroke-width=".8"/><rect x="11" y="11" width="8" height="8" rx="1" fill="#d4c4b0" stroke="#a09080" stroke-width=".8"/><rect x="21" y="11" width="8" height="8" rx="1" fill="#4a90d9" fill-opacity=".7" stroke="#2060a0" stroke-width=".8"/><rect x="31" y="11" width="8" height="8" rx="1" fill="#d4c4b0" stroke="#a09080" stroke-width=".8"/><rect x="1" y="21" width="8" height="8" rx="1" fill="#d4c4b0" stroke="#a09080" stroke-width=".8"/><rect x="11" y="21" width="8" height="8" rx="1" fill="#d4c4b0" stroke="#a09080" stroke-width=".8"/><rect x="21" y="21" width="8" height="8" rx="1" fill="#d4c4b0" stroke="#a09080" stroke-width=".8"/><rect x="31" y="21" width="8" height="8" rx="1" fill="#8B1A1A" stroke="#5c0f0f" stroke-width=".8"/><rect x="1" y="31" width="8" height="8" rx="1" fill="#8B1A1A" stroke="#5c0f0f" stroke-width=".8"/><rect x="11" y="31" width="8" height="8" rx="1" fill="#d4c4b0" stroke="#a09080" stroke-width=".8"/><rect x="21" y="31" width="8" height="8" rx="1" fill="#d4c4b0" stroke="#a09080" stroke-width=".8"/><rect x="31" y="31" width="8" height="8" rx="1" fill="#d4c4b0" stroke="#a09080" stroke-width=".8"/></svg>`,
+  'large-format': `<svg viewBox="0 0 40 40" width="40" height="40"><rect x="1" y="1" width="23" height="37" rx="2" fill="#f4f2ee" stroke="#c0bab2" stroke-width="1.5"/><rect x="26" y="1" width="13" height="37" rx="2" fill="#e8e5e0" stroke="#c0bab2" stroke-width="1.5"/></svg>`,
+};
+
+// tile FORMAT size icons (step 3 — shows relative scale, not material)
+const FICONS = {
+  // Tiny mosaic: many small tiles in a tight grid — under 3" pieces
+  'tiny-mosaic': `<svg viewBox="0 0 40 40" width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+    ${[0,1,2,3,4,5].map(r=>[0,1,2,3,4,5].map(c=>`<rect x="${1+c*7}" y="${1+r*7}" width="5" height="5" rx="0.5" fill="#e8e0d4" stroke="#9a9188" stroke-width="0.6"/>`).join('')).join('')}
+  </svg>`,
+  // Subway: 3×6" ratio (2:1) tiles — our most common format
+  subway: `<svg viewBox="0 0 40 40" width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+    <rect x="1"  y="1"  width="18" height="9"  rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="21" y="1"  width="18" height="9"  rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="1"  y="12" width="18" height="9"  rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="21" y="12" width="18" height="9"  rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="1"  y="23" width="18" height="9"  rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="21" y="23" width="18" height="9"  rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="1"  y="34" width="18" height="5"  rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="21" y="34" width="18" height="5"  rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+  </svg>`,
+  // Medium format: 6×6" to 6×18" — fewer tiles, bigger pieces
+  medium: `<svg viewBox="0 0 40 40" width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+    <rect x="1"  y="1"  width="17" height="14" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="20" y="1"  width="19" height="14" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="1"  y="17" width="17" height="14" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="20" y="17" width="19" height="14" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="1"  y="33" width="17" height="6"  rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+    <rect x="20" y="33" width="19" height="6"  rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1"/>
+  </svg>`,
+  // Large format: 12×12" to 12×36" — big tiles, very few joints
+  large: `<svg viewBox="0 0 40 40" width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+    <rect x="1"  y="1"  width="28" height="18" rx="1" fill="#f4f2ee" stroke="#c0bab2" stroke-width="1.5"/>
+    <rect x="31" y="1"  width="8"  height="18" rx="1" fill="#eceae6" stroke="#c0bab2" stroke-width="1.5"/>
+    <rect x="1"  y="21" width="28" height="18" rx="1" fill="#eceae6" stroke="#c0bab2" stroke-width="1.5"/>
+    <rect x="31" y="21" width="8"  height="18" rx="1" fill="#f4f2ee" stroke="#c0bab2" stroke-width="1.5"/>
+  </svg>`,
+  // Jumbo slab: 18×18" to 24×48" — one or two pieces cover the whole wall
+  jumbo: `<svg viewBox="0 0 40 40" width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+    <rect x="1"  y="1"  width="37" height="37" rx="2" fill="#f4f2ee" stroke="#c0bab2" stroke-width="2"/>
+    <line x1="1" y1="20" x2="38" y2="20" stroke="#d8d4ce" stroke-width="1"/>
+  </svg>`,
+};
+
+// ============================================================
+//  OPTION + BIND HELPERS
+// ============================================================
+function opt(key, val, icon, label, sub, cost='', tip='') {
+  const isSvg = icon.startsWith('<svg');
+  const iconHtml = isSvg ? `<div class="opt-icon">${icon}</div>` : `<div class="opt-icon" style="font-size:28px;margin-bottom:8px">${icon}</div>`;
+  const sel = S[key] === val ? ' sel' : '';
+  return `<div class="opt${sel}" data-key="${key}" data-val="${val}">
+    ${iconHtml}
+    <div class="opt-label">${label}</div>
+    <div class="opt-sub">${sub}</div>
+    ${cost ? `<div class="opt-cost">${cost}</div>` : ''}
+    ${tip  ? `<div class="opt-tip">${tip}</div>`  : ''}
+  </div>`;
+}
+
+function bindOpts(key) {
+  document.querySelectorAll(`.opt[data-key="${key}"]`).forEach(el => {
+    el.addEventListener('click', () => {
+      document.querySelectorAll(`.opt[data-key="${key}"]`).forEach(x => x.classList.remove('sel'));
+      el.classList.add('sel');
+      S[key] = el.dataset.val;
+      updEstBar();
+      document.dispatchEvent(new Event('opt-ch'));
+    });
+  });
+}
+
+// ============================================================
+//  CANVAS FUNCTIONS
+// ============================================================
+function initCanvas() {
+  const c = $('draw-canvas');
+  if (!c) return;
+  DS.canvas = c;
+  const wrap = c.parentElement;
+  const W = wrap.clientWidth;
+  const H = Math.max(300, Math.round(W * 0.6));
+  const dpr = window.devicePixelRatio || 1;
+  c.style.width  = W + 'px';
+  c.style.height = H + 'px';
+  c.width  = W * dpr;
+  c.height = H * dpr;
+  const ctx = c.getContext('2d');
+  ctx.scale(dpr, dpr);
+  DS.ctx = ctx; DS.W = W; DS.H = H;
+
+  c.addEventListener('click',      e => canvasClick(e));
+  c.addEventListener('dblclick',   () => { if (DS.tool==='draw' && DS.inProg.length>=3) closePoly(); });
+  c.addEventListener('mousemove',  e => canvasMove(e));
+  c.addEventListener('mouseleave', () => { DS.mouse=null; DS.hovEdge=null; draw(); });
+  c.addEventListener('touchstart', e => { e.preventDefault(); canvasTouch(e); }, {passive:false});
+  c.addEventListener('touchmove',  e => {
+    e.preventDefault();
+    if (DS.tool==='select' && !splitModeEdge) {
+      const raw = cPos(e);
+      DS.mouse = raw;
+      DS.hovEdge = nearestEdge(raw.x, raw.y);
+      draw();
+    }
+  }, {passive:false});
+
+  draw();
+  tipUpdate();
+  summaryUpdate();
+}
+
+function cPos(e) {
+  const r = DS.canvas.getBoundingClientRect();
+  const cx = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+  const cy = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
+  return {x:cx, y:cy};
+}
+
+function snap(p) { return {x: Math.round(p.x/DS.GRID)*DS.GRID, y: Math.round(p.y/DS.GRID)*DS.GRID}; }
+
+function canvasTouch(e) {
+  const raw = cPos(e);
+  const p   = snap(raw);
+  if (DS.tool==='draw')        processClick(p, raw);
+  else if (DS.tool==='select') selectClick(raw);
+  else if (DS.tool==='outlet') { DS.outlets.push(p); syncFromCanvas(); draw(); summaryUpdate(); }
+  else if (DS.tool==='switch') { DS.switches.push(p); syncFromCanvas(); draw(); summaryUpdate(); }
+}
+function canvasClick(e) {
+  const raw = cPos(e);
+  const p   = snap(raw);
+  if (DS.tool==='draw')     processClick(p, raw);
+  else if (DS.tool==='select')   selectClick(raw);
+  else if (DS.tool==='outlet')   { DS.outlets.push(p); syncFromCanvas(); draw(); summaryUpdate(); }
+  else if (DS.tool==='switch')   { DS.switches.push(p); syncFromCanvas(); draw(); summaryUpdate(); }
+}
+
+function canvasMove(e) {
+  const raw = cPos(e);
+  if (DS.tool==='draw')   { DS.mouse = snap(raw); DS.hovEdge=null; }
+  else if (DS.tool==='select') {
+    DS.mouse = raw;
+    // In split mode, don't change hovEdge — just update mouse for preview dot
+    if (!splitModeEdge) DS.hovEdge = nearestEdge(raw.x, raw.y);
+  }
+  else { DS.mouse = snap(raw); }
+  draw();
+}
+
+function processClick(p, raw) {
+  if (DS.inProg.length >= 3) {
+    const f = DS.inProg[0];
+    if (Math.hypot(p.x-f.x, p.y-f.y) <= DS.GRID) { closePoly(); return; }
+  }
+  DS.inProg.push(p);
+  draw();
+  tipUpdate();
+}
+
+function closePoly() {
+  if (DS.inProg.length < 3) return;
+  const pts  = DS.inProg.slice();
+  const pxA  = shoelace(pts);
+  const ip   = DS.SCALE / DS.GRID;
+  const sqFt = +(pxA * ip * ip / 144).toFixed(1);
+  // Place in staging — user must label all edges before saving
+  DS.stagingShape = { points: pts, sqFt, edgeLabels: {} };
+  DS.inProg = [];
+  // Auto-switch to label mode so user sees edge-labeling UI
+  setTool('select');
+  syncFromCanvas();
+  draw(); tipUpdate(); summaryUpdate();
+}
+
+function shoelace(pts) {
+  let a = 0;
+  for (let i=0; i<pts.length; i++) {
+    const j = (i+1)%pts.length;
+    a += pts[i].x*pts[j].y - pts[j].x*pts[i].y;
+  }
+  return Math.abs(a)/2;
+}
+
+function syncFromCanvas() {
+  // sq ft = all saved sections + staging (if present)
+  const allShapes = [...DS.shapes, ...(DS.stagingShape ? [DS.stagingShape] : [])];
+  S.sqft = allShapes.reduce((t,s) => t+s.sqFt, 0);
+  // trim linear footage from all labeled 'trim' edges
+  let lf = 0;
+  allShapes.forEach(sh => {
+    const n = sh.points.length;
+    for (let i=0; i<n; i++) {
+      if (sh.edgeLabels[i]==='trim') {
+        const j=(i+1)%n, p1=sh.points[i], p2=sh.points[j];
+        lf += Math.hypot(p2.x-p1.x, p2.y-p1.y) * (DS.SCALE/DS.GRID) / 12;
+      }
+    }
+  });
+  S.trimLinFt = +lf.toFixed(1);
+  // Outlets = current canvas + all saved sections' outlets
+  S.outlets = DS.outlets.length + DS.switches.length
+    + DS.shapes.reduce((t,s) => t + (s.outlets||[]).length + (s.switches||[]).length, 0);
+  updEstBar();
+}
+
+// Edge hit-test
+function distSeg(px,py,x1,y1,x2,y2) {
+  const dx=x2-x1, dy=y2-y1, l2=dx*dx+dy*dy;
+  if (!l2) return Math.hypot(px-x1,py-y1);
+  const t=Math.max(0,Math.min(1,((px-x1)*dx+(py-y1)*dy)/l2));
+  return Math.hypot(px-(x1+t*dx), py-(y1+t*dy));
+}
+function nearestEdge(mx,my, hitRadius=20) {
+  let best=null, bd=hitRadius;
+  // Check stagingShape first (si=-1)
+  if (DS.stagingShape) {
+    const sh=DS.stagingShape, n=sh.points.length;
+    for (let i=0; i<n; i++) {
+      const j=(i+1)%n, p1=sh.points[i], p2=sh.points[j];
+      const d=distSeg(mx,my,p1.x,p1.y,p2.x,p2.y);
+      if (d<bd) { bd=d; best={si:-1,ei:i}; }
+    }
+  }
+  // Saved shapes are not rendered on canvas so they are not selectable
+  return best;
+}
+
+function selectClick(raw) {
+  // In split mode: a click places the split at the hovered point on the selected edge
+  if (splitModeEdge) {
+    const {si, ei} = splitModeEdge;
+    const sh = si===-1 ? DS.stagingShape : DS.shapes[si];
+    if (sh) {
+      const n=sh.points.length, p1=sh.points[ei], p2=sh.points[(ei+1)%n];
+      // Only execute if click is near the edge (within 20px)
+      const d = distSeg(raw.x,raw.y,p1.x,p1.y,p2.x,p2.y);
+      if (d < 20) {
+        // Store the raw point so splitEdge uses it
+        DS.selEdgeRaw = raw;
+        splitEdge(si, ei);
+        return;
+      }
+    }
+    return; // ignore clicks away from edge while in split mode
+  }
+
+  // Delete outlet/switch if clicked
+  for (let i=DS.outlets.length-1; i>=0; i--) {
+    if (Math.hypot(raw.x-DS.outlets[i].x, raw.y-DS.outlets[i].y) < 18) {
+      DS.outlets.splice(i,1); syncFromCanvas(); draw(); summaryUpdate(); return;
+    }
+  }
+  for (let i=DS.switches.length-1; i>=0; i--) {
+    if (Math.hypot(raw.x-DS.switches[i].x, raw.y-DS.switches[i].y) < 18) {
+      DS.switches.splice(i,1); syncFromCanvas(); draw(); summaryUpdate(); return;
+    }
+  }
+  const e = nearestEdge(raw.x, raw.y);
+  DS.selEdge = e || null;
+  DS.selEdgeRaw = e ? raw : null;
+  e ? showEdgeLblUI(e) : hideEdgeLblUI();
+  draw();
+}
+
+window.setEdgeLabel = function(si, ei, lbl) {
+  const sh = si===-1 ? DS.stagingShape : DS.shapes[si];
+  if (!sh) return;
+  if (lbl==='clear') delete sh.edgeLabels[ei];
+  else sh.edgeLabels[ei] = lbl;
+  DS.selEdge = null;
+  hideEdgeLblUI();
+  syncFromCanvas();
+  draw(); summaryUpdate();
+};
+
+// Split the selected edge at the click point into two separately-labelable sub-edges
+window.splitEdge = function(si, ei) {
+  const sh = si===-1 ? DS.stagingShape : DS.shapes[si];
+  if (!sh) return;
+  const n  = sh.points.length;
+  const p1 = sh.points[ei], p2 = sh.points[(ei+1)%n];
+  // Project raw click onto edge segment, snap to grid
+  let splitPt;
+  if (DS.selEdgeRaw) {
+    const dx=p2.x-p1.x, dy=p2.y-p1.y, l2=dx*dx+dy*dy;
+    const t = l2>0 ? Math.max(0.15, Math.min(0.85, ((DS.selEdgeRaw.x-p1.x)*dx+(DS.selEdgeRaw.y-p1.y)*dy)/l2)) : 0.5;
+    splitPt = { x: Math.round((p1.x+t*dx)/DS.GRID)*DS.GRID, y: Math.round((p1.y+t*dy)/DS.GRID)*DS.GRID };
+  } else {
+    splitPt = { x: Math.round((p1.x+p2.x)/2/DS.GRID)*DS.GRID, y: Math.round((p1.y+p2.y)/2/DS.GRID)*DS.GRID };
+  }
+  // Insert split point after ei
+  sh.points.splice(ei+1, 0, splitPt);
+  // Shift all edge label indices > ei up by one; ei keeps its old label, ei+1 (new) is unlabeled
+  const rebuilt = {};
+  Object.entries(sh.edgeLabels).forEach(([k,v]) => {
+    const ki = parseInt(k);
+    rebuilt[ki <= ei ? ki : ki+1] = v;
+  });
+  sh.edgeLabels = rebuilt;
+  // Recalculate sqFt
+  const ip = DS.SCALE/DS.GRID;
+  sh.sqFt = +(shoelace(sh.points)*ip*ip/144).toFixed(1);
+  splitModeEdge = null;
+  if (DS.canvas) DS.canvas.style.cursor = 'pointer';
+  // Auto-select the first half so user can label it immediately
+  DS.selEdge    = {si, ei};
+  DS.selEdgeRaw = null;
+  hideEdgeLblUI();
+  syncFromCanvas(); draw(); summaryUpdate();
+  // Show label UI for the newly split first edge
+  showEdgeLblUI({si, ei});
+};
+
+// Save the staging section — only when all edges are labeled
+// Edit a saved section: pull it back onto canvas as staging shape for relabeling
+window.editSection = function(idx) {
+  if (DS.stagingShape || DS.inProg.length > 0) {
+    if (!confirm('You have an unsaved section in progress. Discard it and edit Section ' + (idx+1) + ' instead?')) return;
+  }
+  const sh = DS.shapes.splice(idx, 1)[0]; // remove from saved
+  DS.stagingShape = { points: sh.points.slice(), sqFt: sh.sqFt, edgeLabels: Object.assign({}, sh.edgeLabels) };
+  DS.outlets  = (sh.outlets  || []).slice();
+  DS.switches = (sh.switches || []).slice();
+  DS.inProg   = [];
+  DS.selEdge  = null;
+  hideEdgeLblUI();
+  setTool('select'); // go straight to label mode so user can edit edges
+  syncFromCanvas(); draw(); tipUpdate(); summaryUpdate();
+};
+
+window.saveSection = function() {
+  if (!DS.stagingShape) return;
+  const n = DS.stagingShape.points.length;
+  if (Object.keys(DS.stagingShape.edgeLabels).length < n) {
+    alert('Please label all edges before saving this section. Click each edge (line) to assign what it meets.');
+    return;
+  }
+  // Attach the current outlets/switches to this section, then clear them
+  DS.stagingShape.outlets  = DS.outlets.slice();
+  DS.stagingShape.switches = DS.switches.slice();
+  DS.shapes.push(DS.stagingShape);
+  DS.stagingShape = null;
+  DS.inProg   = [];
+  DS.outlets  = [];
+  DS.switches = [];
+  DS.selEdge  = null;
+  hideEdgeLblUI();
+  setTool('draw');
+  syncFromCanvas(); draw(); tipUpdate(); summaryUpdate();
+};
+
+// Split mode state: when active, next canvas click on selected edge places the split
+let splitModeEdge = null; // {si, ei} — the edge being split
+
+function showEdgeLblUI(edge) {
+  const el = $('edge-label-ui'); if (!el) return;
+  const sh  = edge.si===-1 ? DS.stagingShape : DS.shapes[edge.si];
+  if (!sh) return;
+  const cur = sh.edgeLabels[edge.ei];
+  const n   = sh.points.length;
+  const p1  = sh.points[edge.ei], p2 = sh.points[(edge.ei+1)%n];
+  const lenIn = (Math.hypot(p2.x-p1.x,p2.y-p1.y) * (DS.SCALE/DS.GRID)).toFixed(0);
+  splitModeEdge = null; // reset split mode when showing normal label UI
+  el.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+      <div class="el-title" style="margin:0">📍 What is this edge? <span style="font-size:12px;color:#aaa;font-weight:400">${lenIn}" long</span></div>
+      <button class="el-btn" onclick="enterSplitMode(${edge.si},${edge.ei})"
+        style="background:#2a2a2a;color:#8B1A1A;border-color:#8B1A1A;font-size:13px"
+        title="Divide this edge into two separately-labeled segments">
+        ✂ Split edge
+      </button>
+    </div>
+    <div class="el-btns">
+      ${Object.entries(EDGE_DEF).map(([k,v]) => `
+        <button class="el-btn" onclick="setEdgeLabel(${edge.si},${edge.ei},'${k}')"
+          style="background:${cur===k?v.col:'#3a3a3a'};color:#fff;border-color:${v.col}">
+          ${v.label}
+        </button>`).join('')}
+      ${cur ? `<button class="el-btn" onclick="setEdgeLabel(${edge.si},${edge.ei},'clear')"
+        style="background:none;color:#888;border-color:#555">✕ Clear</button>` : ''}
+    </div>
+    ${cur==='corner' ? `<div style="font-size:12px;color:#d35400;margin-top:9px;line-height:1.5">
+      ↳ Inside corners are caulked (not grouted) to allow flex as the house settles — included in standard labor.
+    </div>` : ''}`;
+  el.style.display = 'block';
+}
+
+window.enterSplitMode = function(si, ei) {
+  splitModeEdge = {si, ei};
+  const el = $('edge-label-ui'); if (!el) return;
+  el.innerHTML = `
+    <div style="margin-bottom:10px">
+      <div class="el-title" style="margin-bottom:6px">✂ Split mode — click exactly where you want to divide this edge</div>
+      <div style="font-size:13px;color:#8B1A1A;line-height:1.5">
+        Hover over the edge on the canvas above — you'll see a <strong style="color:#8B1A1A">red dot</strong> preview.<br>
+        Click the edge at the point where you want to split it into two separately-labeled segments.
+      </div>
+    </div>
+    <div style="margin-top:8px">
+      <button class="el-btn" onclick="cancelSplitMode()"
+        style="background:none;color:#888;border-color:#555">✕ Cancel split</button>
+    </div>`;
+  el.style.display = 'block';
+  // Switch cursor to crosshair to signal split mode
+  if (DS.canvas) DS.canvas.style.cursor = 'crosshair';
+};
+
+window.cancelSplitMode = function() {
+  splitModeEdge = null;
+  if (DS.selEdge) showEdgeLblUI(DS.selEdge);
+  else hideEdgeLblUI();
+  if (DS.canvas) DS.canvas.style.cursor = 'pointer';
+};
+
+function hideEdgeLblUI() {
+  splitModeEdge = null;
+  const el=$('edge-label-ui'); if(el) el.style.display='none';
+}
+
+window.setTool = function(t) {
+  DS.tool = t; DS.selEdge=null; hideEdgeLblUI();
+  document.querySelectorAll('.tool-btn').forEach(b => b.classList.toggle('active', b.dataset.tool===t));
+  DS.canvas.style.cursor = t==='draw' ? 'crosshair' : t==='select' ? 'pointer' : 'cell';
+  draw();
+};
+
+window.undoCanvas = function() {
+  if (DS.inProg.length>0) { DS.inProg.pop(); }
+  else if (DS.shapes.length>0) {
+    const last = DS.shapes.pop();
+    DS.inProg = last.points;
+  }
+  syncFromCanvas(); draw(); tipUpdate(); summaryUpdate();
+};
+window.clearCanvas = function() {
+  if (!confirm('Clear everything — all sections and drawings?')) return;
+  DS.shapes=[]; DS.stagingShape=null; DS.inProg=[]; DS.outlets=[]; DS.switches=[];
+  DS.selEdge=null; DS.selEdgeRaw=null; hideEdgeLblUI();
+  syncFromCanvas(); draw(); tipUpdate(); summaryUpdate();
+};
+window.changeScale = function(v) {
+  const old=DS.SCALE; DS.SCALE=parseInt(v);
+  const ratio = old / DS.SCALE;  // e.g. 6→12 = 0.5, so points shrink to represent same real area
+  const rescalePt = p => ({ x: Math.round(p.x*ratio/DS.GRID)*DS.GRID, y: Math.round(p.y*ratio/DS.GRID)*DS.GRID });
+  DS.shapes  = DS.shapes.map(sh => {
+    const pts = sh.points.map(rescalePt);
+    const pxA = shoelace(pts), ip = DS.SCALE/DS.GRID;
+    return { ...sh, points: pts, sqFt: +(pxA*ip*ip/144).toFixed(1) };
+  });
+  DS.inProg   = DS.inProg.map(rescalePt);
+  DS.outlets  = DS.outlets.map(rescalePt);
+  DS.switches = DS.switches.map(rescalePt);
+  syncFromCanvas(); draw(); summaryUpdate();
+};
+
+function tipUpdate() {
+  const tip  = $('canvas-tip');
+  const hint = $('canvas-hint');
+
+  // The in-canvas overlay: only show on a completely empty canvas
+  if (tip) {
+    if (DS.shapes.length===0 && DS.inProg.length===0 && !DS.stagingShape) {
+      tip.style.display='block';
+    } else {
+      tip.style.display='none';
+    }
+  }
+
+  // The hint bar below the canvas: contextual guidance that never blocks the drawing
+  if (!hint) return;
+  if (DS.stagingShape) {
+    const n    = DS.stagingShape.points.length;
+    const done = Object.keys(DS.stagingShape.edgeLabels).length;
+    const left = n - done;
+    hint.style.display = 'block';
+    hint.innerHTML = `<span class="hint-icon">👆</span>
+      <strong>Label all edges before saving.</strong>
+      Click each <span style="color:#e8823a;font-weight:700">orange dashed edge</span> to set its border type.
+      ${left > 0 ? `<strong style="color:#e8823a">${left} edge${left>1?'s':''} remaining.</strong>` : '<strong style="color:#27ae60">All edges labeled — ready to save!</strong>'}
+      &nbsp;·&nbsp; Use <strong>✂ Split here</strong> if one line has two different borders.`;
+  } else if (DS.shapes.length > 0 && DS.inProg.length === 0) {
+    hint.style.display = 'block';
+    hint.innerHTML = `<span class="hint-icon">✅</span>
+      <strong>Section ${DS.shapes.length} saved.</strong>
+      Click <strong>+ Add Another Section</strong> below to trace the next wall area, or hit <strong>Continue</strong> when you're done.`;
+  } else if (DS.inProg.length > 0) {
+    hint.style.display = 'block';
+    hint.innerHTML = `<span class="hint-icon">✏️</span>
+      Keep clicking corners to trace the perimeter.
+      Click near the <strong style="color:#8B1A1A">red starting dot</strong> (or double-click) to close the shape.`;
+  } else {
+    hint.style.display = 'none';
+  }
+}
+
+function summaryUpdate() {
+  const el=$('canvas-summary'); if(!el) return;
+  const hasSaved   = DS.shapes.length > 0;
+  const hasStaging = !!DS.stagingShape;
+  if (!hasSaved && !hasStaging) { el.style.display='none'; return; }
+
+  // Totals across all saved sections
+  const savedTot = DS.shapes.reduce((t,s)=>t+s.sqFt,0);
+  let trimLf=0;
+  DS.shapes.forEach(sh=>{
+    const n=sh.points.length;
+    for(let i=0;i<n;i++){
+      if(sh.edgeLabels[i]==='trim'){
+        const j=(i+1)%n,p1=sh.points[i],p2=sh.points[j];
+        trimLf+=Math.hypot(p2.x-p1.x,p2.y-p1.y)*(DS.SCALE/DS.GRID)/12;
+      }
+    }
+  });
+  const savedOutlets = DS.shapes.reduce((t,s)=>t+(s.outlets||[]).length+(s.switches||[]).length,0);
+
+  // Staging shape progress
+  let stagingBlock = '';
+  if (hasStaging) {
+    const sh = DS.stagingShape;
+    const totalEdges   = sh.points.length;
+    const labeledEdges = Object.keys(sh.edgeLabels).length;
+    const done         = labeledEdges >= totalEdges;
+    const pct          = Math.round(labeledEdges/totalEdges*100);
+    stagingBlock = `
+      <div style="padding:14px 16px;border-top:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:13px;font-weight:800;color:var(--gold-lt)">Section ${DS.shapes.length+1} — ${sh.sqFt} sq ft</span>
+          <span style="font-size:12px;color:${done?'#4caf50':'#e8823a'};font-weight:700">${labeledEdges}/${totalEdges} edges labeled</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.1);border-radius:99px;height:5px;margin-bottom:10px;overflow:hidden">
+          <div style="background:${done?'#4caf50':'#e8823a'};height:100%;border-radius:99px;width:${pct}%;transition:width .3s"></div>
+        </div>
+        ${done ? `
+          <div style="font-size:13px;color:#4caf50;margin-bottom:10px">✅ All edges labeled — ready to save!</div>
+          <button onclick="saveSection()" style="width:100%;background:#4caf50;border:none;border-radius:8px;padding:13px 16px;font-size:16px;font-weight:800;color:#fff;cursor:pointer;font-family:inherit;min-height:50px;letter-spacing:0.01em">
+            ✓ Save Section
+          </button>
+        ` : `
+          <div style="font-size:13px;color:#e8823a;line-height:1.5">Click the <strong style="color:#e8823a">orange dashed edges</strong> to label what each line meets. All edges must be labeled before you can save.</div>
+        `}
+      </div>`;
+  }
+
+  // Between sections: show "Add Another Section" prompt
+  const addAnotherBlock = (hasSaved && !hasStaging && DS.inProg.length===0) ? `
+    <div style="padding:12px 16px;border-top:1px solid rgba(255,255,255,0.12)">
+      <button onclick="setTool('draw')" style="width:100%;background:transparent;border:2px dashed rgba(139,26,26,0.45);border-radius:8px;padding:11px 16px;font-size:14px;font-weight:700;color:var(--gold-lt);cursor:pointer;font-family:inherit;min-height:44px;transition:all .18s"
+        onmouseover="this.style.borderColor='var(--gold)';this.style.background='rgba(139,26,26,0.08)'"
+        onmouseout="this.style.borderColor='rgba(139,26,26,0.45)';this.style.background='transparent'">
+        + Add Another Section
+      </button>
+    </div>` : '';
+
+  // Saved sections list with Edit buttons
+  const secList = DS.shapes.length ? `
+    <div style="padding:10px 16px 4px;border-top:1px solid rgba(255,255,255,0.1)">
+      <div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--gold-lt);margin-bottom:6px">Saved Sections</div>
+      ${DS.shapes.map((sh,i)=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.08);gap:8px">
+          <span style="font-size:13px;color:#ccc;font-weight:600">Section ${i+1}</span>
+          <span style="font-size:13px;font-weight:800;color:#fff;flex:1;text-align:right">${sh.sqFt} sq ft${(sh.outlets||[]).length+(sh.switches||[]).length > 0 ? ' &nbsp;<span style="font-size:11px;color:#888;font-weight:400">· '+(sh.outlets||[]).length+(sh.switches||[]).length+' outlet/sw</span>':''}</span>
+          <button onclick="editSection(${i})" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:4px 11px;font-size:12px;font-weight:700;color:#ccc;cursor:pointer;font-family:inherit;white-space:nowrap"
+            onmouseover="this.style.background='rgba(139,26,26,0.18)';this.style.color='#fff'"
+            onmouseout="this.style.background='rgba(255,255,255,0.08)';this.style.color='#ccc'">
+            ✎ Edit
+          </button>
+        </div>`).join('')}
+    </div>` : '';
+
+  el.style.display='block';
+  el.innerHTML=`
+    ${hasSaved ? `<div style="display:flex;gap:0;align-items:stretch">
+      <div class="sum-item"><div class="sum-val">${+(savedTot*1.12).toFixed(1)} sq ft</div><div class="sum-lbl">Saved Total</div></div>
+      <div class="sum-div"></div>
+      <div class="sum-item"><div class="sum-val">${DS.shapes.length}</div><div class="sum-lbl">Section${DS.shapes.length!==1?'s':''}</div></div>
+      <div class="sum-div"></div>
+      <div class="sum-item"><div class="sum-val">${trimLf>0?trimLf.toFixed(1)+' lf':'—'}</div><div class="sum-lbl">Trim</div></div>
+      <div class="sum-div"></div>
+      <div class="sum-item"><div class="sum-val">${savedOutlets}</div><div class="sum-lbl">Outlets/SW</div></div>
+    </div>` : ''}
+    ${secList}
+    ${stagingBlock}
+    ${addAnotherBlock}`;
+}
+
+function draw() {
+  if(!DS.ctx) return;
+  const {ctx,W,H,GRID,SCALE}=DS;
+  ctx.clearRect(0,0,W,H);
+
+  // Grid
+  ctx.strokeStyle='#eae5de'; ctx.lineWidth=0.5;
+  for(let x=0;x<=W;x+=GRID){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<=H;y+=GRID){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+  // Foot markers
+  ctx.fillStyle='#b8b0a8'; ctx.font='11px -apple-system,sans-serif'; ctx.textAlign='center';
+  const sqPF = 12/SCALE;
+  for(let sq=sqPF; sq*GRID<W; sq+=sqPF) {
+    const xp=sq*GRID, ft=Math.round(sq/sqPF);
+    if(ft>0) ctx.fillText(ft+"'", xp, 13);
+  }
+  ctx.textAlign='left';
+
+  // Helper: draw a labeled shape on canvas
+  function drawShape(sh, si, dimmed) {
+    const n=sh.points.length;
+    // Fill
+    ctx.beginPath();
+    sh.points.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+    ctx.closePath();
+    ctx.fillStyle = dimmed ? 'rgba(74,144,217,0.04)' : 'rgba(74,144,217,0.09)';
+    ctx.fill();
+    // Edges
+    for(let i=0;i<n;i++){
+      const j=(i+1)%n, p1=sh.points[i], p2=sh.points[j];
+      const lbl=sh.edgeLabels[i];
+      const isHov=DS.hovEdge&&DS.hovEdge.si===si&&DS.hovEdge.ei===i;
+      const isSel=DS.selEdge&&DS.selEdge.si===si&&DS.selEdge.ei===i;
+      const unlabeled = !lbl;
+      ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y);
+      ctx.lineWidth   = isSel?5:isHov?4:lbl?3:2.5;
+      // Unlabeled edges glow orange; labeled get their type color; dimmed shapes gray
+      ctx.strokeStyle = dimmed ? '#b0b0a8'
+                      : isSel  ? '#000'
+                      : isHov  ? '#8B1A1A'
+                      : lbl    ? EDGE_DEF[lbl].col
+                      : '#e8823a'; // unlabeled = orange "needs attention"
+      ctx.setLineDash(unlabeled&&!dimmed ? [6,4] : isSel||isHov ? [7,4] : []);
+      ctx.stroke(); ctx.setLineDash([]);
+      // Label badge
+      if(lbl && !dimmed) {
+        const mx=(p1.x+p2.x)/2, my=(p1.y+p2.y)/2;
+        ctx.font='bold 11px -apple-system,sans-serif';
+        const tw=ctx.measureText(EDGE_DEF[lbl].short).width;
+        ctx.fillStyle=EDGE_DEF[lbl].col;
+        ctx.beginPath(); rrect(ctx,mx-tw/2-6,my-10,tw+12,20,4); ctx.fill();
+        ctx.fillStyle='#fff'; ctx.textAlign='center';
+        ctx.fillText(EDGE_DEF[lbl].short,mx,my+4); ctx.textAlign='left';
+      }
+    }
+    // Vertices
+    sh.points.forEach(p=>{
+      ctx.beginPath(); ctx.arc(p.x,p.y,4,0,Math.PI*2);
+      ctx.fillStyle=dimmed?'#c0c0b8':'#4a90d9'; ctx.fill();
+    });
+    // Area label
+    if (!dimmed) {
+      const cx=sh.points.reduce((t,p)=>t+p.x,0)/n;
+      const cy=sh.points.reduce((t,p)=>t+p.y,0)/n;
+      ctx.font='bold 14px -apple-system,sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle='rgba(255,255,255,0.85)';
+      const tw2=ctx.measureText(sh.sqFt+' sq ft').width;
+      ctx.fillRect(cx-tw2/2-4,cy-10,tw2+8,20);
+      ctx.fillStyle='#2a2a2a';
+      ctx.fillText(sh.sqFt+' sq ft',cx,cy+5);
+      ctx.textAlign='left';
+    }
+  }
+
+  // Saved shapes are not drawn on canvas — clean workspace for multi-section drawing.
+  // A section only appears while actively being worked on (staging). Use Edit to re-enter staging.
+
+  // Staging shape: full color, unlabeled edges orange
+  if (DS.stagingShape) drawShape(DS.stagingShape, -1, false);
+
+  // In-progress
+  if(DS.inProg.length>0){
+    ctx.beginPath();
+    DS.inProg.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+    ctx.strokeStyle='#2a2a2a'; ctx.lineWidth=2; ctx.setLineDash([]); ctx.stroke();
+    if(DS.mouse){
+      const last=DS.inProg[DS.inProg.length-1];
+      ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(DS.mouse.x,DS.mouse.y);
+      ctx.strokeStyle='#8B1A1A'; ctx.lineWidth=1.5; ctx.setLineDash([6,4]); ctx.stroke(); ctx.setLineDash([]);
+      ctx.beginPath(); ctx.arc(DS.mouse.x,DS.mouse.y,5,0,Math.PI*2);
+      ctx.fillStyle='rgba(139,26,26,0.45)'; ctx.fill();
+    }
+    DS.inProg.forEach((p,i)=>{
+      ctx.beginPath(); ctx.arc(p.x,p.y,i===0?9:5,0,Math.PI*2);
+      ctx.fillStyle=i===0?'#8B1A1A':'#2a2a2a'; ctx.fill();
+      if(i===0){ctx.strokeStyle='#fff';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(p.x,p.y,9,0,Math.PI*2);ctx.stroke();}
+    });
+    if(DS.mouse&&DS.inProg.length>=3){
+      const f=DS.inProg[0];
+      if(Math.hypot(DS.mouse.x-f.x,DS.mouse.y-f.y)<=DS.GRID){
+        ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.textAlign='center';
+        ctx.font='bold 13px -apple-system,sans-serif';
+        const t='Click to close'; const tw=ctx.measureText(t).width;
+        ctx.fillRect(f.x-tw/2-6,f.y-28,tw+12,20);
+        ctx.fillStyle='#2a2a2a'; ctx.fillText(t,f.x,f.y-14);
+        ctx.textAlign='left';
+      }
+    }
+  }
+
+  // Split mode: draw live preview dot on the selected edge as mouse hovers
+  if (splitModeEdge && DS.mouse) {
+    const {si, ei} = splitModeEdge;
+    const sh = si===-1 ? DS.stagingShape : DS.shapes[si];
+    if (sh) {
+      const n=sh.points.length, p1=sh.points[ei], p2=sh.points[(ei+1)%n];
+      const dx=p2.x-p1.x, dy=p2.y-p1.y, l2=dx*dx+dy*dy;
+      const d = distSeg(DS.mouse.x, DS.mouse.y, p1.x, p1.y, p2.x, p2.y);
+      if (l2>0 && d<30) {
+        const t = Math.max(0.1, Math.min(0.9,
+          ((DS.mouse.x-p1.x)*dx+(DS.mouse.y-p1.y)*dy)/l2));
+        const sx = p1.x+t*dx, sy = p1.y+t*dy;
+        // Scissors preview dot — gold with scissors label
+        ctx.beginPath(); ctx.arc(sx,sy,8,0,Math.PI*2);
+        ctx.fillStyle='#8B1A1A'; ctx.fill();
+        ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+        ctx.font='bold 10px -apple-system,sans-serif';
+        ctx.textAlign='center'; ctx.fillStyle='#fff';
+        ctx.fillText('✂',sx,sy+4); ctx.textAlign='left';
+        // Guide lines showing the two resulting segments
+        ctx.setLineDash([4,3]);
+        ctx.strokeStyle='rgba(139,26,26,0.45)'; ctx.lineWidth=1.5;
+        ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(sx,sy); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(p2.x,p2.y); ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
+  }
+
+  // Outlets & switches
+  DS.outlets.forEach(o  => drawSymbol(ctx, o.x, o.y, '#e74c3c', 'OUT'));
+  DS.switches.forEach(sw => drawSymbol(ctx, sw.x, sw.y, '#8e44ad', 'SW'));
+}
+
+function rrect(ctx,x,y,w,h,r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+}
+
+function drawSymbol(ctx, x, y, col, lbl) {
+  ctx.fillStyle='#fff'; ctx.strokeStyle=col; ctx.lineWidth=2;
+  rrect(ctx, x-13, y-13, 26, 26, 4); ctx.fill(); ctx.stroke();
+  // Slots
+  ctx.fillStyle=col;
+  if(lbl==='OUT') {
+    ctx.fillRect(x-5,y-7,4,9); ctx.fillRect(x+1,y-7,4,9);
+  } else {
+    ctx.beginPath(); ctx.moveTo(x-5,y+5); ctx.lineTo(x+5,y-5);
+    ctx.stroke();
+  }
+  // Text label
+  ctx.fillStyle=col; ctx.font='bold 10px -apple-system,sans-serif'; ctx.textAlign='center';
+  ctx.fillText(lbl, x, y+22); ctx.textAlign='left';
+  // Hover delete hint
+  if(DS.tool==='select') {
+    ctx.fillStyle='rgba(139,26,26,0.12)'; ctx.strokeStyle='#8B1A1A'; ctx.lineWidth=1;
+    rrect(ctx,x-14,y-14,28,28,5); ctx.fill(); ctx.stroke();
+  }
+}
+
+// ============================================================
+//  MEASURE MODE RENDERERS
+// ============================================================
+function renderDraw() {
+  return `
+    <div id="canvas-toolbar">
+      <button class="tool-btn ${DS.tool==='draw'?'active':''}" data-tool="draw" onclick="setTool('draw')">✏️ Draw</button>
+      <button class="tool-btn ${DS.tool==='select'?'active':''}" data-tool="select" onclick="setTool('select')">👆 Label Edges</button>
+      <button class="tool-btn ${DS.tool==='outlet'?'active':''}" data-tool="outlet" onclick="setTool('outlet')">🔌 Add Outlet</button>
+      <button class="tool-btn ${DS.tool==='switch'?'active':''}" data-tool="switch" onclick="setTool('switch')">💡 Add Switch</button>
+      <div class="tool-sep"></div>
+      <button class="tool-btn" onclick="undoCanvas()" style="color:var(--gray-3)">↩ Undo</button>
+      <button class="tool-btn" onclick="clearCanvas()" style="color:var(--red)">🗑 Clear</button>
+      <div class="scale-wrap">1□= <select onchange="changeScale(this.value)">
+        <option value="3"  ${DS.SCALE===3?'selected':''}>3"</option>
+        <option value="6"  ${DS.SCALE===6?'selected':''}>6"</option>
+        <option value="12" ${DS.SCALE===12?'selected':''}>12"</option>
+        <option value="18" ${DS.SCALE===18?'selected':''}>18"</option>
+      </select></div>
+    </div>
+    <div id="canvas-wrap">
+      <canvas id="draw-canvas"></canvas>
+      <div id="canvas-tip"><div class="ti">✏️</div>Click corner points to trace your wall shape.<br>Click near the <span style="color:#8B1A1A;font-weight:800">red dot</span> to close &amp; finish.<br><span style="font-size:13px">Draw each wall section separately.</span></div>
+    </div>
+    <div id="canvas-hint"></div>
+    <div id="edge-label-ui"></div>
+    <div id="canvas-summary"></div>
+    <div id="edge-legend">
+      ${Object.entries(EDGE_DEF).map(([,v])=>`<div class="leg-item"><div class="leg-dot" style="background:${v.col}"></div>${v.label}</div>`).join('')}
+    </div>
+    <div class="edu" style="margin-top:8px">
+      <span class="edu-tag">💡 How the Drawing Tool Works</span>
+      <strong>Draw</strong> your wall perimeter by clicking corner by corner.
+      Then switch to <strong>Label Edges</strong> to click each boundary line and tell us what it meets
+      (cabinet, countertop, appliance, or an open edge that needs trim).
+      Use <strong>Add Outlet / Add Switch</strong> to place each box — we count them automatically for your estimate.
+    </div>`;
+}
+
+function renderManual() {
+  let rows='';
+  S._sections = S._sections || [{l:'',h:''}];
+  S._sections.forEach((s,i)=>{
+    rows+=`<div class="mrow" id="sr${i}">
+      <span class="mlbl">Wall ${i+1}</span>
+      <input class="inp" type="number" id="ml${i}" placeholder="Width (in)" min="1" value="${s.l}" style="width:120px">
+      <span class="mx">×</span>
+      <input class="inp" type="number" id="mh${i}" placeholder="Height (in)" min="1" value="${s.h}" style="width:120px">
+      <span class="msf" id="msf${i}">= <span>—</span></span>
+      ${i>0?`<button class="rm-sec" onclick="rmSec(${i})">×</button>`:''}
+    </div>`;
+  });
+  return `
+    ${rows}
+    <button id="add-sec-btn" onclick="addSec()" ${S._sections.length>=6?'disabled':''}>+ Add another wall section</button>
+    <div class="mtotal"><span>Total (with 12% waste)</span><strong id="mtot">—</strong></div>
+    <div class="edu" style="margin-top:12px"><span class="edu-tag">💡 What to Measure</span>
+      Measure each <strong>run of wall</strong> separately in inches — behind the sink, behind the stove, and short sections between cabinets.
+      Typical kitchen backsplash = <strong>30–40 sq ft</strong>.
+    </div>`;
+}
+
+function setMeasureMode(mode) {
+  S.measureMode = mode;
+  document.querySelectorAll('.mpath-card').forEach(c=>{
+    c.classList.toggle('active', c.dataset.mode===mode);
+  });
+  // Remove old mode content
+  const card = document.querySelector('.cb-card');
+  const after = $('mpath-grid').nextElementSibling;
+  let el = after;
+  while(el){ const nx=el.nextElementSibling; el.remove(); el=nx; }
+  // Inject new
+  const tmp = document.createElement('div');
+  tmp.innerHTML = mode==='draw' ? renderDraw() : renderManual();
+  while(tmp.firstChild) card.appendChild(tmp.firstChild);
+  if(mode==='draw')   requestAnimationFrame(()=>initCanvas());
+  if(mode==='manual') bindManual();
+}
+
+function bindManual() {
+  S._sections = S._sections || [{l:'',h:''}];
+  const recalc = ()=>{
+    let tot=0;
+    S._sections.forEach((_,i)=>{
+      const l=parseFloat($(`ml${i}`)?.value)||0, h=parseFloat($(`mh${i}`)?.value)||0;
+      S._sections[i].l=l||''; S._sections[i].h=h||'';
+      const sf=l&&h?+(l*h/144).toFixed(1):0;
+      const el=$(`msf${i}`); if(el) el.querySelector('span').textContent=sf>0?sf+' sq ft':'—';
+      tot+=sf;
+    });
+    S.sqft=tot;
+    const el=$('mtot'); if(el) el.textContent=tot>0?+(tot*1.12).toFixed(1)+' sq ft':'—';
+    updEstBar();
+  };
+  S._sections.forEach((_,i)=>{
+    $(`ml${i}`)?.addEventListener('input',recalc);
+    $(`mh${i}`)?.addEventListener('input',recalc);
+  });
+  recalc();
+  window.addSec=()=>{ if(S._sections.length<6){S._sections.push({l:'',h:''});setMeasureMode('manual');} };
+  window.rmSec=i=>{ S._sections.splice(i,1); setMeasureMode('manual'); };
+}
+
+// ============================================================
+//  SKIP SCREEN
+// ============================================================
+function showSkip() {
+  $('cb-nav').style.display = 'none';
+  $('cb-est-bar').style.display = 'none';
+  $('cb-prog-fill').style.width = '100%';
+  $('cb-prog-track').setAttribute('aria-valuenow', 100);
+  $('cb-step-lbl').textContent = 'No problem!';
+  const hasContact = S.firstName && S.phone;
+  const name = S.firstName ? `, ${S.firstName}` : '';
+  $('cb-content').innerHTML = `<div id="cb-skip">
+    <div class="sk-icon">👋</div>
+    <div class="sk-title">We've got you${name}!</div>
+    <div class="sk-sub">We do <strong>free, no-obligation on-site measures</strong> every day. Pick what works for you — we'll take it from here.</div>
+    ${hasContact ? `<div style="background:var(--gray-1);border-radius:11px;padding:16px 20px;text-align:left;margin-bottom:16px">
+      <div style="font-size:14px;font-weight:800;color:var(--charcoal);margin-bottom:5px">Your info on file:</div>
+      <div style="font-size:15px;color:var(--gray-3)">${S.firstName} ${S.lastName} · ${S.phone} · ${S.email}</div>
+      <div style="font-size:14px;color:var(--gray-3);margin-top:4px">We'll follow up within <strong style="color:var(--charcoal)">24 hours</strong>.</div>
+    </div>` : `<div id="sk-mini-form" style="background:var(--gray-1);border-radius:11px;padding:18px 20px;margin-bottom:18px;text-align:left">
+      <div style="font-size:15px;font-weight:800;color:var(--charcoal);margin-bottom:12px">Drop your name and number — we'll reach out:</div>
+      <div class="field-row" style="margin-bottom:10px">
+        <div class="field"><label class="lbl">First Name</label><input class="inp" id="sk-fn" type="text" placeholder="Jane" autocomplete="given-name"></div>
+        <div class="field"><label class="lbl">Phone</label><input class="inp" id="sk-ph" type="tel" placeholder="(402) 555-0000" autocomplete="tel" inputmode="tel"></div>
+      </div>
+      <button onclick="submitSkip()" style="width:100%;padding:14px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit">📅 Book My Free Measure</button>
+    </div>`}
+    <div class="sk-opts">
+      <div class="sk-opt">
+        <div class="sk-opt-icon">📅</div>
+        <div class="sk-opt-title">Book Online</div>
+        <div class="sk-opt-sub">Pick any open time. Available most weekdays and Saturdays.</div>
+        <a class="sk-btn sk-gold" href="${CFG.CALENDLY}" target="_blank">📅 Choose a Time</a>
+      </div>
+      <div class="sk-opt">
+        <div class="sk-opt-icon">📞</div>
+        <div class="sk-opt-title">Prefer a Call?</div>
+        <div class="sk-opt-sub">Call or text us and we'll find a time together. Usually same or next day.</div>
+        <a class="sk-btn sk-out" href="tel:${CFG.PHONE_RAW}">📞 ${CFG.PHONE}</a>
+      </div>
+    </div>
+    <div class="sk-resume">Changed your mind? <a onclick="resumeEst()">Continue the estimate instead →</a></div>
+  </div>`;
+  if(hasContact) zapier({skipped:true});
+}
+
+window.submitSkip = function() {
+  const fn = $('sk-fn')?.value.trim();
+  const ph = $('sk-ph')?.value.trim();
+  if(fn) S.firstName = fn;
+  if(ph) S.phone = ph;
+  zapier({skipped:true});
+  const miniForm = $('sk-mini-form');
+  if(miniForm) miniForm.outerHTML = `<div style="background:#eaf5ed;border:1px solid #27ae60;border-radius:11px;padding:14px 20px;margin-bottom:18px">
+    <div style="font-size:15px;font-weight:800;color:#2a6a3a">✅ Got it${S.firstName?`, ${S.firstName}`:''}! We'll reach out to schedule your measure.</div>
+  </div>`;
+};
+
+function resumeEst() { $('cb-nav').style.display='flex'; renderStep(); }
+
+// ============================================================
+//  STEPS
+// ============================================================
+const STEPS = [
+
+  // 0 — Measurement (now Step 1 — contact moved to end for less friction)
+  { badge:'Step 1 of 10', prog:10, title:'How big is the area?', sub:'Choose the method that works best for you. All paths get you a great estimate.',
+    render(){return `
+      <div class="mpath-grid" id="mpath-grid">
+        <div class="mpath-card ${S.measureMode==='draw'?'active':''}" data-mode="draw" onclick="setMeasureMode('draw')">
+          <div class="mpath-icon">✏️</div><div class="mpath-lbl">Draw It</div>
+          <div class="mpath-sub">Trace your wall outline on a grid. Label edges and drop outlets right on the drawing.</div>
+        </div>
+        <div class="mpath-card ${S.measureMode==='manual'?'active':''}" data-mode="manual" onclick="setMeasureMode('manual')">
+          <div class="mpath-icon">📏</div><div class="mpath-lbl">Enter Measurements</div>
+          <div class="mpath-sub">Type in width &amp; height for each wall section. Quick and simple.</div>
+        </div>
+        <div class="mpath-card skip-c" onclick="showSkip()">
+          <div class="mpath-icon">📅</div><div class="mpath-lbl">Just Book a Measure</div>
+          <div class="mpath-sub">We come to you. Free, no obligation, no tape measure needed.</div>
+        </div>
+      </div>
+      ${!S.measureMode?`<div class="edu"><span class="edu-tag">💡 Not sure which to pick?</span>
+        <strong>Draw It</strong> is the most powerful — you can label every edge and place outlets right on the drawing, and it auto-fills the rest of the estimate.<br><br>
+        <strong>Enter Measurements</strong> works great if you have a tape measure handy.<br><br>
+        <strong>Just Book a Measure</strong> — we do free on-site measures every week, no strings attached.
+      </div>`:''}
+      ${S.measureMode==='draw'   ? renderDraw()   : ''}
+      ${S.measureMode==='manual' ? renderManual() : ''}`;},
+    bind(){ if(S.measureMode==='draw') requestAnimationFrame(initCanvas); if(S.measureMode==='manual') bindManual(); },
+    validate(){
+      if(!S.measureMode){alert('Please choose a measurement method, or book a free measure below.');return false;}
+      if(S.measureMode==='draw'&&DS.shapes.length===0){
+        if(DS.stagingShape){alert('Please finish labeling all edges and save this section before continuing.');}
+        else{alert('Please draw and save at least one wall section on the grid.');}
+        return false;
+      }
+      if(S.measureMode==='manual'&&S.sqft<1){alert('Please enter at least one wall measurement.');return false;}
+      return true;
+    }},
+
+  // 1 — Tile Type
+  { badge:'Step 2 of 10', prog:20, title:'What type of tile?', sub:'The biggest factor affecting both material cost and installation labor.',
+    render(){return `<div class="opts">
+      ${opt('tileType','ceramic',     TICONS.ceramic,       'Ceramic / Subway',      'Classic, affordable, the most common choice',  '$ — Base Labor Rate', 'The industry standard. Easy to cut, lightweight, available in every size and color. Our installers know this material cold.')}
+      ${opt('tileType','porcelain',   TICONS.porcelain,     'Porcelain',             'Denser, harder, more durable than ceramic',     '$$ — ~25% more labor', 'Fired hotter than ceramic. Requires diamond blades and more cut time. More stain-resistant and long-lasting.')}
+      ${opt('tileType','glass',       TICONS.glass,         'Glass Tile',            'Luminous, reflective, modern look',             '$$$ — 60–80% more labor', 'Requires special white thinset (standard gray shows through). Must be grouted carefully to avoid hazing. Stunning result that rewards skilled hands.')}
+      ${opt('tileType','stone',       TICONS.stone,         'Natural Stone',         'Marble, travertine, slate, quartzite',          '$$$ — 40–60% more labor', 'Every piece varies in thickness — our installers back-butter each tile individually. Must be sealed before and after grouting.')}
+      ${opt('tileType','mosaic',      TICONS.mosaic,        'Mosaic Sheets',         'Small tiles on mesh backing',                   '$$$ — Similar to glass', 'Mesh backing helps with layout, but hundreds of tiny grout joints still need careful filling and cleaning. Often used as accent areas.')}
+      ${opt('tileType','large-format',TICONS['large-format'],'Large Format Porcelain','12×24" and bigger slabs',                       '$$ — ~15% more than porcelain', 'Demands a very flat substrate. Our installers use a laser level and may need to float the wall. Fewer joints = ultra-clean look.')}
+    </div>`;},
+    bind(){bindOpts('tileType');}, validate(){return!!S.tileType;}},
+
+  // 2 — Tile Format
+  { badge:'Step 3 of 10', prog:30, title:'What size tile?', sub:'Tile size directly affects labor time — independent of pattern.',
+    render(){return `
+      <div class="edu"><span class="edu-tag">💡 Size &amp; Labor</span>
+        A 2×2" mosaic tile has <strong>nine times more grout joints</strong> per square foot than a 6×6" tile.
+        More joints = more setting, grouting, cleaning, and sealing time.
+      </div>
+      <div class="opts">
+        ${opt('tileFormat','tiny-mosaic',FICONS['tiny-mosaic'],'Tiny Mosaic','Under 3" — penny round, 1×1, 2×2','+ ~15% labor','Beautiful accent work. Very labor-intensive per square foot. Best for focal areas rather than full coverage.')}
+        ${opt('tileFormat','subway',     FICONS.subway,        'Subway / Standard','3×6", 4×4", 4×8", 3×12"','Base rate','Our most common backsplash format. Efficient, clean, and versatile.')}
+        ${opt('tileFormat','medium',     FICONS.medium,        'Medium Format','6×6", 6×12", 4×12", 6×18"','Base rate','More coverage per tile, fewer joints. A sleek step up from subway.')}
+        ${opt('tileFormat','large',      FICONS.large,         'Large Format','12×12", 12×24", 12×36"','+ ~10% labor','More handling time and substrate prep. Dramatic, minimal-grout-line look.')}
+        ${opt('tileFormat','jumbo',      FICONS.jumbo,         'Jumbo Slab','18×18", 24×24", 24×48" and up','+ ~18% labor','Statement-making. May require plywood or board backing. Visually seamless.')}
+      </div>`;},
+    bind(){bindOpts('tileFormat');}, validate(){return!!S.tileFormat;}},
+
+  // 3 — Pattern
+  { badge:'Step 4 of 10', prog:40, title:'Layout pattern', sub:'One of the biggest labor cost variables. Learn why each pattern differs.',
+    render(){return `<div class="opts">
+      ${opt('pattern','straight',         PICONS.straight,          'Straight Stack / Grid',          'Tiles aligned perfectly horizontal and vertical',   'No premium — base rate',  'Fast, clean, modern. The most efficient pattern to install. Pairs especially well with large format tile.')}
+      ${opt('pattern','running-bond',     PICONS['running-bond'],   'Running Bond — ½ Offset',        'Classic subway look — each row shifts half a tile',  'No premium — base rate',  'Our most popular backsplash layout. Works with any tile. True 50% offset = maximum brick feel and strong horizontal movement.')}
+      ${opt('pattern','third-offset',     PICONS['third-offset'],   'Running Bond — ⅓ Offset Zipper', 'Each row shifts ⅓ then resets — joints form a zigzag','No premium — base rate', 'The go-to for large format tile (12"+ long). A true ½ offset on big tile causes lippage and grout cracking. The joints form a repeating diagonal zigzag across the wall.')}
+      ${opt('pattern','third-stairstep',  PICONS['third-stairstep'],'Running Bond — ⅓ Stair-Step',   'Each row advances ⅓ more — joints staircase in one direction','No premium — base rate','Also great for large format tile. Each successive row steps further to the right, creating a continuous diagonal staircase of joints. A distinct, structured look vs. the zipper.')}
+      ${opt('pattern','vertical',         PICONS.vertical,          'Vertical Stack',                 'Tiles stacked vertically, not horizontally',         '+ ~5% labor',             'A subtle twist that makes ceilings feel taller. Requires careful vertical alignment.')}
+      ${opt('pattern','diagonal',         PICONS.diagonal,          'Diagonal / 45°',                 'Tiles rotated 45° to create diamond shapes',         '+ ~25% labor',            'Every edge cut is now angled. Waste increases ~15% on top of standard. Classic and elegant.')}
+      ${opt('pattern','herringbone',      PICONS.herringbone,       'Herringbone',                    'Interlocking V-shape — uncut tiles, alternating direction','+ 30–50% labor',       'Rectangular tiles alternate between horizontal and vertical orientation in an interlocking V. No cuts on the tiles themselves — all the complexity is in the precise layout and alignment.')}
+      ${opt('pattern','chevron',          PICONS.chevron,           'Chevron',                        'Angle-cut tiles forming perfect pointed V-shapes',   '+ 50–65% labor',          'Unlike herringbone, every tile is precision-cut at an angle so the V-tips meet perfectly with no exposed ends. Requires specialty tile or custom cuts on every single piece.')}
+      ${opt('pattern','random-stone',     PICONS['random-stone'],   'Random Stone / Ledger',          'Organic irregular shapes — slate, quartzite, Saltillo','+ 30–50% labor',         'No two pieces are the same size. Our installers dry-lay the full section first to solve the puzzle before setting in thinset. Highly dependent on tile selection.')}
+      ${opt('pattern','hexagon',          PICONS.hexagon,           'Hexagon',                        'Six-sided tiles in a honeycomb grid',                '+ ~30% labor',            'Each edge-to-edge connection requires careful alignment. Stunning with contrasting grout. Available in large (12") and small (2") formats.')}
+      ${opt('pattern','penny',            PICONS.penny,             'Penny / Round Mosaic',           'Small circular tiles on mesh backing',               '+ ~15% labor',            'Mesh-backed sheets make installation manageable, but hundreds of grout joints still need careful filling and finishing. A vintage or modern look depending on grout color.')}
+      ${opt('pattern','complex',          PICONS.complex,           'Custom / Medallion',             'Inlays, basketweave, mixed tile patterns',            '+ 75–100% labor',         'Fully project-specific. We love these challenges. Your on-site quote will nail down the exact number.')}
+    </div>`;},
+    bind(){bindOpts('pattern');}, validate(){return!!S.pattern;}},
+
+  // 4 — Grout
+  { badge:'Step 5 of 10', prog:50, title:'Grout joint size & type', sub:'Grout is a design decision, not just a filler. It changes the entire feel.',
+    render(){return `
+      <div style="margin-bottom:24px">
+        <label class="lbl" style="margin-bottom:10px">What size spacer do you want between tiles?</label>
+        <div class="edu"><span class="edu-tag">💡 Spacer Size = Finished Grout Line</span>
+          The spacer we place during install sets the finished joint width.
+          Tile edges have a slight factory roundover, so the final grout line often looks <strong>slightly wider</strong> than the bare spacer.
+          <strong>Rectified tile</strong> (machine-precision edges) is required for the tightest options.
+        </div>
+        <div class="opts c2">
+          ${opt('groutJoint','no-spacer',
+            `<svg viewBox="0 0 64 32" width="64" height="32" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2"  y="4" width="29" height="24" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1.5"/>
+              <rect x="33" y="4" width="29" height="24" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1.5"/>
+              <line x1="31.5" y1="4" x2="31.5" y2="28" stroke="#b0a898" stroke-width="1" stroke-dasharray="3,2"/>
+            </svg>`,
+            'No Spacer — Tight Stack','Tiles pressed edge-to-edge, grout is cosmetic only','Requires rectified porcelain or glass','True seamless look. Factory-ground edges only — handmade or natural stone cannot achieve this. The tightest result our installers can deliver.')}
+          ${opt('groutJoint','sixteenth',
+            `<svg viewBox="0 0 64 32" width="64" height="32" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2"  y="4" width="27" height="24" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1.5"/>
+              <rect x="33" y="4" width="27" height="24" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1.5"/>
+              <rect x="30" y="4" width="3"  height="24" rx="0" fill="#8B1A1A"/>
+              <text x="32" y="36" font-size="7" fill="#5c0f0f" text-anchor="middle" font-family="sans-serif" font-weight="700">1/16"</text>
+            </svg>`,
+            '1/16" Spacer','Thin, refined line — near-seamless look','Best choice for rectified tile','Very tight, minimal grout line. Popular with modern large-format porcelain. Requires precisely flat substrate.')}
+          ${opt('groutJoint','eighth',
+            `<svg viewBox="0 0 64 32" width="64" height="32" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2"  y="4" width="25" height="24" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1.5"/>
+              <rect x="35" y="4" width="25" height="24" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1.5"/>
+              <rect x="29" y="4" width="5"  height="24" rx="0" fill="#8B1A1A"/>
+              <text x="32" y="36" font-size="7" fill="#5c0f0f" text-anchor="middle" font-family="sans-serif" font-weight="700">1/8"</text>
+            </svg>`,
+            '1/8" Spacer','Our most popular — clean, balanced, works with anything','Best all-around choice','Works with virtually any tile. Our default for subway and porcelain. Grout line is visible but refined — the industry sweet spot.')}
+          ${opt('groutJoint','quarter',
+            `<svg viewBox="0 0 64 32" width="64" height="32" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2"  y="4" width="22" height="24" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1.5"/>
+              <rect x="38" y="4" width="22" height="24" rx="1" fill="#e8e0d4" stroke="#9a9188" stroke-width="1.5"/>
+              <rect x="26" y="4" width="10" height="24" rx="0" fill="#8B1A1A"/>
+              <text x="32" y="36" font-size="7" fill="#5c0f0f" text-anchor="middle" font-family="sans-serif" font-weight="700">1/4"</text>
+            </svg>`,
+            '1/4" Spacer','Wide joint — farmhouse, handmade, and rustic styles','Good for non-rectified and natural stone tile','Used with Saltillo, terracotta, Zellige, and natural stone. Grout lines become a visible design element. Hides size variation in irregular tiles.')}
+        </div>
+      </div>
+      <div>
+        <label class="lbl" style="margin-bottom:10px">Grout type</label>
+        <div class="edu"><span class="edu-tag">💡 Standard vs. Epoxy</span>
+          <strong>Standard grout</strong> needs sealing every 1–2 years in kitchens.
+          <strong>Epoxy grout</strong> is permanently stain-proof, never needs sealing — adds <strong>$4–6/sq ft to labor</strong>.
+        </div>
+        <div class="opts c2">
+          ${opt('groutType','standard-grout','🟤','Standard Grout','Sanded or unsanded — sealed after install','Industry standard','Fine for most applications. Recommended re-seal every 1–2 years in high-use areas.')}
+          ${opt('groutType','epoxy','🛡️','Epoxy Grout','Permanently stain-proof, never needs sealing','+ $4–6/sq ft labor','Grease, wine, coffee — all wipe right off permanently. Our installers batch-mix carefully due to the tight working window.')}
+        </div>
+      </div>`;},
+    bind(){bindOpts('groutJoint');bindOpts('groutType');},
+    validate(){return!!(S.groutJoint&&S.groutType);}},
+
+  // 5 — Edge Treatment
+  { badge:'Step 6 of 10', prog:60, title:'How will the edges be finished?', sub:'Where tile ends needs a clean, professional finish. This is a visible quality tell.',
+    render(){
+      const showLf = S.edgeTreat && S.edgeTreat!=='none';
+      const autoLf = S.measureMode==='draw' && S.trimLinFt>0;
+      return `
+        ${autoLf?`<div class="edu" style="background:#eaf5ed;border-color:#27ae60"><span class="edu-tag" style="color:#3a6a4a">✅ Auto-Filled From Your Drawing</span>We detected <strong>${S.trimLinFt} linear feet</strong> of open edges in your drawing. That's been added to your estimate automatically.</div>`:''}
+        <div class="opts">
+          ${opt('edgeTreat','bullnose',
+            `<svg viewBox="0 0 72 44" width="72" height="44" xmlns="http://www.w3.org/2000/svg">
+              <!-- BULLNOSE: 2-col field tiles + bullnose tiles. Cubic bezier (cp at x=80)
+                   creates pronounced convex curve clearly visible as a rounded tile edge. -->
+              <rect width="72" height="44" fill="#9a9188"/>
+              <!-- Field tiles col 1 -->
+              <rect x="1" y="2"  width="20" height="12" fill="#e8e2d8"/>
+              <rect x="1" y="16" width="20" height="12" fill="#e8e2d8"/>
+              <rect x="1" y="30" width="20" height="12" fill="#e8e2d8"/>
+              <!-- Field tiles col 2 -->
+              <rect x="23" y="2"  width="20" height="12" fill="#e8e2d8"/>
+              <rect x="23" y="16" width="20" height="12" fill="#e8e2d8"/>
+              <rect x="23" y="30" width="20" height="12" fill="#e8e2d8"/>
+              <!-- Bullnose tiles: cubic bezier control pts at x=80 → peak ~x=74 at mid-height,
+                   clips at viewBox x=72 producing clear convex rounded-edge profile -->
+              <path d="M45,2  H59 C80,2  80,14 59,14 H45 Z" fill="#d4ccc0"/>
+              <path d="M45,16 H59 C80,16 80,28 59,28 H45 Z" fill="#d4ccc0"/>
+              <path d="M45,30 H59 C80,30 80,42 59,42 H45 Z" fill="#d4ccc0"/>
+              <!-- Glaze highlight follows the curve arc -->
+              <path d="M58,4  C72,7  72,11 58,13" fill="none" stroke="rgba(255,255,255,0.72)" stroke-width="2" stroke-linecap="round"/>
+              <path d="M58,18 C72,21 72,25 58,27" fill="none" stroke="rgba(255,255,255,0.72)" stroke-width="2" stroke-linecap="round"/>
+              <path d="M58,32 C72,35 72,39 58,41" fill="none" stroke="rgba(255,255,255,0.72)" stroke-width="2" stroke-linecap="round"/>
+            </svg>`,
+            'Bullnose Tile','Matching tile with a factory-rounded finished edge','~$6–10 / linear ft installed','The classic professional finish. Seamlessly matches your field tile. Best when your tile manufacturer makes a matching bullnose piece.')}
+          ${opt('edgeTreat','schluter-alum',
+            `<svg viewBox="0 0 72 44" width="72" height="44" xmlns="http://www.w3.org/2000/svg">
+              <!-- SCHLUTER ALUMINUM: field tiles + L-profile aluminum trim.
+                   Horizontal cap at top shows the L-shape; vertical face shows the metal strip. -->
+              <rect width="72" height="44" fill="#9a9188"/>
+              <rect x="1" y="2"  width="20" height="12" fill="#e8e2d8"/>
+              <rect x="1" y="16" width="20" height="12" fill="#e8e2d8"/>
+              <rect x="1" y="30" width="20" height="12" fill="#e8e2d8"/>
+              <rect x="23" y="2"  width="20" height="12" fill="#e8e2d8"/>
+              <rect x="23" y="16" width="20" height="12" fill="#e8e2d8"/>
+              <rect x="23" y="30" width="20" height="12" fill="#e8e2d8"/>
+              <!-- Partial edge tile -->
+              <rect x="45" y="2"  width="12" height="12" fill="#e8e2d8"/>
+              <rect x="45" y="16" width="12" height="12" fill="#e8e2d8"/>
+              <rect x="45" y="30" width="12" height="12" fill="#e8e2d8"/>
+              <!-- L-trim face: silver vertical strip at tile edge -->
+              <rect x="58" y="0" width="14" height="44" fill="#a8bcc8"/>
+              <rect x="58" y="0" width="5"  height="44" fill="rgba(210,235,255,0.65)"/>
+              <line x1="65" y1="0" x2="65" y2="44" stroke="#7090a0" stroke-width="0.8" opacity="0.6"/>
+              <!-- L-trim cap: horizontal flange visible at top (shows the L-profile) -->
+              <rect x="44" y="0" width="28" height="3.5" fill="#b4ccd8"/>
+              <rect x="44" y="0" width="28" height="1.5" fill="rgba(210,235,255,0.5)"/>
+            </svg>`,
+            'Schluter — Aluminum','Clean L-profile metal trim caps the tile edge','~$9–14 / linear ft installed','Our most popular modern finish. The aluminum L-trim slides over the tile edge and anchors into the thinset bed. Durable, clean, protects tile corners from chipping.')}
+          ${opt('edgeTreat','schluter-accent',
+            `<svg viewBox="0 0 72 44" width="72" height="44" xmlns="http://www.w3.org/2000/svg">
+              <!-- SCHLUTER ACCENT: same L-profile as aluminum but matte black / brushed nickel.
+                   Dark vertical face + dark horizontal cap clearly show the L-trim hardware. -->
+              <rect width="72" height="44" fill="#9a9188"/>
+              <rect x="1" y="2"  width="20" height="12" fill="#e8e2d8"/>
+              <rect x="1" y="16" width="20" height="12" fill="#e8e2d8"/>
+              <rect x="1" y="30" width="20" height="12" fill="#e8e2d8"/>
+              <rect x="23" y="2"  width="20" height="12" fill="#e8e2d8"/>
+              <rect x="23" y="16" width="20" height="12" fill="#e8e2d8"/>
+              <rect x="23" y="30" width="20" height="12" fill="#e8e2d8"/>
+              <!-- Partial edge tile -->
+              <rect x="45" y="2"  width="12" height="12" fill="#e8e2d8"/>
+              <rect x="45" y="16" width="12" height="12" fill="#e8e2d8"/>
+              <rect x="45" y="30" width="12" height="12" fill="#e8e2d8"/>
+              <!-- L-trim face: matte black vertical strip -->
+              <rect x="58" y="0" width="14" height="44" fill="#1e1e1e"/>
+              <rect x="58" y="0" width="3"  height="44" fill="rgba(70,70,70,0.7)"/>
+              <line x1="65" y1="0" x2="65" y2="44" stroke="#333" stroke-width="0.8" opacity="0.6"/>
+              <!-- L-trim cap: horizontal flange at top (shows the L-profile) -->
+              <rect x="44" y="0" width="28" height="3.5" fill="#252525"/>
+              <rect x="44" y="0" width="28" height="1.5" fill="rgba(80,80,80,0.5)"/>
+            </svg>`,
+            'Schluter — Matte Black / Brushed Nickel','Same L-profile trim in premium decorative finishes','~$12–17 / linear ft installed','Same installer process as aluminum, but finished in matte black or brushed nickel. Pairs beautifully with matching plumbing fixtures.')}
+          ${opt('edgeTreat','pencil-liner',
+            `<svg viewBox="0 0 72 44" width="72" height="44" xmlns="http://www.w3.org/2000/svg">
+              <!-- PENCIL LINER: field tiles + contrasting decorative tile strip.
+                   High-contrast dark liner tiles clearly differ from cream field tile,
+                   and individual grout gaps show it is tile (not metal hardware). -->
+              <rect width="72" height="44" fill="#9a9188"/>
+              <rect x="1" y="2"  width="20" height="12" fill="#e8e2d8"/>
+              <rect x="1" y="16" width="20" height="12" fill="#e8e2d8"/>
+              <rect x="1" y="30" width="20" height="12" fill="#e8e2d8"/>
+              <rect x="23" y="2"  width="20" height="12" fill="#e8e2d8"/>
+              <rect x="23" y="16" width="20" height="12" fill="#e8e2d8"/>
+              <rect x="23" y="30" width="20" height="12" fill="#e8e2d8"/>
+              <!-- Partial edge tile -->
+              <rect x="45" y="2"  width="12" height="12" fill="#e8e2d8"/>
+              <rect x="45" y="16" width="12" height="12" fill="#e8e2d8"/>
+              <rect x="45" y="30" width="12" height="12" fill="#e8e2d8"/>
+              <!-- Pencil liner decorative tiles: deep charcoal, high contrast vs cream field -->
+              <rect x="59" y="2"  width="11" height="12" fill="#3c3830"/>
+              <rect x="59" y="16" width="11" height="12" fill="#3c3830"/>
+              <rect x="59" y="30" width="11" height="12" fill="#3c3830"/>
+              <!-- Subtle warm highlight to show glazed surface (not metal) -->
+              <rect x="59" y="2"  width="11" height="4" fill="rgba(255,248,235,0.12)"/>
+              <rect x="59" y="16" width="11" height="4" fill="rgba(255,248,235,0.12)"/>
+              <rect x="59" y="30" width="11" height="4" fill="rgba(255,248,235,0.12)"/>
+            </svg>`,
+            'Pencil Liner / Decorative Liner','Thin accent tile strip used as a decorative border','~$9–14 / linear ft installed','A narrow strip in a contrasting color or material — adds traditional elegance and visual separation at the edge of the installation.')}
+          ${opt('edgeTreat','mitered',
+            `<svg viewBox="0 0 72 44" width="72" height="44" xmlns="http://www.w3.org/2000/svg">
+              <!-- MITERED: 3/4 perspective showing tile wrapping the corner — NO trim hardware.
+                   Bright miter line = precision 45° cut. Side face shows matching tile continuing. -->
+              <rect width="72" height="44" fill="#9a9188"/>
+              <!-- Front face tiles -->
+              <rect x="1"  y="2"  width="16" height="12" fill="#e8e2d8"/>
+              <rect x="1"  y="16" width="16" height="12" fill="#e8e2d8"/>
+              <rect x="1"  y="30" width="16" height="12" fill="#e8e2d8"/>
+              <rect x="19" y="2"  width="16" height="12" fill="#e8e2d8"/>
+              <rect x="19" y="16" width="16" height="12" fill="#e8e2d8"/>
+              <rect x="19" y="30" width="16" height="12" fill="#e8e2d8"/>
+              <!-- Miter line: bright white = precision 45° cut, no hardware -->
+              <line x1="36" y1="1" x2="36" y2="43" stroke="#ffffff" stroke-width="3"/>
+              <line x1="37.5" y1="1" x2="37.5" y2="43" stroke="#5a5248" stroke-width="1" opacity="0.35"/>
+              <!-- Side face tiles in perspective (same tile, turned corner) -->
+              <polygon points="37,2 71,8 71,37 37,42" fill="#ccc4b8"/>
+              <!-- Side face grout lines (3 rows, converging) -->
+              <line x1="37" y1="15" x2="71" y2="17.5" stroke="#9a9188" stroke-width="1.2"/>
+              <line x1="37" y1="28" x2="71" y2="29"   stroke="#9a9188" stroke-width="1.2"/>
+              <!-- Vertical grout (2 cols) on side face -->
+              <line x1="53" y1="4" x2="53" y2="40" stroke="#9a9188" stroke-width="1" opacity="0.6"/>
+              <!-- Depth shadow overlay -->
+              <polygon points="37,2 71,8 71,37 37,42" fill="#000" opacity="0.05"/>
+            </svg>`,
+            'Mitered Edge','Two tiles cut at 45° — zero visible hardware','~$15–22 / linear ft','The most premium finish. Two tiles meet at a precision-cut 45° miter corner with no trim piece whatsoever. Requires a wet-saw with a tilting blade. We\'ll confirm feasibility at measure.')}
+          ${opt('edgeTreat','none',
+            `<svg viewBox="0 0 72 44" width="72" height="44" xmlns="http://www.w3.org/2000/svg">
+              <!-- NO TRIM: tile ends behind a cabinet — no exposed edge treatment needed -->
+              <rect width="72" height="44" fill="#8c8478"/>
+              <rect x="1" y="2"  width="20" height="12" fill="#e8e2d8"/>
+              <rect x="1" y="16" width="20" height="12" fill="#e8e2d8"/>
+              <rect x="1" y="30" width="20" height="12" fill="#e8e2d8"/>
+              <rect x="23" y="2"  width="20" height="12" fill="#e8e2d8"/>
+              <rect x="23" y="16" width="20" height="12" fill="#e8e2d8"/>
+              <rect x="23" y="30" width="20" height="12" fill="#e8e2d8"/>
+              <!-- Cabinet covering the right portion (tile edge hidden behind it) -->
+              <rect x="44" y="0" width="28" height="44" fill="#c4b06e"/>
+              <!-- Cabinet door top -->
+              <rect x="46" y="2"  width="24" height="18" rx="2" fill="#d0bc78" stroke="#a89040" stroke-width="0.8"/>
+              <!-- Cabinet door bottom -->
+              <rect x="46" y="22" width="24" height="18" rx="2" fill="#d0bc78" stroke="#a89040" stroke-width="0.8"/>
+              <!-- Door inset panels -->
+              <rect x="48" y="4"  width="20" height="14" rx="1" fill="#c4b46e"/>
+              <rect x="48" y="24" width="20" height="14" rx="1" fill="#c4b46e"/>
+              <!-- Door gap line -->
+              <rect x="44" y="20" width="28" height="2" fill="#a89040"/>
+              <!-- Door handles -->
+              <rect x="67" y="10" width="2" height="5" rx="1" fill="#887830"/>
+              <rect x="67" y="28" width="2" height="5" rx="1" fill="#887830"/>
+            </svg>`,
+            'No Exposed Edges','Tile terminates behind a cabinet or appliance','No trim cost','If your backsplash is fully enclosed — upper cabinets above, countertop below, appliances on the sides — no exposed trim may be needed at all.')}
+        </div>
+        <div id="trim-lf-wrap" style="${showLf?'':'display:none'};margin-top:18px">
+          <label class="lbl">Linear feet of exposed edge <span class="opt-note">${autoLf?'(auto-filled from your drawing)':''}</span></label>
+          <input class="inp" type="number" id="ftlf" min="0" max="200" placeholder="e.g. 14" value="${S.trimLinFt||''}" style="width:160px">
+          <div style="font-size:14px;color:var(--gray-3);margin-top:5px">Typical range: 8–20 linear feet for a standard kitchen</div>
+        </div>`;},
+    bind(){
+      bindOpts('edgeTreat');
+      const tog=()=>{
+        const el=$('trim-lf-wrap');
+        if(!el){ document.removeEventListener('opt-ch',tog); return; } // self-clean on step change
+        el.style.display=S.edgeTreat&&S.edgeTreat!=='none'?'block':'none';
+      };
+      document.addEventListener('opt-ch',tog);
+      $('ftlf')?.addEventListener('input',e=>{S.trimLinFt=parseFloat(e.target.value)||0;updEstBar();});
+    },
+    validate(){
+      if(!S.edgeTreat) return false;
+      if(S.edgeTreat!=='none') S.trimLinFt=parseFloat($('ftlf')?.value)||0;
+      return true;
+    }},
+
+  // 6 — Prep
+  { badge:'Step 7 of 10', prog:70, title:'About the existing surface', sub:'Surface prep is where hidden costs live. Knowing upfront keeps your estimate accurate.',
+    render(){
+      const autoOut = S.measureMode==='draw' && S.outlets>0;
+      const surf = S.surfaceType || null;
+      return `
+        <!-- Surface type selector -->
+        <label class="lbl" style="margin-bottom:12px">What's on the wall right now?</label>
+        <div class="opts" style="margin-bottom:24px">
+          <div class="opt${surf==='clean'?' sel':''}" onclick="setSurface('clean')" style="display:flex;align-items:center;gap:14px;padding:18px 16px">
+            <svg viewBox="0 0 36 36" width="36" height="36" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+              <rect x="2" y="2" width="32" height="32" rx="3" fill="#f5f2ee" stroke="#c0b8ac" stroke-width="1.5"/>
+              <rect x="6" y="6" width="24" height="24" rx="2" fill="#fff" stroke="#ddd" stroke-width="1"/>
+            </svg>
+            <div>
+              <div class="opt-label">Clean wall — painted or bare drywall</div>
+              <div class="opt-sub">Ready to tile. No demo needed. Standard prep only.</div>
+              <div class="opt-cost" style="${surf==='clean'?'':'display:none'}">✅ No additional prep cost</div>
+            </div>
+          </div>
+          <div class="opt${surf==='existing-tile'?' sel':''}" onclick="setSurface('existing-tile')" style="display:flex;align-items:center;gap:14px;padding:18px 16px">
+            <svg viewBox="0 0 36 36" width="36" height="36" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+              <rect x="1" y="1" width="16" height="16" rx="1" fill="#d4c4b0" stroke="#a09080" stroke-width="1"/>
+              <rect x="19" y="1" width="16" height="16" rx="1" fill="#d4c4b0" stroke="#a09080" stroke-width="1"/>
+              <rect x="1" y="19" width="16" height="16" rx="1" fill="#d4c4b0" stroke="#a09080" stroke-width="1"/>
+              <rect x="19" y="19" width="16" height="16" rx="1" fill="#d4c4b0" stroke="#a09080" stroke-width="1"/>
+            </svg>
+            <div>
+              <div class="opt-label">Existing tile to remove</div>
+              <div class="opt-sub">Demo and disposal required before new tile can go in.</div>
+              <div class="opt-cost" style="${surf==='existing-tile'?'':'display:none'}">+ ~$9–12/sq ft for demo &amp; disposal</div>
+            </div>
+          </div>
+          <div class="opt${surf==='other'?' sel':''}" onclick="setSurface('other')" style="display:flex;align-items:center;gap:14px;padding:18px 16px">
+            <svg viewBox="0 0 36 36" width="36" height="36" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+              <circle cx="18" cy="18" r="15" fill="#f0ece6" stroke="#c0b8ac" stroke-width="1.5"/>
+              <text x="18" y="24" font-size="18" text-anchor="middle" fill="#9a9188" font-family="sans-serif" font-weight="700">?</text>
+            </svg>
+            <div>
+              <div class="opt-label">Not sure / other</div>
+              <div class="opt-sub">Backerboard, old wallpaper, plaster, or damaged surface — we'll assess at the measure.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Extra add-ons shown when surface is selected -->
+        <div id="prep-extras" style="${surf?'':'display:none'}">
+          <label class="lbl" style="margin-bottom:12px">Anything else we should know?</label>
+          <div class="checks">
+            <label class="chk" id="demo-chk" style="${surf==='existing-tile'?'':'display:none'}">
+              <input type="checkbox" id="cdemo" ${S.demo?'checked':''}><div>
+              <div class="chk-lbl">Confirm: remove &amp; dispose of existing tile</div>
+              <div class="chk-sub">Adds ~$9–12/sq ft. Sometimes reveals hidden moisture — we flag everything we find.</div></div>
+            </label>
+            <label class="chk"><input type="checkbox" id="cdryw" ${S.drywallRepair?'checked':''}><div><div class="chk-lbl">Drywall repair or new backer board likely needed</div><div class="chk-sub">Damaged drywall or cement backer board requirement. Budget ~$150–$300.</div></div></label>
+            <label class="chk"><input type="checkbox" id="cspec" ${S.special?'checked':''}><div><div class="chk-lbl">Special features (range hood, window sill, niche, focal wall)</div><div class="chk-sub">Custom tile work in unique areas. Project-specific — detailed in your written quote.</div></div></label>
+          </div>
+        </div>
+
+        <!-- Outlets -->
+        <div style="margin-top:24px">
+          <label class="lbl">Outlet and switch boxes in the backsplash area</label>
+          ${autoOut?`<div class="edu" style="background:#eaf5ed;border-color:#3a6a4a;margin-bottom:12px"><span class="edu-tag" style="color:#3a6a4a">✅ Auto-Counted From Your Drawing</span>We counted <strong>${S.outlets}</strong> outlet/switch boxes. Adjust below if needed.</div>`:''}
+          <div class="edu" style="${autoOut?'display:none;':''}margin-bottom:12px"><span class="edu-tag">💡 Outlet Cutouts</span>Each outlet or switch box requires a precision tile cutout — <strong>~$45–65 per box</strong>. Most kitchens have 3–6 boxes.</div>
+          <div class="stepper">
+            <button onclick="adjOut(-1)">−</button>
+            <span id="out-ct">${S.outlets}</span>
+            <button onclick="adjOut(1)">+</button>
+          </div>
+          <div style="font-size:14px;color:var(--gray-3);margin-top:8px">Tap − or + for each outlet or switch in the area</div>
+        </div>`;},
+    bind(){
+      window.setSurface = type => {
+        S.surfaceType = type;
+        S.demo = (type === 'existing-tile');
+        // re-render in place to show/hide extras
+        const card = document.querySelector('.cb-card');
+        const st = STEPS[S.step];
+        card.innerHTML = `<div class="cb-badge">${st.badge}</div><div class="cb-title">${st.title}</div><div class="cb-subtitle">${st.sub}</div>${st.render()}`;
+        st.bind();
+        updEstBar();
+      };
+      $('cdemo')?.addEventListener('change', e=>{S.demo=e.target.checked;updEstBar();});
+      $('cdryw')?.addEventListener('change', e=>{S.drywallRepair=e.target.checked;updEstBar();});
+      $('cspec')?.addEventListener('change', e=>{S.special=e.target.checked;});
+      window.adjOut=d=>{S.outlets=Math.max(0,Math.min(20,(S.outlets||0)+d));$('out-ct').textContent=S.outlets;updEstBar();};
+    },
+    validate(){
+      if(!S.surfaceType){alert('Please select what\'s on the wall right now.');return false;}
+      return true;
+    }},
+
+  // 7 — Photos & Tile Reference
+  { badge:'Step 8 of 10', prog:80, title:'Share photos & tile info', sub:'Optional but helpful — the more we can see, the better your estimate.',
+    render(){
+      const spaceCount = SPACE_FILES.length;
+      const tileMode   = S.tileMode || 'photo';
+      return `
+        <div class="edu"><span class="edu-tag">💡 Why This Helps</span>
+          Photos of your existing kitchen let us flag prep issues before the measure. If you've already picked a tile, sharing it now means we can pre-check sizing and pattern compatibility for your quote.
+        </div>
+
+        <!-- Space photos -->
+        <div style="margin-bottom:28px">
+          <label class="lbl">Photos of your space <span class="opt-note">(optional — up to 6)</span></label>
+          <div style="margin-bottom:10px">
+            <label id="space-upload-lbl" style="display:inline-flex;align-items:center;gap:10px;background:var(--gray-1);border:2px dashed var(--gray-2);border-radius:10px;padding:14px 20px;cursor:pointer;font-size:15px;font-weight:700;color:var(--gray-3);transition:all .18s">
+              <span style="font-size:22px">📷</span> Add photos of your kitchen
+              <input id="space-file-inp" type="file" accept="image/*" multiple style="display:none" onchange="addSpacePhotos(this)">
+            </label>
+          </div>
+          <div id="space-thumb-grid" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:4px">
+            ${SPACE_FILES.map((f,i)=>`<div style="position:relative">
+              <img src="${URL.createObjectURL(f)}" style="width:90px;height:90px;object-fit:cover;border-radius:8px;border:2px solid var(--gray-2)">
+              <button onclick="removeSpacePhoto(${i})" style="position:absolute;top:-8px;right:-8px;width:24px;height:24px;background:var(--red);color:#fff;border:none;border-radius:50%;font-size:14px;cursor:pointer;line-height:1;font-family:inherit">×</button>
+            </div>`).join('')}
+          </div>
+        </div>
+
+        <!-- Tile selection -->
+        <div>
+          <label class="lbl">Tile you've already picked <span class="opt-note">(optional)</span></label>
+          <div style="display:flex;gap:8px;margin-bottom:14px">
+            <button onclick="setTileMode('photo')" class="tool-btn ${tileMode==='photo'?'active':''}" style="flex:1">📷 Upload a photo</button>
+            <button onclick="setTileMode('link')"  class="tool-btn ${tileMode==='link' ?'active':''}" style="flex:1">🔗 Paste a link</button>
+          </div>
+
+          <div id="tile-photo-wrap" style="${tileMode==='photo'?'':'display:none'}">
+            ${TILE_FILE ? `<div style="position:relative;display:inline-block">
+              <img src="${URL.createObjectURL(TILE_FILE)}" style="max-height:160px;border-radius:10px;border:2px solid var(--gray-2)">
+              <button onclick="removeTilePhoto()" style="position:absolute;top:-8px;right:-8px;width:24px;height:24px;background:var(--red);color:#fff;border:none;border-radius:50%;font-size:14px;cursor:pointer;line-height:1;font-family:inherit">×</button>
+            </div>` : `<label style="display:inline-flex;align-items:center;gap:10px;background:var(--gray-1);border:2px dashed var(--gray-2);border-radius:10px;padding:14px 20px;cursor:pointer;font-size:15px;font-weight:700;color:var(--gray-3)">
+              <span style="font-size:22px">🖼️</span> Choose tile photo
+              <input type="file" accept="image/*" style="display:none" onchange="addTilePhoto(this)">
+            </label>`}
+          </div>
+
+          <div id="tile-link-wrap" style="${tileMode==='link'?'':'display:none'}">
+            <input class="inp" type="url" id="tile-url-inp" placeholder="https://tileshop.com/your-tile-page" value="${S.tileUrl||''}" oninput="S.tileUrl=this.value">
+            <div style="font-size:14px;color:var(--gray-3);margin-top:6px">Works with any tile store website — Floor &amp; Decor, Tile Shop, Wayfair, etc.</div>
+          </div>
+        </div>`;},
+    bind(){
+      // Handlers defined on window so inline onclick can reach them
+      window.addSpacePhotos = inp => {
+        const existing = SPACE_FILES.length;
+        const allowed  = 6 - existing;
+        const newFiles = Array.from(inp.files).slice(0, allowed);
+        SPACE_FILES = [...SPACE_FILES, ...newFiles];
+        S.spacePhotoCount = SPACE_FILES.length;
+        inp.value='';
+        // re-render this step in-place
+        rerenderPhotoStep();
+      };
+      window.removeSpacePhoto = i => { SPACE_FILES.splice(i,1); S.spacePhotoCount=SPACE_FILES.length; rerenderPhotoStep(); };
+      window.addTilePhoto = inp => { TILE_FILE=inp.files[0]||null; S.hasTilePhoto=!!TILE_FILE; rerenderPhotoStep(); };
+      window.removeTilePhoto = () => { TILE_FILE=null; S.hasTilePhoto=false; rerenderPhotoStep(); };
+      window.setTileMode = mode => { S.tileMode=mode; rerenderPhotoStep(); };
+    },
+    validate(){return true;}},
+
+  // 8 — Results
+  { badge:'Step 9 of 10', prog:90,
+    get title(){ return `Your estimate is ready!`; },
+    get sub(){ return `Here's your personalized breakdown — review it below, then we'll get you scheduled.`; },
+    render(){
+      const {low,high,mat,bill}=calcEst();
+      const tileMap={ceramic:'Ceramic/Subway',porcelain:'Porcelain',glass:'Glass Tile',stone:'Natural Stone',mosaic:'Mosaic Sheets','large-format':'Large Format Porcelain'};
+      const patMap={straight:'Straight Stack','running-bond':'Running Bond ½','third-offset':'Running Bond ⅓ Zipper','third-stairstep':'Running Bond ⅓ Stair-Step',vertical:'Vertical Stack',diagonal:'Diagonal 45°',herringbone:'Herringbone',chevron:'Chevron','random-stone':'Random Stone / Ledger',hexagon:'Hexagon',penny:'Penny / Round Mosaic',complex:'Custom Pattern'};
+      const edgeMap={bullnose:'Bullnose Tile','schluter-alum':'Schluter Aluminum','schluter-accent':'Schluter Accent','pencil-liner':'Pencil Liner',mitered:'Mitered Edge',none:'No Trim'};
+      return `
+        <div class="res-box">
+          <div class="res-lbl">Estimated Installation Labor</div>
+          <div class="res-val">${fmt(low)} – ${fmt(high)}</div>
+          <div class="res-note">${bill} sq ft (with waste) · Labor only · Materials separate</div>
+        </div>
+        <div class="res-table">
+          <div style="font-size:15px;font-weight:800;color:var(--charcoal);margin-bottom:10px">Your Selections</div>
+          <div class="res-row"><span>Tile Type</span><span>${tileMap[S.tileType]||'—'}</span></div>
+          <div class="res-row"><span>Layout Pattern</span><span>${patMap[S.pattern]||'—'}</span></div>
+          <div class="res-row"><span>Edge Treatment</span><span>${edgeMap[S.edgeTreat]||'—'}</span></div>
+          ${S.trimLinFt?`<div class="res-row"><span>Trim (${S.trimLinFt} ln ft)</span><span>Included</span></div>`:''}
+          ${S.demo?`<div class="res-row"><span>Demo Existing Tile</span><span>+${fmt(Math.round((S.sqft||30)*10))}</span></div>`:''}
+          ${S.outlets?`<div class="res-row"><span>Outlet/Switch Cutouts (${S.outlets})</span><span>+${fmt(S.outlets*55)}</span></div>`:''}
+          ${S.drywallRepair?`<div class="res-row"><span>Drywall Repair</span><span>+$225 est.</span></div>`:''}
+        </div>
+        <div class="res-table">
+          <div style="font-size:15px;font-weight:800;color:var(--charcoal);margin-bottom:10px">Typical Material Cost (tile you select)</div>
+          <div class="res-row"><span>Tile material (estimate)</span><span>~${fmt(mat)}</span></div>
+          <div class="res-row"><span>Setting materials</span><span>Included in labor</span></div>
+          <div class="res-row"><span><strong>Estimated Total</strong></span><span><strong>${fmt(low+mat)} – ${fmt(high+mat)}</strong></span></div>
+        </div>
+        <div style="background:var(--gray-1);border-radius:11px;padding:18px 20px;margin-top:4px">
+          <label class="lbl" style="margin-bottom:12px">One last thing — when are you looking to get started?</label>
+          <div class="opts c2" style="gap:8px">
+            <div class="opt${S.timeline==='asap'?' sel':''}" data-key="timeline" data-val="asap" style="padding:12px 14px">
+              <div class="opt-label" style="font-size:14px">ASAP / Within a month</div>
+            </div>
+            <div class="opt${S.timeline==='1-3mo'?' sel':''}" data-key="timeline" data-val="1-3mo" style="padding:12px 14px">
+              <div class="opt-label" style="font-size:14px">1–3 months</div>
+            </div>
+            <div class="opt${S.timeline==='3-6mo'?' sel':''}" data-key="timeline" data-val="3-6mo" style="padding:12px 14px">
+              <div class="opt-label" style="font-size:14px">3–6 months</div>
+            </div>
+            <div class="opt${S.timeline==='exploring'?' sel':''}" data-key="timeline" data-val="exploring" style="padding:12px 14px">
+              <div class="opt-label" style="font-size:14px">Just exploring</div>
+            </div>
+          </div>
+        </div>`;},
+    bind(){ bindOpts('timeline'); }, validate(){return true;}},
+
+  // 9 — Contact (moved to end — collect info at booking stage, less friction up front)
+  { badge:'Step 10 of 10', prog:100, title:"One last step — where should we send your estimate?", sub:"We'll email your full breakdown and follow up to book your free measure.",
+    render(){return `
+      <div class="field-row">
+        <div class="field"><label class="lbl">First Name</label><input class="inp" id="ffn" type="text" placeholder="Jane" value="${S.firstName}" autocomplete="given-name"><div class="err" id="efn">Required</div></div>
+        <div class="field"><label class="lbl">Last Name</label><input class="inp" id="fln" type="text" placeholder="Smith" value="${S.lastName}" autocomplete="family-name"><div class="err" id="eln">Required</div></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label class="lbl">Best Phone Number</label><input class="inp" id="fph" type="tel" placeholder="(402) 555-0000" value="${S.phone}" inputmode="tel" autocomplete="tel"><div class="err" id="eph">Please enter a valid phone number</div></div>
+        <div class="field"><label class="lbl">Email Address</label><input class="inp" id="fem" type="email" placeholder="jane@example.com" value="${S.email}" autocomplete="email"><div class="err" id="eem">Please enter a valid email</div></div>
+      </div>
+      <div class="field"><label class="lbl">Street Address <span class="opt-note">(optional)</span></label><input class="inp" id="fad" type="text" placeholder="1234 Oak St, Omaha, NE" value="${S.address}" autocomplete="street-address"></div>
+      <div class="field" style="max-width:160px"><label class="lbl">Zip Code</label><input class="inp" id="fzp" type="text" inputmode="numeric" maxlength="5" placeholder="68102" value="${S.zip}"><div class="err" id="ezp">5-digit zip required</div></div>`;},
+    bind(){
+      $('ffn').oninput=e=>S.firstName=e.target.value.trim();
+      $('fln').oninput=e=>S.lastName=e.target.value.trim();
+      $('fph').oninput=e=>S.phone=e.target.value.trim();
+      $('fem').oninput=e=>S.email=e.target.value.trim();
+      $('fad').oninput=e=>S.address=e.target.value.trim();
+      $('fzp').oninput=e=>S.zip=e.target.value.trim();
+    },
+    validate(){
+      let ok=true;
+      const sh=(id,v)=>{$(id)?.classList.toggle('show',!v);if(!v)ok=false;};
+      S.firstName=$('ffn').value.trim(); S.lastName=$('fln').value.trim();
+      S.phone=$('fph').value.trim(); S.email=$('fem').value.trim();
+      S.address=$('fad').value.trim(); S.zip=$('fzp').value.trim();
+      sh('efn',S.firstName); sh('eln',S.lastName);
+      sh('eph',S.phone.replace(/\D/g,'').length>=10);
+      sh('eem',/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(S.email));
+      sh('ezp',/^\d{5}$/.test(S.zip));
+      return ok;
+    }}
+];
+
+// ============================================================
+//  SUBMIT
+// ============================================================
+function buildEstimateSummary() {
+  const {low,high,mat} = S.tileType ? calcEst() : {low:0,high:0,mat:0};
+  const tileMap   = {ceramic:'Ceramic/Subway',porcelain:'Porcelain',glass:'Glass Tile',stone:'Natural Stone',mosaic:'Mosaic Sheets','large-format':'Large Format Porcelain'};
+  const patMap    = {straight:'Straight Stack','running-bond':'Running Bond ½ Offset','third-offset':'Running Bond ⅓ Offset (Zipper)','third-stairstep':'Running Bond ⅓ Offset (Stair-Step)',vertical:'Vertical Stack',diagonal:'Diagonal 45°',herringbone:'Herringbone',chevron:'Chevron','random-stone':'Random Stone / Ledger',hexagon:'Hexagon',penny:'Penny / Round Mosaic',complex:'Custom Pattern'};
+  const edgeMap   = {bullnose:'Bullnose Tile','schluter-alum':'Schluter Aluminum','schluter-accent':'Schluter Matte Black/Brushed Nickel','pencil-liner':'Pencil Liner',mitered:'Mitered Edge',none:'No Trim'};
+  const groutJMap = {'no-spacer':'No Spacer — Tight Stack',sixteenth:'1/16" Spacer',eighth:'1/8" Spacer',quarter:'1/4" Spacer'};
+  const surfMap   = {'clean':'Clean wall (painted/drywall)','existing-tile':'Existing tile removed','other':'Surface TBD at measure'};
+  const rows = [
+    ['Project Address', S.address || S.zip || 'Not provided'],
+    ['Area', `${S.sqft || '—'} sq ft${S.sqft ? ` (${+(S.sqft*1.12).toFixed(0)} sq ft billed with waste)` : ''}`],
+    ['Tile Type', tileMap[S.tileType] || '—'],
+    ['Layout Pattern', patMap[S.pattern] || '—'],
+    ['Grout Joint', groutJMap[S.groutJoint] || '—'],
+    ['Grout Type', S.groutType==='epoxy' ? 'Epoxy (stain-proof, no sealing needed)' : 'Standard'],
+    ['Edge Treatment', edgeMap[S.edgeTreat] || '—'],
+    S.trimLinFt ? ['Trim Linear Footage', `${S.trimLinFt} ln ft`] : null,
+    ['Current Surface', surfMap[S.surfaceType] || '—'],
+    S.demo ? ['Demo Existing Tile', 'Yes — included in estimate'] : null,
+    S.drywallRepair ? ['Drywall / Backer', 'Likely needed (~$150–$300)'] : null,
+    S.outlets ? ['Outlet/Switch Cutouts', `${S.outlets} boxes`] : null,
+    S.special ? ['Special Features', 'Yes — detailed in written quote'] : null,
+  ].filter(Boolean);
+
+  // Plain text (for SMS)
+  const sms = [
+    `Hi ${S.firstName}! Here's your Crafted Backsplash estimate summary:`,
+    ``,
+    `📊 LABOR ESTIMATE: ${fmt(low)} – ${fmt(high)}`,
+    `🏠 TILE MATERIAL: ~${fmt(mat)}`,
+    `💰 ESTIMATED TOTAL: ~${fmt(low+mat)} – ${fmt(high+mat)}`,
+    ``,
+    ...rows.map(([k,v])=>`${k}: ${v}`),
+    ``,
+    `This is a planning estimate — we'll confirm exact pricing at your free on-site measure.`,
+    ``,
+    S.timeline ? `⏰ Timeline: ${{'asap':'ASAP / within a month','1-3mo':'1–3 months','3-6mo':'3–6 months','exploring':'Just exploring'}[S.timeline]||S.timeline}` : '',
+    `📅 Book your free measure: ${CFG.CALENDLY}`,
+    `📞 Or call/text us: ${CFG.PHONE}`,
+    ``,
+    `– ${CFG.BRAND}`,
+  ].join('\n');
+
+  // HTML email body
+  const html = `<!DOCTYPE html><html><body style="font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;background:#f5f2ee;margin:0;padding:20px">
+  <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.09)">
+    <div style="background:#222;padding:28px 32px;text-align:center">
+      <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#8B1A1A;font-weight:800;margin-bottom:6px">Crafted Backsplash · Omaha &amp; Lincoln, NE</div>
+      <div style="font-size:22px;font-weight:900;color:#fff">Your Estimate Summary</div>
+    </div>
+    <div style="padding:28px 32px">
+      <p style="font-size:16px;color:#444;margin:0 0 20px">Hi ${S.firstName},<br><br>Thanks for using our estimator! Here's a copy of your estimate details for your records.</p>
+      <div style="background:#222;border-radius:11px;padding:22px;text-align:center;margin-bottom:22px">
+        <div style="font-size:11px;color:#8B1A1A;letter-spacing:1px;text-transform:uppercase;font-weight:800;margin-bottom:4px">Estimated Installation Labor</div>
+        <div style="font-size:34px;font-weight:900;color:#fff;margin-bottom:2px">${fmt(low)} – ${fmt(high)}</div>
+        <div style="font-size:13px;color:#888">+ ~${fmt(mat)} tile materials &nbsp;·&nbsp; Total ~${fmt(low+mat)}–${fmt(high+mat)}</div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:20px">
+        ${rows.map(([k,v],i)=>`<tr style="background:${i%2===0?'#f8f5f1':'#fff'}">
+          <td style="padding:10px 12px;font-size:14px;color:#777;font-weight:600;width:45%">${k}</td>
+          <td style="padding:10px 12px;font-size:14px;color:#222;font-weight:700">${v}</td>
+        </tr>`).join('')}
+      </table>
+      <div style="background:#fdf0f0;border-left:4px solid #8B1A1A;border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:24px;font-size:14px;color:#3a1010">
+        This is a planning estimate based on the details you provided. Actual costs are confirmed in your written fixed-price quote after the free on-site measure — no surprises.
+      </div>
+      <div style="text-align:center">
+        <a href="${CFG.CALENDLY}" style="display:inline-block;background:#8B1A1A;color:#fff;font-weight:900;font-size:16px;padding:16px 32px;border-radius:10px;text-decoration:none;margin-bottom:12px">📅 Book Your Free Measure</a>
+        <div style="font-size:14px;color:#888;margin-top:8px">Or call/text us: <a href="tel:${CFG.PHONE_RAW}" style="color:#5c0f0f;font-weight:700">${CFG.PHONE}</a></div>
+      </div>
+    </div>
+    <div style="background:#f0ece6;padding:18px 32px;text-align:center;font-size:12px;color:#9a9188">
+      ${CFG.BRAND} &nbsp;·&nbsp; Omaha &amp; Lincoln, NE &nbsp;·&nbsp; ${CFG.PHONE}
+    </div>
+  </div></body></html>`;
+
+  return { sms, html, low, high, mat };
+}
+
+async function zapier(extra={}) {
+  const {low,high,mat,sms,html} = S.tileType ? buildEstimateSummary() : {low:0,high:0,mat:0,sms:'',html:''};
+  const payload = { ...extra,
+    name:`${S.firstName} ${S.lastName}`.trim(), firstName:S.firstName, lastName:S.lastName,
+    phone:S.phone, email:S.email, address:S.address, zip:S.zip,
+    measureMode:S.measureMode, sqft:S.sqft, tileType:S.tileType, tileFormat:S.tileFormat,
+    pattern:S.pattern, groutJoint:S.groutJoint, groutType:S.groutType,
+    edgeTreat:S.edgeTreat, trimLinFt:S.trimLinFt, demo:S.demo,
+    drywallRepair:S.drywallRepair, outlets:S.outlets, surfaceType:S.surfaceType, timeline:S.timeline,
+    laborLow:low, laborHigh:high, materialEst:mat, totalLow:low+mat, totalHigh:high+mat,
+    spacePhotoCount:S.spacePhotoCount, hasTilePhoto:S.hasTilePhoto, tileUrl:S.tileUrl,
+    // Pre-formatted content for Zapier to send directly:
+    estimateEmailHtml: html,
+    estimateSmsText:   sms,
+    emailSubject:      `Your Crafted Backsplash Estimate — ${fmt(low)}–${fmt(high)} labor`,
+    source:'Website Estimator Widget', submitted:new Date().toISOString(),
+  };
+  try {
+    if(CFG.ZAPIER && !CFG.ZAPIER.includes('YOUR_')) {
+      await fetch(CFG.ZAPIER,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),mode:'no-cors'});
+    }
+  } catch(e){ console.warn('Zapier:',e); }
+}
+
+async function handleSubmit() {
+  const btn=$('btn-next'); btn.textContent='Sending…'; btn.disabled=true;
+  await zapier();
+  try { sessionStorage.removeItem(SS_KEY); } catch(e) {}
+  showThanks();
+}
+
+function showThanks() {
+  $('cb-nav').style.display='none'; $('cb-est-bar').style.display='none';
+  $('cb-prog-fill').style.width='100%';
+  $('cb-prog-track').setAttribute('aria-valuenow', 100);
+  $('cb-step-lbl').textContent='✓ Estimate complete';
+  const {low,high,mat}=calcEst();
+  $('cb-content').innerHTML=`<div id="cb-ty">
+    <div class="ty-icon">🎉</div>
+    <div class="ty-title">You're all set, ${S.firstName}!</div>
+    <div class="ty-sub">A copy of your estimate was sent to <strong>${S.email}</strong>${S.phone ? ` and a summary text to <strong>${S.phone}</strong>` : ''}. Lock in your spot — pick a time below and we'll come to you.</div>
+    <div class="ty-est">
+      <div class="ty-est-lbl">Your Labor Estimate</div>
+      <div class="ty-est-val">${fmt(low)} – ${fmt(high)}</div>
+      <div class="ty-est-note">+ ~${fmt(mat)} tile materials · Total ~${fmt(low+mat)}–${fmt(high+mat)}</div>
+    </div>
+    <a class="ty-cta ty-book" href="${CFG.CALENDLY}" target="_blank" rel="noopener">📅 Book Your Free Measure</a>
+    <div class="ty-or">or</div>
+    <a class="ty-cta ty-call" href="tel:${CFG.PHONE_RAW}">📞 Call / Text: ${CFG.PHONE}</a>
+    <div class="ty-steps">
+      <div class="ty-step"><div class="ty-num">1</div><div class="ty-txt"><strong>Book your free measure</strong>Pick a time that works — most slots available within a few days.</div></div>
+      <div class="ty-step"><div class="ty-num">2</div><div class="ty-txt"><strong>We measure on-site</strong>We come to you, take exact measurements, review the surface.</div></div>
+      <div class="ty-step"><div class="ty-num">3</div><div class="ty-txt"><strong>Written fixed-price quote</strong>Detailed and itemized — no surprises. Usually within 24 hrs of the measure.</div></div>
+      <div class="ty-step"><div class="ty-num">4</div><div class="ty-txt"><strong>Schedule your install</strong>Most kitchen backsplashes take 1–2 days. We handle everything.</div></div>
+    </div>
+    <div class="ty-disc">This estimate is for planning purposes only, based on standard Omaha/Lincoln market rates. Actual costs may vary based on site conditions and tile selection. Crafted Backsplash provides a written fixed-price quote before any work begins — no surprises.</div>
+  </div>`;
+}
+
+// ============================================================
+//  RENDER ENGINE
+// ============================================================
+function renderStep() {
+  // Clear canvas buffer before DOM removal to prevent GPU-compositor ghost
+  if (DS.ctx) {
+    DS.ctx.clearRect(0, 0, DS.W, DS.H);
+  }
+  DS.canvas = null;
+  DS.ctx    = null;
+
+  const st = STEPS[S.step];
+  $('cb-prog-fill').style.width = st.prog+'%';
+  $('cb-prog-track').setAttribute('aria-valuenow', st.prog);
+  $('cb-step-lbl').textContent  = st.badge;
+  $('cb-content').innerHTML     = `<div class="cb-card">
+    <div class="cb-badge">${st.badge}</div>
+    <div class="cb-title">${st.title}</div>
+    <div class="cb-subtitle">${st.sub}</div>
+    ${st.render()}
+  </div>`;
+  if(st.bind) st.bind();
+  $('btn-back').style.display = S.step>0 ? '' : 'none';
+  $('btn-next').textContent   = S.step===STEPS.length-1 ? '📅 Send My Estimate & Book →' : S.step===STEPS.length-2 ? 'Continue to Book →' : S.step===STEPS.length-3 ? '📸 Continue →' : 'Continue →';
+  $('btn-next').disabled      = false;
+  updEstBar();
+}
+
+// ============================================================
+//  SESSION PERSISTENCE — saves form state to sessionStorage
+//  so a page refresh or accidental navigation doesn't wipe answers
+// ============================================================
+const SS_KEY = 'cb_est_v3';
+
+function saveSession() {
+  try {
+    const ser = {
+      S: Object.assign({}, S),
+      DS_shapes: DS.shapes.map(sh => ({
+        points: sh.points,
+        sqFt:   sh.sqFt,
+        edgeLabels: sh.edgeLabels,
+        outlets:  (sh.outlets  || []),
+        switches: (sh.switches || []),
+      })),
+      DS_SCALE: DS.SCALE,
+    };
+    sessionStorage.setItem(SS_KEY, JSON.stringify(ser));
+  } catch(e) { /* ignore quota errors */ }
+}
+
+function loadSession() {
+  try {
+    const raw = sessionStorage.getItem(SS_KEY);
+    if (!raw) return;
+    const ser = JSON.parse(raw);
+    // Restore scalar state (skip file objects — not serializable)
+    Object.assign(S, ser.S);
+    // Restore canvas shapes
+    DS.shapes = ser.DS_shapes || [];
+    DS.SCALE  = ser.DS_SCALE  || 6;
+  } catch(e) { sessionStorage.removeItem(SS_KEY); }
+}
+
+// ── Navigation ──
+$('btn-next').addEventListener('click', ()=>{
+  const st=STEPS[S.step];
+  if(st.validate && !st.validate()) return;
+  if(S.step<STEPS.length-1){ S.step++; renderStep(); saveSession(); scrollTo({top:0,behavior:'smooth'}); }
+  else handleSubmit();
+});
+$('btn-back').addEventListener('click', ()=>{
+  if(S.step>0){ S.step--; renderStep(); saveSession(); scrollTo({top:0,behavior:'smooth'}); }
+});
+
+// Restore any previous session, then render
+loadSession();
+renderStep();
+
+// ── postMessage height reporter (for iframe embed in index.html) ──
+// IMPORTANT: measure the content element (#cb-wrap + nav padding), NOT
+// document.body.scrollHeight — that value grows as the iframe grows,
+// creating a feedback loop that makes the parent page scroll forever.
+function reportHeight() {
+  const wrap = document.getElementById('cb-wrap');
+  if (!wrap) return;
+  // offsetHeight of the wrap + its top/bottom position + body padding
+  const h = wrap.offsetTop + wrap.offsetHeight + 80;
+  window.parent.postMessage({ type: 'cb-resize', height: h }, '*');
+}
+// Report after each render and whenever the content changes size
+reportHeight();
+const _ro = new ResizeObserver(reportHeight);
+_ro.observe(document.getElementById('cb-wrap') || document.body);
+</script>
+</body>
+</html>
