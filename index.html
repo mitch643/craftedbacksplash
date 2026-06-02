@@ -169,6 +169,22 @@
           "@type": "Answer",
           "text": "In virtually all cases, no. Cosmetic tile work — installing or replacing a backsplash — is finish work and doesn't require a building permit in Omaha or Lincoln. You'd need a permit only if the project involved moving plumbing, relocating electrical circuits, or structural work. Adjusting an outlet box depth to accommodate added tile thickness doesn't require a permit. In 99% of backsplash jobs, permits aren't part of the conversation."
         }
+      },
+      {
+        "@type": "Question",
+        "name": "Do you supply the tile, or do I buy it myself?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "You supply the tile — we supply everything else. Our labor price includes thinset, grout, grout sealer, caulk, spacers, and all installation materials. Most homeowners buy tile from Floor & Decor, Tile Shop, Menards, Home Depot, or online retailers like Wayfair. If you've already picked a tile, you can share a photo or link during the estimate process — it helps us double-check sizing and pattern compatibility before the measure."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What cities and areas does Crafted Backsplash serve?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "We serve the full Omaha and Lincoln metropolitan area, including Omaha, Lincoln, Bellevue, Papillion, La Vista, Gretna, Elkhorn, and Fremont, Nebraska. We also cover surrounding communities in eastern Nebraska. If you're unsure whether you're in our service area, use the estimate tool or call us — if we can't serve you, we'll say so right away."
+        }
       }
     ]
   }
@@ -917,6 +933,12 @@ body {
   .trust-item { font-size: 13px; }
 }
 
+/* Hide nav phone on very small screens so logo + CTA don't overflow */
+@media (max-width: 440px) {
+  #nav-phone { display: none; }
+  #nav { padding: 0 16px; }
+}
+
 /* ── SCROLL ANIMATION ── */
 .fade-up {
   opacity: 0;
@@ -938,7 +960,11 @@ body {
   <a href="#" id="nav-brand">
     <img src="images/logo.png" alt="Crafted Backsplash">
   </a>
-  <a href="backsplash-estimator-widget.html" target="_blank" rel="noopener" id="nav-cta">Get Free Estimate</a>
+  <div style="display:flex;align-items:center;gap:12px">
+    <!-- TODO: Replace (402) 555-0000 with real phone number before launch -->
+    <a href="tel:4025550000" style="font-size:14px;font-weight:700;color:var(--gray-4);text-decoration:none;white-space:nowrap" id="nav-phone">(402) 555-0000</a>
+    <a href="backsplash-estimator-widget.html" target="_blank" rel="noopener" id="nav-cta">Get Free Estimate</a>
+  </div>
 </nav>
 
 <!-- ══════════════════════════════════════
@@ -954,8 +980,27 @@ body {
       <a href="#gallery" class="btn-secondary">See Our Work</a>
     </div>
     <p class="hero-note">No obligation &nbsp;·&nbsp; No salesperson calls &nbsp;·&nbsp; 2 minutes</p>
+    <p class="hero-note" style="margin-top:6px;color:rgba(255,255,255,0.38)">Most projects scheduled within 1–2 weeks</p>
+    <p class="hero-note" style="margin-top:10px">Prefer to call? <a href="tel:4025550000" style="color:rgba(255,255,255,0.75);font-weight:700;text-decoration:underline">(402) 555-0000</a></p>
   </div>
 </section>
+
+<!-- ══════════════════════════════════════
+     TRUST BAR — right after hero
+══════════════════════════════════════ -->
+<div id="trust">
+  <div class="trust-inner">
+    <div class="trust-item"><span class="trust-icon">✓</span> Licensed Nebraska LLC</div>
+    <div class="trust-divider"></div>
+    <div class="trust-item"><span class="trust-icon">✓</span> Fully Insured</div>
+    <div class="trust-divider"></div>
+    <div class="trust-item"><span class="trust-icon">⭐</span> 5-Star Rated</div>
+    <div class="trust-divider"></div>
+    <div class="trust-item"><span class="trust-icon">✓</span> Written Fixed-Price Quote</div>
+    <div class="trust-divider"></div>
+    <div class="trust-item"><span class="trust-icon">📅</span> Free On-Site Measure</div>
+  </div>
+</div>
 
 <!-- ══════════════════════════════════════
      ESTIMATOR — LAUNCH CTA
@@ -964,7 +1009,7 @@ body {
   <div class="estimator-header fade-up">
     <div class="section-label">Free Estimate Tool</div>
     <h2 class="section-title">What will your backsplash cost?</h2>
-    <p class="section-sub">Draw your space, pick your tile, and get an estimate in about 2 minutes. No contractor visit or email required to start.</p>
+    <p class="section-sub">Draw your space, pick your tile, and get an estimate in about 2 minutes. No contractor visit or email required.</p>
   </div>
   <div class="cta-launch fade-up">
     <a href="backsplash-estimator-widget.html" target="_blank" rel="noopener" class="cta-launch-btn">
@@ -991,16 +1036,16 @@ body {
     </div>
     <div class="gallery-grid fade-up">
       <div class="gallery-item featured">
-        <img src="images/hero.jpg" alt="White subway tile backsplash with dark charcoal cabinets in Omaha kitchen" loading="lazy">
-        <div class="gallery-caption">White subway tile — charcoal cabinets, Omaha</div>
-      </div>
-      <div class="gallery-item">
         <img src="images/gallery-2.jpg" alt="Natural stone travertine backsplash with cherry wood cabinets in Omaha kitchen" loading="lazy">
-        <div class="gallery-caption">Natural stone travertine, cherry cabinets</div>
+        <div class="gallery-caption">Natural stone travertine, cherry cabinets — Omaha</div>
       </div>
       <div class="gallery-item">
         <img src="images/gallery-3.jpg" alt="Dark vertical-stack tile on custom coffee bar niche in Omaha home" loading="lazy">
         <div class="gallery-caption">Vertical stack tile, custom bar niche</div>
+      </div>
+      <div class="gallery-item">
+        <img src="images/hero.jpg" alt="White subway tile backsplash with dark charcoal cabinets in Omaha kitchen" loading="lazy">
+        <div class="gallery-caption">White subway tile — charcoal cabinets</div>
       </div>
       <div class="gallery-item">
         <img src="images/gallery-4.jpg" alt="Natural stone tile wrapping sink area and window sill in Omaha kitchen" loading="lazy">
@@ -1015,25 +1060,12 @@ body {
         <div class="gallery-caption">Travertine inside corner, tight detail</div>
       </div>
     </div>
+    <div style="text-align:center;margin-top:40px" class="fade-up">
+      <a href="backsplash-estimator-widget.html" target="_blank" rel="noopener" class="btn-primary" style="display:inline-block;font-size:16px;padding:14px 36px">Get My Free Estimate →</a>
+      <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-top:12px">Takes about 2 minutes · No email required to see your result</p>
+    </div>
   </div>
 </section>
-
-<!-- ══════════════════════════════════════
-     TRUST BAR
-══════════════════════════════════════ -->
-<div id="trust">
-  <div class="trust-inner">
-    <div class="trust-item"><span class="trust-icon">✓</span> Licensed Nebraska LLC</div>
-    <div class="trust-divider"></div>
-    <div class="trust-item"><span class="trust-icon">✓</span> Fully Insured</div>
-    <div class="trust-divider"></div>
-    <div class="trust-item"><span class="trust-icon">⭐</span> 5-Star Rated</div>
-    <div class="trust-divider"></div>
-    <div class="trust-item"><span class="trust-icon">✓</span> Written Fixed-Price Quote</div>
-    <div class="trust-divider"></div>
-    <div class="trust-item"><span class="trust-icon">📅</span> Free On-Site Measure</div>
-  </div>
-</div>
 
 <!-- ══════════════════════════════════════
      HOW IT WORKS
@@ -1104,7 +1136,7 @@ body {
       <div class="why-card fade-up">
         <div class="why-icon">📐</div>
         <h3>Precision Pattern Work</h3>
-        <p>Herringbone, chevron, diagonal, medallion inlays — we've done them all. Complex patterns are quoted accurately, not just "more expensive."</p>
+        <p>Herringbone, chevron, diagonal, custom mixed-tile layouts — every complex pattern is quoted accurately with a real labor breakdown, not just "it costs more."</p>
       </div>
       <div class="why-card fade-up">
         <div class="why-icon">🛡️</div>
@@ -1267,58 +1299,14 @@ body {
       </details>
 
       <details class="faq-item">
-        <summary class="faq-q">How does the free estimate tool work?</summary>
+        <summary class="faq-q">Do you supply the tile, or do I buy it myself?</summary>
         <div class="faq-a">
-          <p>Our estimator walks you through 10 steps: you draw or measure your space, pick your tile type and pattern, and select a few options like edge treatment and surface prep. At the end, you get a real price range based on current Omaha/Lincoln labor rates.</p>
-          <p>It takes about 2 minutes and <strong>no email is required</strong> to see your result. The estimate is for planning purposes — exact pricing comes after the free on-site measure.</p>
+          <p>You supply the tile — we supply everything else. Our labor price includes thinset, grout, grout sealer, caulk, spacers, and all installation materials. Most homeowners buy tile from Floor & Decor, Tile Shop, Menards, Home Depot, or online retailers like Wayfair.</p>
+          <p>If you've already picked a tile, you can share a photo or link during the estimate process — it helps us double-check sizing and pattern compatibility before the measure. If you haven't picked tile yet, we're happy to point you toward suppliers we trust.</p>
         </div>
       </details>
 
-    </div>
-  </div>
-</section>
-
-<!-- ══════════════════════════════════════
-     BOTTOM CTA
-══════════════════════════════════════ -->
-<section id="cta" class="section" style="background:var(--gold);padding:72px 24px;text-align:center">
-  <div class="section-inner">
-    <div class="fade-up">
-      <div class="section-label" style="color:rgba(255,255,255,0.7)">Ready to Get Started?</div>
-      <h2 class="section-title" style="color:#fff;margin-bottom:14px">Get your estimate in 2 minutes.</h2>
-      <p class="section-sub" style="color:rgba(255,255,255,0.78);margin:0 auto 36px">No contractor visit. No email required. Just a real price range — instant and free.</p>
-      <a href="backsplash-estimator-widget.html" target="_blank" rel="noopener" class="btn-primary" style="background:#fff;color:var(--gold);display:inline-block;font-size:18px;padding:18px 44px;box-shadow:0 6px 32px rgba(0,0,0,0.2)">⚡ Get My Free Estimate →</a>
-    </div>
-  </div>
-</section>
-
-<!-- ══════════════════════════════════════
-     FOOTER
-══════════════════════════════════════ -->
-<footer id="footer">
-  <div class="footer-brand">Crafted Backsplash</div>
-  <div class="footer-sub">Kitchen Tile Specialists · Omaha &amp; Lincoln, NE</div>
-  <div class="footer-divider"></div>
-  <nav class="footer-links" aria-label="Footer navigation">
-    <a href="#how">How It Works</a>
-    <a href="#gallery">Our Work</a>
-    <a href="#testimonials">Reviews</a>
-    <a href="#faq">FAQ</a>
-    <a href="backsplash-estimator-widget.html" target="_blank" rel="noopener">Get Estimate</a>
-  </nav>
-  <div class="footer-area">Serving Omaha · Lincoln · Bellevue · Papillion · La Vista · Gretna · Elkhorn · Fremont</div>
-  <div class="footer-legal">
-    © 2026 Crafted Backsplash LLC · Nebraska LLC<br>
-    All estimates are for planning purposes. Firm written quote provided before any work begins.
-  </div>
-</footer>
-
-<script>
-// Scroll-triggered fade-in
-const obs = new IntersectionObserver(entries => {
-  entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
-}, { threshold: 0.12 });
-document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
-</script>
-</body>
-</html>
+      <details class="faq-item">
+        <summary class="faq-q">What cities and areas do you serve?</summary>
+        <div class="faq-a">
+          <p>We serve the full Omaha and Lincoln metropolitan area, including <strong>Omaha, Lincoln, Bellevue, Papillion, La Vista, Gretna, Elkhor
