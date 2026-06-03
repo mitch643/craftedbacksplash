@@ -2888,51 +2888,100 @@ const STEPS = [
   // 8 — Results
   { badge:'Step 9 of 10', prog:90,
     get title(){ return `Your estimate is ready!`; },
-    get sub(){ return `Here's your personalized breakdown — review it below, then we'll get you scheduled.`; },
+    get sub(){ return `Here's your full breakdown — review it, save the PDF, then continue to schedule.`; },
     render(){
-      const {low,high,mat,bill}=calcEst();
-      const tileMap={ceramic:'Ceramic/Subway',porcelain:'Porcelain',glass:'Glass Tile',stone:'Natural Stone',mosaic:'Mosaic Sheets','large-format':'Large Format Porcelain'};
-      const patMap={straight:'Straight Stack','running-bond':'Running Bond ½','third-offset':'Running Bond ⅓ Zipper','third-stairstep':'Running Bond ⅓ Stair-Step',vertical:'Vertical Stack',diagonal:'Diagonal 45°',herringbone:'Herringbone',chevron:'Chevron','random-stone':'Random Stone / Ledger',hexagon:'Hexagon',penny:'Penny / Round Mosaic',complex:'Custom Pattern'};
-      const edgeMap={bullnose:'Bullnose Tile','schluter-alum':'Schluter Aluminum','schluter-accent':'Schluter Accent','pencil-liner':'Pencil Liner',mitered:'Mitered Edge',none:'No Trim'};
-      return `
-        <div class="res-box">
-          <div class="res-lbl">Estimated Installation Labor</div>
-          <div class="res-val">${fmt(low)} – ${fmt(high)}</div>
-          <div class="res-note">${bill} sq ft (with waste) · Labor only · Materials separate</div>
-        </div>
-        <div class="res-table">
-          <div style="font-size:15px;font-weight:800;color:var(--charcoal);margin-bottom:10px">Your Selections</div>
-          <div class="res-row"><span>Tile Type</span><span>${tileMap[S.tileType]||'—'}</span></div>
-          <div class="res-row"><span>Layout Pattern</span><span>${patMap[S.pattern]||'—'}</span></div>
-          <div class="res-row"><span>Edge Treatment</span><span>${edgeMap[S.edgeTreat]||'—'}</span></div>
-          ${S.trimLinFt?`<div class="res-row"><span>Trim (${S.trimLinFt} ln ft)</span><span>Included</span></div>`:''}
-          ${S.demo?`<div class="res-row"><span>Demo Existing Tile</span><span>+${fmt(Math.round((S.sqft||30)*10))}</span></div>`:''}
-          ${S.outlets?`<div class="res-row"><span>Outlet/Switch Cutouts (${S.outlets})</span><span>+${fmt(S.outlets*55)}</span></div>`:''}
-          ${S.drywallRepair?`<div class="res-row"><span>Drywall Repair</span><span>+$225 est.</span></div>`:''}
-        </div>
-        <div class="res-table">
-          <div style="font-size:15px;font-weight:800;color:var(--charcoal);margin-bottom:10px">Typical Material Cost (tile you select)</div>
-          <div class="res-row"><span>Tile material (estimate)</span><span>~${fmt(mat)}</span></div>
-          <div class="res-row"><span>Setting materials</span><span>Included in labor</span></div>
-          <div class="res-row"><span><strong>Estimated Total</strong></span><span><strong>${fmt(low+mat)} – ${fmt(high+mat)}</strong></span></div>
-        </div>
-        <div style="background:var(--gray-1);border-radius:11px;padding:18px 20px;margin-top:4px">
-          <label class="lbl" style="margin-bottom:12px">One last thing — when are you looking to get started?</label>
-          <div class="opts c2" style="gap:8px">
-            <div class="opt${S.timeline==='asap'?' sel':''}" data-key="timeline" data-val="asap" style="padding:12px 14px">
-              <div class="opt-label" style="font-size:14px">ASAP / Within a month</div>
+      const {low,high,mat,bill,fixedCost,demoAmt,drywAmt,outAmt,tileAmt,trimAmt,totalHrs}=calcEst();
+      const days=calcDays(totalHrs);
+      const sq=S.sqft||0;
+      const tileLabels={ceramic:'Ceramic / Subway',porcelain:'Porcelain',glass:'Glass Tile',stone:'Natural Stone',mosaic:'Mosaic Sheets','large-format':'Large Format Porcelain'};
+      const patLabels={straight:'Straight Stack','running-bond':'Running Bond ½ Offset','third-offset':'Running Bond ⅓ Offset (Zipper)','third-stairstep':'Running Bond ⅓ Offset (Stair-Step)',vertical:'Vertical Stack',diagonal:'Diagonal 45°',herringbone:'Herringbone',chevron:'Chevron','random-stone':'Random Stone / Ledger',hexagon:'Hexagon',penny:'Penny / Round Mosaic',complex:'Custom Pattern'};
+      const edgeLabels={bullnose:'Bullnose Tile','schluter-alum':'Schluter Aluminum','schluter-accent':'Schluter Accent','pencil-liner':'Pencil Liner',mitered:'Mitered Edge',none:'No Trim'};
+      const groutJLbls={'no-spacer':'No Spacer (Tight Stack)',sixteenth:'1/16" Spacer',eighth:'1/8" Spacer',quarter:'1/4" Spacer'};
+      const compLabels={simple:'Simple (rectangular)',moderate:'Moderate (L-shape / window)',complex:'Complex (multiple angles)'};
+      const selRows=[
+        ['Tile Type',tileLabels[S.tileType]||S.tileType||'—'],
+        ['Layout Pattern',patLabels[S.pattern]||'—'],
+        ['Tile Format',{'tiny-mosaic':'Tiny / Sheet Mosaic',subway:'Subway (3×6")',medium:'Medium (4–8")',large:'Large (9–18")',jumbo:'Jumbo (18"+)'}[S.tileFormat]||'—'],
+        ['Grout Joint',groutJLbls[S.groutJoint]||'—'],
+        ['Grout Type',S.groutType==='epoxy'?'Epoxy (stain-proof)':'Standard'],
+        ['Edge Treatment',edgeLabels[S.edgeTreat]||'—'],
+        S.trimLinFt?['Trim Linear Footage',S.trimLinFt+' ln ft']:null,
+        S.demo?['Demo Existing Tile','Yes — included']:null,
+        S.drywallRepair?['Drywall / Backer','Likely needed']:null,
+        S.outlets?['Outlet/Switch Cutouts',S.outlets+' box'+(S.outlets>1?'es':'')]:null,
+        S.manualComplexity?['Space Complexity',compLabels[S.manualComplexity]||'—']:null,
+        S.special?['Special Features','Yes — in written quote']:null,
+      ].filter(Boolean).map(([k,v])=>`<div class="res-row"><span>${k}</span><span>${v}</span></div>`).join('');
+      return \`
+        <!-- Summary header -->
+        <div class="res-box" style="padding:0;overflow:hidden;margin-bottom:16px">
+          <div style="background:var(--gold);color:#fff;padding:16px 20px 10px">
+            <div style="font-size:28px;font-weight:900;letter-spacing:-.5px">\${fmt(low)} – \${fmt(high)}</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.75);margin-top:2px">Labor only · \${bill} sq ft billed (12% waste)</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-top:1px solid var(--gray-2)">
+            <div style="padding:12px 14px;border-right:1px solid var(--gray-2)">
+              <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--gray-3);margin-bottom:4px">Tile Materials</div>
+              <div style="font-size:16px;font-weight:900">~\${fmt(mat)}</div>
+              <div style="font-size:11px;color:var(--gray-3)">You source</div>
             </div>
-            <div class="opt${S.timeline==='1-3mo'?' sel':''}" data-key="timeline" data-val="1-3mo" style="padding:12px 14px">
-              <div class="opt-label" style="font-size:14px">1–3 months</div>
+            <div style="padding:12px 14px;border-right:1px solid var(--gray-2)">
+              <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--gray-3);margin-bottom:4px">Est. Total</div>
+              <div style="font-size:16px;font-weight:900">\${fmt(low+mat)}–\${fmt(high+mat)}</div>
+              <div style="font-size:11px;color:var(--gray-3)">Labor + tile</div>
             </div>
-            <div class="opt${S.timeline==='3-6mo'?' sel':''}" data-key="timeline" data-val="3-6mo" style="padding:12px 14px">
-              <div class="opt-label" style="font-size:14px">3–6 months</div>
-            </div>
-            <div class="opt${S.timeline==='exploring'?' sel':''}" data-key="timeline" data-val="exploring" style="padding:12px 14px">
-              <div class="opt-label" style="font-size:14px">Just exploring</div>
+            <div style="padding:12px 14px">
+              <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--gray-3);margin-bottom:4px">Days in Home</div>
+              <div style="font-size:16px;font-weight:900">\${days}</div>
+              <div style="font-size:11px;color:var(--gray-3)">Working days</div>
             </div>
           </div>
-        </div>`;},
+        </div>
+
+        <!-- PDF button -->
+        <button onclick="printEstimate()" style="width:100%;padding:13px;background:var(--charcoal);color:#fff;border:none;border-radius:9px;font-size:15px;font-weight:800;cursor:pointer;margin-bottom:18px;letter-spacing:.3px">
+          🖨️ Save / Print Full PDF Report
+        </button>
+
+        <!-- Wall diagrams -->
+        \${wallsSection()}
+
+        <!-- Labor breakdown -->
+        <div class="res-table" style="margin-bottom:12px">
+          <div style="font-size:13px;font-weight:800;color:var(--charcoal);margin-bottom:8px;text-transform:uppercase;letter-spacing:.8px">Labor Breakdown</div>
+          <div class="res-row"><span>Setup, layout &amp; cleanup (fixed)</span><span>\${fmt(300)}</span></div>
+          <div class="res-row"><span>Tile installation (\${bill} sq ft)</span><span>\${fmt(tileAmt)}</span></div>
+          \${demoAmt?'<div class="res-row"><span>Demo existing tile ('+sq+' sq ft)</span><span>+'+fmt(demoAmt)+'</span></div>':''}
+          \${drywAmt?'<div class="res-row"><span>Drywall / backer repair</span><span>+'+fmt(drywAmt)+'</span></div>':''}
+          \${outAmt?'<div class="res-row"><span>Outlet / switch cutouts ('+S.outlets+')</span><span>+'+fmt(outAmt)+'</span></div>':''}
+          \${trimAmt?'<div class="res-row"><span>Trim installation ('+S.trimLinFt+' ln ft)</span><span>+'+fmt(trimAmt)+'</span></div>':''}
+          <div class="res-row" style="font-weight:900;background:var(--gray-1);border-radius:6px;margin-top:4px"><span>Labor range (±15%)</span><span>\${fmt(low)} – \${fmt(high)}</span></div>
+        </div>
+
+        <!-- Material cost -->
+        <div class="res-table" style="margin-bottom:12px">
+          <div style="font-size:13px;font-weight:800;color:var(--charcoal);margin-bottom:8px;text-transform:uppercase;letter-spacing:.8px">Material Cost (your tile)</div>
+          <div class="res-row"><span>Tile material (\${sq} sq ft + waste)</span><span>~\${fmt(mat)}</span></div>
+          <div class="res-row"><span>Thinset, grout &amp; supplies</span><span>Included in labor</span></div>
+          <div class="res-row" style="font-weight:900;background:var(--gray-1);border-radius:6px;margin-top:4px"><span>Estimated total (labor + tile)</span><span>\${fmt(low+mat)} – \${fmt(high+mat)}</span></div>
+        </div>
+
+        <!-- Selections summary -->
+        <div class="res-table" style="margin-bottom:16px">
+          <div style="font-size:13px;font-weight:800;color:var(--charcoal);margin-bottom:8px;text-transform:uppercase;letter-spacing:.8px">Your Selections</div>
+          \${selRows}
+        </div>
+
+        <!-- Timeline picker -->
+        <div style="background:var(--gray-1);border-radius:11px;padding:16px 18px">
+          <label class="lbl" style="margin-bottom:10px">When are you looking to get started?</label>
+          <div class="opts c2" style="gap:8px">
+            <div class="opt\${S.timeline==='asap'?' sel':''}" data-key="timeline" data-val="asap" style="padding:10px 12px"><div class="opt-label" style="font-size:13px">ASAP / Within a month</div></div>
+            <div class="opt\${S.timeline==='1-3mo'?' sel':''}" data-key="timeline" data-val="1-3mo" style="padding:10px 12px"><div class="opt-label" style="font-size:13px">1–3 months</div></div>
+            <div class="opt\${S.timeline==='3-6mo'?' sel':''}" data-key="timeline" data-val="3-6mo" style="padding:10px 12px"><div class="opt-label" style="font-size:13px">3–6 months</div></div>
+            <div class="opt\${S.timeline==='exploring'?' sel':''}" data-key="timeline" data-val="exploring" style="padding:10px 12px"><div class="opt-label" style="font-size:13px">Just exploring</div></div>
+          </div>
+        </div>\`;},
     bind(){ bindOpts('timeline'); }, validate(){return true;}},
 
   // 9 — Contact (moved to end — collect info at booking stage, less friction up front)
