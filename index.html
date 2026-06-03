@@ -1340,4 +1340,155 @@ body {
       <details class="faq-item">
         <summary class="faq-q">Do I need a permit for a backsplash installation in Omaha or Lincoln?</summary>
         <div class="faq-a">
-          <p>In virtually all cases, <strong>no permit is required</strong>. Cosmetic tile work — installing or replacing a backsplash — is finish work and doesn't require a building permit in Omaha or Lincoln. You'd need a permit only if the 
+          <p>In virtually all cases, <strong>no permit is required</strong>. Cosmetic tile work — installing or replacing a backsplash — is finish work and doesn't require a building permit in Omaha or Lincoln. You'd need a permit only if the project involved moving plumbing, relocating electrical circuits, or structural work.</p>
+          <p>In 99% of backsplash jobs, permits aren't part of the conversation.</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">What is the difference between mastic and thinset mortar for tile?</summary>
+        <div class="faq-a">
+          <p>Mastic is an organic pre-mixed adhesive that works well in dry areas but softens when wet — it should never be used near a sink or in splash zones. <strong>Thinset mortar</strong> is cementitious, sets hard, and is completely unaffected by water.</p>
+          <p>For kitchen backsplashes, we use thinset anywhere near the sink, for all stone tile, and typically for the whole job to eliminate any callback risk.</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">Do you supply the tile, or do I buy it myself?</summary>
+        <div class="faq-a">
+          <p>You supply the tile — we supply everything else. Our labor price includes thinset, grout, grout sealer, caulk, spacers, and all installation materials. Most homeowners buy tile from Floor &amp; Decor, Tile Shop, Menards, Home Depot, or online retailers like Wayfair.</p>
+          <p>If you've already picked a tile, you can share a photo or link during the estimate process — it helps us double-check sizing and pattern compatibility before the measure. If you haven't picked tile yet, we're happy to point you toward suppliers we trust.</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">What cities and areas do you serve?</summary>
+        <div class="faq-a">
+          <p>We serve the full Omaha and Lincoln metropolitan area, including <strong>Omaha, Lincoln, Bellevue, Papillion, La Vista, Gretna, Elkhorn, Fremont, and surrounding communities</strong>. If you're unsure whether we cover your area, just reach out — we're happy to check.</p>
+        </div>
+      </details>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     CTA
+══════════════════════════════════════ -->
+<section id="cta" class="section" style="background:var(--gold);padding:72px 24px;text-align:center">
+  <div class="section-inner fade-up">
+    <div class="section-label" style="color:rgba(255,255,255,0.7)">Ready to Get Started?</div>
+    <h2 class="section-title" style="color:#fff;margin-bottom:14px">Get your estimate in 2 minutes.</h2>
+    <p class="section-sub" style="color:rgba(255,255,255,0.78);margin:0 auto 36px">No contractor visit. No email required. Just a real price range — instant and free.</p>
+    <a href="backsplash-estimator-widget.html" target="_blank" rel="noopener" class="btn-primary" style="background:#fff;color:var(--gold);display:inline-block;font-size:18px;padding:18px 44px;box-shadow:0 6px 32px rgba(0,0,0,0.2)">&#x26A1; Get My Free Estimate &#x2192;</a>
+    <p style="margin-top:20px;color:rgba(255,255,255,0.7);font-size:15px">Or call / text us: <a href="tel:4025550000" style="color:#fff;font-weight:800;text-decoration:underline">(402) 555-0000</a></p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     FOOTER
+══════════════════════════════════════ -->
+<footer id="footer">
+  <div class="footer-brand">Crafted Backsplash</div>
+  <div class="footer-sub">Kitchen Tile Specialists · Omaha &amp; Lincoln, NE</div>
+  <div class="footer-divider"></div>
+  <nav class="footer-links" aria-label="Footer navigation">
+    <a href="#how">How It Works</a>
+    <a href="#gallery">Our Work</a>
+    <a href="#testimonials">Reviews</a>
+    <a href="#faq">FAQ</a>
+    <a href="backsplash-estimator-widget.html" target="_blank" rel="noopener">Get Estimate</a>
+  </nav>
+  <div style="margin-bottom:8px"><a href="tel:4025550000" style="color:var(--gold-bright);font-size:18px;font-weight:800;text-decoration:none">(402) 555-0000</a></div>
+  <div style="margin-bottom:16px"><a href="mailto:mitch@emailcph.com" style="color:rgba(255,255,255,0.5);font-size:14px;font-weight:600;text-decoration:none">mitch@emailcph.com</a></div>
+  <div class="footer-area">Serving Omaha · Lincoln · Bellevue · Papillion · La Vista · Gretna · Elkhorn · Fremont</div>
+  <div class="footer-legal">
+    &copy; 2026 Crafted Backsplash LLC &middot; Nebraska LLC<br>
+    All estimates are for planning purposes. Firm written quote provided before any work begins.
+  </div>
+</footer>
+
+<!-- Lightbox overlay -->
+<div id="lb-overlay" role="dialog" aria-modal="true" aria-label="Photo lightbox">
+  <button id="lb-close" aria-label="Close" onclick="lbClose()">&#x2715;</button>
+  <button class="lb-arrow" id="lb-prev" aria-label="Previous photo" onclick="lbNav(-1)">&#x2039;</button>
+  <img id="lb-img" src="" alt="">
+  <button class="lb-arrow" id="lb-next" aria-label="Next photo" onclick="lbNav(1)">&#x203a;</button>
+  <div id="lb-caption"></div>
+</div>
+
+<script>
+// Scroll-triggered fade-in
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+}, { threshold: 0.12 });
+document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+
+// ── Lightbox ──────────────────────────────────────────────────
+(function() {
+  const items = Array.from(document.querySelectorAll('.gallery-item'));
+  let cur = 0;
+
+  const imgs = items.map(el => ({
+    src:     el.querySelector('img').src,
+    alt:     el.querySelector('img').alt,
+    caption: el.querySelector('.gallery-caption') ? el.querySelector('.gallery-caption').textContent : ''
+  }));
+
+  items.forEach((el, i) => {
+    el.addEventListener('click', () => lbOpen(i));
+  });
+
+  window.lbOpen = function(i) {
+    cur = i;
+    lbShow();
+    document.getElementById('lb-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.lbClose = function() {
+    document.getElementById('lb-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  };
+
+  window.lbNav = function(dir) {
+    cur = (cur + dir + imgs.length) % imgs.length;
+    lbShow();
+  };
+
+  function lbShow() {
+    const img = document.getElementById('lb-img');
+    const cap = document.getElementById('lb-caption');
+    img.src = imgs[cur].src;
+    img.alt = imgs[cur].alt;
+    cap.textContent = imgs[cur].caption;
+    const show = imgs.length > 1;
+    document.getElementById('lb-prev').style.display = show ? '' : 'none';
+    document.getElementById('lb-next').style.display = show ? '' : 'none';
+  }
+
+  document.addEventListener('keydown', e => {
+    const open = document.getElementById('lb-overlay').classList.contains('open');
+    if (!open) return;
+    if (e.key === 'Escape')     lbClose();
+    if (e.key === 'ArrowLeft')  lbNav(-1);
+    if (e.key === 'ArrowRight') lbNav(1);
+  });
+
+  document.getElementById('lb-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('lb-overlay')) lbClose();
+  });
+
+  let tX = null;
+  const ov = document.getElementById('lb-overlay');
+  ov.addEventListener('touchstart', e => { tX = e.touches[0].clientX; }, {passive:true});
+  ov.addEventListener('touchend', e => {
+    if (tX === null) return;
+    const dx = e.changedTouches[0].clientX - tX;
+    if (Math.abs(dx) > 50) lbNav(dx < 0 ? 1 : -1);
+    tX = null;
+  });
+})();
+</script>
+</body>
+</html>
