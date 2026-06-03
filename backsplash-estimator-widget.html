@@ -3225,3 +3225,60 @@ function saveSession() {
       S: Object.assign({}, S),
       DS_shapes: DS.shapes.map(sh => ({
         points: sh.points,
+        sqFt:   sh.sqFt,
+        edgeLabels: sh.edgeLabels,
+        outlets:  (sh.outlets  || []),
+        switches: (sh.switches || []),
+      })),
+      DS_SCALE: DS.SCALE,
+    };
+    sessionStorage.setItem(SS_KEY, JSON.stringify(ser));
+  } catch(e) { /* ignore quota errors */ }
+}
+
+function loadSession() {
+  try {
+    const raw = sessionStorage.getItem(SS_KEY);
+    if (!raw) return;
+    const ser = JSON.parse(raw);
+    // Restore scalar state (skip file objects — not serializable)
+    Object.assign(S, ser.S);
+    // Restore canvas shapes
+    DS.shapes = ser.DS_shapes || [];
+    DS.SCALE  = ser.DS_SCALE  || 6;
+  } catch(e) { sessionStorage.removeItem(SS_KEY); }
+}
+
+// ── Navigation ──
+$('btn-next').addEventListener('click', ()=>{
+  const st=STEPS[S.step];
+  if(st.validate && !st.validate()) return;
+  if(S.step<STEPS.length-1){ S.step++; renderStep(); saveSession(); scrollTo({top:0,behavior:'smooth'}); }
+  else handleSubmit();
+});
+$('btn-back').addEventListener('click', ()=>{
+  if(S.step>0){ S.step--; renderStep(); saveSession(); scrollTo({top:0,behavior:'smooth'}); }
+});
+
+// Restore any previous session, then render
+loadSession();
+renderStep();
+
+// ── postMessage height reporter (for iframe embed in index.html) ──
+// IMPORTANT: measure the content element (#cb-wrap + nav padding), NOT
+// document.body.scrollHeight — that value grows as the iframe grows,
+// creating a feedback loop that makes the parent page scroll forever.
+function reportHeight() {
+  const wrap = document.getElementById('cb-wrap');
+  if (!wrap) return;
+  // offsetHeight of the wrap + its top/bottom position + body padding
+  const h = wrap.offsetTop + wrap.offsetHeight + 80;
+  window.parent.postMessage({ type: 'cb-resize', height: h }, '*');
+}
+// Report after each render and whenever the content changes size
+reportHeight();
+const _ro = new ResizeObserver(reportHeight);
+_ro.observe(document.getElementById('cb-wrap') || document.body);
+</script>
+</body>
+</html
