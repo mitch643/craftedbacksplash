@@ -948,7 +948,8 @@ body {
 }
 
 /* ── SCROLL ANIMATION ── */
-.fade-up {
+/* Content is visible by default. JS adds .js-fades to body to enable animations. */
+.js-fades .fade-up {
   opacity: 0;
   transform: translateY(28px);
   transition: opacity .6s ease, transform .6s ease;
@@ -1442,7 +1443,8 @@ body {
 </div>
 
 <script>
-// Scroll-triggered fade-in
+// Scroll-triggered fade-in — enable animations only when JS is running
+document.body.classList.add('js-fades');
 const obs = new IntersectionObserver(entries => {
   entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
 }, { threshold: 0.12 });
@@ -1491,8 +1493,4 @@ document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
     document.getElementById('lb-next').style.display = show ? '' : 'none';
   }
 
-  document.addEventListener('keydown', e => {
-    const open = document.getElementById('lb-overlay').classList.contains('open');
-    if (!open) return;
-    if (e.key === 'Escape')     lbClose();
-    if (e.key === 'ArrowLeft'
+  document.addEventListener('keydown', e =
