@@ -2632,4 +2632,579 @@ const STEPS = [
               <!-- Larger partial field tile — gives pencil liner more breathing room -->
               <rect x="45" y="2"  width="16" height="12" fill="#e8e2d8"/>
               <rect x="45" y="16" width="16" height="12" fill="#e8e2d8"/>
-      
+              <rect x="45" y="30" width="16" height="12" fill="#e8e2d8"/>
+              <!-- Pencil liner: NARROW (6px) charcoal tile strip — multiple small pieces visible -->
+              <!-- Each 12px tile row gets multiple liner pieces with clear grout joints (~1px) -->
+              <rect x="63" y="2"  width="6" height="5"  fill="#3c3830"/>
+              <rect x="63" y="8"  width="6" height="5"  fill="#3c3830"/>
+              <rect x="63" y="16" width="6" height="5"  fill="#3c3830"/>
+              <rect x="63" y="22" width="6" height="5"  fill="#3c3830"/>
+              <rect x="63" y="30" width="6" height="5"  fill="#3c3830"/>
+              <rect x="63" y="36" width="6" height="5"  fill="#3c3830"/>
+              <!-- Glazed highlight top edge of each piece — proves it's fired ceramic, not metal -->
+              <rect x="63" y="2"  width="6" height="1.5" fill="rgba(255,245,220,0.30)"/>
+              <rect x="63" y="8"  width="6" height="1.5" fill="rgba(255,245,220,0.30)"/>
+              <rect x="63" y="16" width="6" height="1.5" fill="rgba(255,245,220,0.30)"/>
+              <rect x="63" y="22" width="6" height="1.5" fill="rgba(255,245,220,0.30)"/>
+              <rect x="63" y="30" width="6" height="1.5" fill="rgba(255,245,220,0.30)"/>
+              <rect x="63" y="36" width="6" height="1.5" fill="rgba(255,245,220,0.30)"/>
+            </svg>`,
+            'Pencil Liner / Decorative Liner','Thin accent tile strip used as a decorative border','~$9–14 / linear ft installed','A narrow strip in a contrasting color or material — adds traditional elegance and visual separation at the edge of the installation.')}
+          ${opt('edgeTreat','mitered',
+            `<svg viewBox="0 0 72 44" width="72" height="44" xmlns="http://www.w3.org/2000/svg">
+              <!-- MITERED: 3/4 perspective showing tile wrapping the corner — NO trim hardware.
+                   Bright miter line = precision 45° cut. Side face shows matching tile continuing. -->
+              <rect width="72" height="44" fill="#9a9188"/>
+              <!-- Front face tiles -->
+              <rect x="1"  y="2"  width="16" height="12" fill="#e8e2d8"/>
+              <rect x="1"  y="16" width="16" height="12" fill="#e8e2d8"/>
+              <rect x="1"  y="30" width="16" height="12" fill="#e8e2d8"/>
+              <rect x="19" y="2"  width="16" height="12" fill="#e8e2d8"/>
+              <rect x="19" y="16" width="16" height="12" fill="#e8e2d8"/>
+              <rect x="19" y="30" width="16" height="12" fill="#e8e2d8"/>
+              <!-- Miter line: bright white = precision 45° cut, no hardware -->
+              <line x1="36" y1="1" x2="36" y2="43" stroke="#ffffff" stroke-width="3"/>
+              <line x1="37.5" y1="1" x2="37.5" y2="43" stroke="#5a5248" stroke-width="1" opacity="0.35"/>
+              <!-- Side face tiles in perspective (same tile, turned corner) -->
+              <polygon points="37,2 71,8 71,37 37,42" fill="#ccc4b8"/>
+              <!-- Side face grout lines (3 rows, converging) -->
+              <line x1="37" y1="15" x2="71" y2="17.5" stroke="#9a9188" stroke-width="1.2"/>
+              <line x1="37" y1="28" x2="71" y2="29"   stroke="#9a9188" stroke-width="1.2"/>
+              <!-- Vertical grout (2 cols) on side face -->
+              <line x1="53" y1="4" x2="53" y2="40" stroke="#9a9188" stroke-width="1" opacity="0.6"/>
+              <!-- Depth shadow overlay -->
+              <polygon points="37,2 71,8 71,37 37,42" fill="#000" opacity="0.05"/>
+            </svg>`,
+            'Mitered Edge','Two tiles cut at 45° — zero visible hardware','~$15–22 / linear ft','The most premium finish. Two tiles meet at a precision-cut 45° miter corner with no trim piece whatsoever. Requires a wet-saw with a tilting blade. We\'ll confirm feasibility at measure.')}
+          ${opt('edgeTreat','none',
+            `<svg viewBox="0 0 72 44" width="72" height="44" xmlns="http://www.w3.org/2000/svg">
+              <!-- NO TRIM: tile ends behind a cabinet — no exposed edge treatment needed -->
+              <rect width="72" height="44" fill="#8c8478"/>
+              <rect x="1" y="2"  width="20" height="12" fill="#e8e2d8"/>
+              <rect x="1" y="16" width="20" height="12" fill="#e8e2d8"/>
+              <rect x="1" y="30" width="20" height="12" fill="#e8e2d8"/>
+              <rect x="23" y="2"  width="20" height="12" fill="#e8e2d8"/>
+              <rect x="23" y="16" width="20" height="12" fill="#e8e2d8"/>
+              <rect x="23" y="30" width="20" height="12" fill="#e8e2d8"/>
+              <!-- Cabinet covering the right portion (tile edge hidden behind it) -->
+              <rect x="44" y="0" width="28" height="44" fill="#c4b06e"/>
+              <!-- Cabinet door top -->
+              <rect x="46" y="2"  width="24" height="18" rx="2" fill="#d0bc78" stroke="#a89040" stroke-width="0.8"/>
+              <!-- Cabinet door bottom -->
+              <rect x="46" y="22" width="24" height="18" rx="2" fill="#d0bc78" stroke="#a89040" stroke-width="0.8"/>
+              <!-- Door inset panels -->
+              <rect x="48" y="4"  width="20" height="14" rx="1" fill="#c4b46e"/>
+              <rect x="48" y="24" width="20" height="14" rx="1" fill="#c4b46e"/>
+              <!-- Door gap line -->
+              <rect x="44" y="20" width="28" height="2" fill="#a89040"/>
+              <!-- Door handles -->
+              <rect x="67" y="10" width="2" height="5" rx="1" fill="#887830"/>
+              <rect x="67" y="28" width="2" height="5" rx="1" fill="#887830"/>
+            </svg>`,
+            'No Exposed Edges','Tile terminates behind a cabinet or appliance','No trim cost','If your backsplash is fully enclosed — upper cabinets above, countertop below, appliances on the sides — no exposed trim may be needed at all.')}
+        </div>
+        <div id="trim-lf-wrap" style="${showLf?'':'display:none'};margin-top:18px">
+          <label class="lbl">Linear feet of exposed edge <span class="opt-note">${autoLf?'(auto-filled from your drawing)':''}</span></label>
+          <input class="inp" type="number" id="ftlf" min="0" max="200" placeholder="e.g. 14" value="${S.trimLinFt||''}" style="width:160px">
+          <div style="font-size:14px;color:var(--gray-3);margin-top:5px">Typical range: 8–20 linear feet for a standard kitchen</div>
+        </div>`;},
+    bind(){
+      bindOpts('edgeTreat');
+      const tog=()=>{
+        const el=$('trim-lf-wrap');
+        if(!el){ document.removeEventListener('opt-ch',tog); return; } // self-clean on step change
+        el.style.display=S.edgeTreat&&S.edgeTreat!=='none'?'block':'none';
+      };
+      document.addEventListener('opt-ch',tog);
+      $('ftlf')?.addEventListener('input',e=>{S.trimLinFt=parseFloat(e.target.value)||0;updEstBar();});
+    },
+    validate(){
+      if(!S.edgeTreat) return false;
+      if(S.edgeTreat!=='none') S.trimLinFt=parseFloat($('ftlf')?.value)||0;
+      return true;
+    }},
+
+  // 6 — Prep
+  { badge:'Step 7 of 10', prog:70, title:'About the existing surface', sub:'Surface prep is where hidden costs live. Knowing upfront keeps your estimate accurate.',
+    render(){
+      const autoOut = S.measureMode==='draw' && S.outlets>0;
+      const surf = S.surfaceType || null;
+      return `
+        <!-- Surface type selector -->
+        <label class="lbl" style="margin-bottom:12px">What's on the wall right now?</label>
+        <div class="opts" style="margin-bottom:24px">
+          <div class="opt${surf==='clean'?' sel':''}" onclick="setSurface('clean')" style="display:flex;align-items:center;gap:14px;padding:18px 16px">
+            <svg viewBox="0 0 36 36" width="36" height="36" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+              <rect x="2" y="2" width="32" height="32" rx="3" fill="#f5f2ee" stroke="#c0b8ac" stroke-width="1.5"/>
+              <rect x="6" y="6" width="24" height="24" rx="2" fill="#fff" stroke="#ddd" stroke-width="1"/>
+            </svg>
+            <div>
+              <div class="opt-label">Clean wall — painted or bare drywall</div>
+              <div class="opt-sub">Ready to tile. No demo needed. Standard prep only.</div>
+              <div class="opt-cost" style="${surf==='clean'?'':'display:none'}">✅ No additional prep cost</div>
+            </div>
+          </div>
+          <div class="opt${surf==='existing-tile'?' sel':''}" onclick="setSurface('existing-tile')" style="display:flex;align-items:center;gap:14px;padding:18px 16px">
+            <svg viewBox="0 0 36 36" width="36" height="36" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+              <rect x="1" y="1" width="16" height="16" rx="1" fill="#d4c4b0" stroke="#a09080" stroke-width="1"/>
+              <rect x="19" y="1" width="16" height="16" rx="1" fill="#d4c4b0" stroke="#a09080" stroke-width="1"/>
+              <rect x="1" y="19" width="16" height="16" rx="1" fill="#d4c4b0" stroke="#a09080" stroke-width="1"/>
+              <rect x="19" y="19" width="16" height="16" rx="1" fill="#d4c4b0" stroke="#a09080" stroke-width="1"/>
+            </svg>
+            <div>
+              <div class="opt-label">Existing tile to remove</div>
+              <div class="opt-sub">Demo and disposal required before new tile can go in.</div>
+              <div class="opt-cost" style="${surf==='existing-tile'?'':'display:none'}">+ ~$9–12/sq ft for demo &amp; disposal</div>
+            </div>
+          </div>
+          <div class="opt${surf==='other'?' sel':''}" onclick="setSurface('other')" style="display:flex;align-items:center;gap:14px;padding:18px 16px">
+            <svg viewBox="0 0 36 36" width="36" height="36" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+              <circle cx="18" cy="18" r="15" fill="#f0ece6" stroke="#c0b8ac" stroke-width="1.5"/>
+              <text x="18" y="24" font-size="18" text-anchor="middle" fill="#9a9188" font-family="sans-serif" font-weight="700">?</text>
+            </svg>
+            <div>
+              <div class="opt-label">Not sure / other</div>
+              <div class="opt-sub">Backerboard, old wallpaper, plaster, or damaged surface — we'll assess at the measure.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Extra add-ons shown when surface is selected -->
+        <div id="prep-extras" style="${surf?'':'display:none'}">
+          <label class="lbl" style="margin-bottom:12px">Anything else we should know?</label>
+          <div class="checks">
+            <label class="chk" id="demo-chk" style="${surf==='existing-tile'?'':'display:none'}">
+              <input type="checkbox" id="cdemo" ${S.demo?'checked':''}><div>
+              <div class="chk-lbl">Confirm: remove &amp; dispose of existing tile</div>
+              <div class="chk-sub">Adds ~$9–12/sq ft. Sometimes reveals hidden moisture — we flag everything we find.</div></div>
+            </label>
+            <label class="chk"><input type="checkbox" id="cdryw" ${S.drywallRepair?'checked':''}><div><div class="chk-lbl">Drywall repair or new backer board likely needed</div><div class="chk-sub">Damaged drywall or cement backer board requirement. Budget ~$150–$300.</div></div></label>
+            <label class="chk"><input type="checkbox" id="cspec" ${S.special?'checked':''}><div><div class="chk-lbl">Special features (range hood, window sill, niche, focal wall)</div><div class="chk-sub">Custom tile work in unique areas. Project-specific — detailed in your written quote.</div></div></label>
+          </div>
+        </div>
+
+        <!-- Outlets -->
+        <div style="margin-top:24px">
+          <label class="lbl">Outlet and switch boxes in the backsplash area</label>
+          ${autoOut?`<div class="edu" style="background:#eaf5ed;border-color:#3a6a4a;margin-bottom:12px"><span class="edu-tag" style="color:#3a6a4a">✅ Auto-Counted From Your Drawing</span>We counted <strong>${S.outlets}</strong> outlet/switch boxes. Adjust below if needed.</div>`:''}
+          <div class="edu" style="${autoOut?'display:none;':''}margin-bottom:12px"><span class="edu-tag">💡 Outlet Cutouts</span>Each outlet or switch box requires a precision tile cutout — <strong>~$45–65 per box</strong>. Most kitchens have 3–6 boxes.</div>
+          <div class="stepper">
+            <button onclick="adjOut(-1)">−</button>
+            <span id="out-ct">${S.outlets}</span>
+            <button onclick="adjOut(1)">+</button>
+          </div>
+          <div style="font-size:14px;color:var(--gray-3);margin-top:8px">Tap − or + for each outlet or switch in the area</div>
+        </div>`;},
+    bind(){
+      window.setSurface = type => {
+        S.surfaceType = type;
+        S.demo = (type === 'existing-tile');
+        // re-render in place to show/hide extras
+        const card = document.querySelector('.cb-card');
+        const st = STEPS[S.step];
+        card.innerHTML = `<div class="cb-badge">${st.badge}</div><div class="cb-title">${st.title}</div><div class="cb-subtitle">${st.sub}</div>${st.render()}`;
+        st.bind();
+        updEstBar();
+      };
+      $('cdemo')?.addEventListener('change', e=>{S.demo=e.target.checked;updEstBar();});
+      $('cdryw')?.addEventListener('change', e=>{S.drywallRepair=e.target.checked;updEstBar();});
+      $('cspec')?.addEventListener('change', e=>{S.special=e.target.checked;});
+      window.adjOut=d=>{S.outlets=Math.max(0,Math.min(20,(S.outlets||0)+d));$('out-ct').textContent=S.outlets;updEstBar();};
+    },
+    validate(){
+      if(!S.surfaceType){alert('Please select what\'s on the wall right now.');return false;}
+      return true;
+    }},
+
+  // 7 — Photos & Tile Reference
+  { badge:'Step 8 of 10', prog:80, title:'Share photos & tile info', sub:'Optional but helpful — the more we can see, the better your estimate.',
+    render(){
+      const spaceCount = SPACE_FILES.length;
+      const tileMode   = S.tileMode || 'photo';
+      return `
+        <div class="edu"><span class="edu-tag">💡 Why This Helps</span>
+          Photos of your existing kitchen let us flag prep issues before the measure. If you've already picked a tile, sharing it now means we can pre-check sizing and pattern compatibility for your quote.
+        </div>
+
+        <!-- Space photos -->
+        <div style="margin-bottom:28px">
+          <label class="lbl">Photos of your space <span class="opt-note">(optional — up to 6)</span></label>
+          <div style="margin-bottom:10px">
+            <label id="space-upload-lbl" style="display:inline-flex;align-items:center;gap:10px;background:var(--gray-1);border:2px dashed var(--gray-2);border-radius:10px;padding:14px 20px;cursor:pointer;font-size:15px;font-weight:700;color:var(--gray-3);transition:all .18s">
+              <span style="font-size:22px">📷</span> Add photos of your kitchen
+              <input id="space-file-inp" type="file" accept="image/*" multiple style="display:none" onchange="addSpacePhotos(this)">
+            </label>
+          </div>
+          <div id="space-thumb-grid" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:4px">
+            ${SPACE_FILES.map((f,i)=>`<div style="position:relative">
+              <img src="${URL.createObjectURL(f)}" style="width:90px;height:90px;object-fit:cover;border-radius:8px;border:2px solid var(--gray-2)">
+              <button onclick="removeSpacePhoto(${i})" style="position:absolute;top:-8px;right:-8px;width:24px;height:24px;background:var(--red);color:#fff;border:none;border-radius:50%;font-size:14px;cursor:pointer;line-height:1;font-family:inherit">×</button>
+            </div>`).join('')}
+          </div>
+        </div>
+
+        <!-- Tile selection -->
+        <div>
+          <label class="lbl">Tile you've already picked <span class="opt-note">(optional)</span></label>
+          <div style="display:flex;gap:8px;margin-bottom:14px">
+            <button onclick="setTileMode('photo')" class="tool-btn ${tileMode==='photo'?'active':''}" style="flex:1">📷 Upload a photo</button>
+            <button onclick="setTileMode('link')"  class="tool-btn ${tileMode==='link' ?'active':''}" style="flex:1">🔗 Paste a link</button>
+          </div>
+
+          <div id="tile-photo-wrap" style="${tileMode==='photo'?'':'display:none'}">
+            ${TILE_FILE ? `<div style="position:relative;display:inline-block">
+              <img src="${URL.createObjectURL(TILE_FILE)}" style="max-height:160px;border-radius:10px;border:2px solid var(--gray-2)">
+              <button onclick="removeTilePhoto()" style="position:absolute;top:-8px;right:-8px;width:24px;height:24px;background:var(--red);color:#fff;border:none;border-radius:50%;font-size:14px;cursor:pointer;line-height:1;font-family:inherit">×</button>
+            </div>` : `<label style="display:inline-flex;align-items:center;gap:10px;background:var(--gray-1);border:2px dashed var(--gray-2);border-radius:10px;padding:14px 20px;cursor:pointer;font-size:15px;font-weight:700;color:var(--gray-3)">
+              <span style="font-size:22px">🖼️</span> Choose tile photo
+              <input type="file" accept="image/*" style="display:none" onchange="addTilePhoto(this)">
+            </label>`}
+          </div>
+
+          <div id="tile-link-wrap" style="${tileMode==='link'?'':'display:none'}">
+            <input class="inp" type="url" id="tile-url-inp" placeholder="https://tileshop.com/your-tile-page" value="${S.tileUrl||''}" oninput="S.tileUrl=this.value">
+            <div style="font-size:14px;color:var(--gray-3);margin-top:6px">Works with any tile store website — Floor &amp; Decor, Tile Shop, Wayfair, etc.</div>
+          </div>
+        </div>`;},
+    bind(){
+      // Handlers defined on window so inline onclick can reach them
+      window.addSpacePhotos = inp => {
+        const existing = SPACE_FILES.length;
+        const allowed  = 6 - existing;
+        const newFiles = Array.from(inp.files).slice(0, allowed);
+        SPACE_FILES = [...SPACE_FILES, ...newFiles];
+        S.spacePhotoCount = SPACE_FILES.length;
+        inp.value='';
+        // re-render this step in-place
+        rerenderPhotoStep();
+      };
+      window.removeSpacePhoto = i => { SPACE_FILES.splice(i,1); S.spacePhotoCount=SPACE_FILES.length; rerenderPhotoStep(); };
+      window.addTilePhoto = inp => { TILE_FILE=inp.files[0]||null; S.hasTilePhoto=!!TILE_FILE; rerenderPhotoStep(); };
+      window.removeTilePhoto = () => { TILE_FILE=null; S.hasTilePhoto=false; rerenderPhotoStep(); };
+      window.setTileMode = mode => { S.tileMode=mode; rerenderPhotoStep(); };
+    },
+    validate(){return true;}},
+
+  // 8 — Results
+  { badge:'Step 9 of 10', prog:90,
+    get title(){ return `Your estimate is ready!`; },
+    get sub(){ return `Here's your personalized breakdown — review it below, then we'll get you scheduled.`; },
+    render(){
+      const {low,high,mat,bill}=calcEst();
+      const tileMap={ceramic:'Ceramic/Subway',porcelain:'Porcelain',glass:'Glass Tile',stone:'Natural Stone',mosaic:'Mosaic Sheets','large-format':'Large Format Porcelain'};
+      const patMap={straight:'Straight Stack','running-bond':'Running Bond ½','third-offset':'Running Bond ⅓ Zipper','third-stairstep':'Running Bond ⅓ Stair-Step',vertical:'Vertical Stack',diagonal:'Diagonal 45°',herringbone:'Herringbone',chevron:'Chevron','random-stone':'Random Stone / Ledger',hexagon:'Hexagon',penny:'Penny / Round Mosaic',complex:'Custom Pattern'};
+      const edgeMap={bullnose:'Bullnose Tile','schluter-alum':'Schluter Aluminum','schluter-accent':'Schluter Accent','pencil-liner':'Pencil Liner',mitered:'Mitered Edge',none:'No Trim'};
+      return `
+        <div class="res-box">
+          <div class="res-lbl">Estimated Installation Labor</div>
+          <div class="res-val">${fmt(low)} – ${fmt(high)}</div>
+          <div class="res-note">${bill} sq ft (with waste) · Labor only · Materials separate</div>
+        </div>
+        <div class="res-table">
+          <div style="font-size:15px;font-weight:800;color:var(--charcoal);margin-bottom:10px">Your Selections</div>
+          <div class="res-row"><span>Tile Type</span><span>${tileMap[S.tileType]||'—'}</span></div>
+          <div class="res-row"><span>Layout Pattern</span><span>${patMap[S.pattern]||'—'}</span></div>
+          <div class="res-row"><span>Edge Treatment</span><span>${edgeMap[S.edgeTreat]||'—'}</span></div>
+          ${S.trimLinFt?`<div class="res-row"><span>Trim (${S.trimLinFt} ln ft)</span><span>Included</span></div>`:''}
+          ${S.demo?`<div class="res-row"><span>Demo Existing Tile</span><span>+${fmt(Math.round((S.sqft||30)*10))}</span></div>`:''}
+          ${S.outlets?`<div class="res-row"><span>Outlet/Switch Cutouts (${S.outlets})</span><span>+${fmt(S.outlets*55)}</span></div>`:''}
+          ${S.drywallRepair?`<div class="res-row"><span>Drywall Repair</span><span>+$225 est.</span></div>`:''}
+        </div>
+        <div class="res-table">
+          <div style="font-size:15px;font-weight:800;color:var(--charcoal);margin-bottom:10px">Typical Material Cost (tile you select)</div>
+          <div class="res-row"><span>Tile material (estimate)</span><span>~${fmt(mat)}</span></div>
+          <div class="res-row"><span>Setting materials</span><span>Included in labor</span></div>
+          <div class="res-row"><span><strong>Estimated Total</strong></span><span><strong>${fmt(low+mat)} – ${fmt(high+mat)}</strong></span></div>
+        </div>
+        <div style="background:var(--gray-1);border-radius:11px;padding:18px 20px;margin-top:4px">
+          <label class="lbl" style="margin-bottom:12px">One last thing — when are you looking to get started?</label>
+          <div class="opts c2" style="gap:8px">
+            <div class="opt${S.timeline==='asap'?' sel':''}" data-key="timeline" data-val="asap" style="padding:12px 14px">
+              <div class="opt-label" style="font-size:14px">ASAP / Within a month</div>
+            </div>
+            <div class="opt${S.timeline==='1-3mo'?' sel':''}" data-key="timeline" data-val="1-3mo" style="padding:12px 14px">
+              <div class="opt-label" style="font-size:14px">1–3 months</div>
+            </div>
+            <div class="opt${S.timeline==='3-6mo'?' sel':''}" data-key="timeline" data-val="3-6mo" style="padding:12px 14px">
+              <div class="opt-label" style="font-size:14px">3–6 months</div>
+            </div>
+            <div class="opt${S.timeline==='exploring'?' sel':''}" data-key="timeline" data-val="exploring" style="padding:12px 14px">
+              <div class="opt-label" style="font-size:14px">Just exploring</div>
+            </div>
+          </div>
+        </div>`;},
+    bind(){ bindOpts('timeline'); }, validate(){return true;}},
+
+  // 9 — Contact (moved to end — collect info at booking stage, less friction up front)
+  { badge:'Step 10 of 10', prog:100, title:"Lock in your free on-site measure.", sub:"We'll email your estimate summary and reach out to schedule. No obligation — free, always.",
+    render(){return `
+      <div class="field-row">
+        <div class="field"><label class="lbl">First Name</label><input class="inp" id="ffn" type="text" placeholder="Jane" value="${S.firstName}" autocomplete="given-name"><div class="err" id="efn">Required</div></div>
+        <div class="field"><label class="lbl">Last Name</label><input class="inp" id="fln" type="text" placeholder="Smith" value="${S.lastName}" autocomplete="family-name"><div class="err" id="eln">Required</div></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label class="lbl">Best Phone Number</label><input class="inp" id="fph" type="tel" placeholder="(402) 555-0000" value="${S.phone}" inputmode="tel" autocomplete="tel"><div class="err" id="eph">Please enter a valid phone number</div></div>
+        <div class="field"><label class="lbl">Email Address</label><input class="inp" id="fem" type="email" placeholder="jane@example.com" value="${S.email}" autocomplete="email"><div class="err" id="eem">Please enter a valid email</div></div>
+      </div>
+      <div class="field"><label class="lbl">Street Address <span class="opt-note">(optional)</span></label><input class="inp" id="fad" type="text" placeholder="1234 Oak St, Omaha, NE" value="${S.address}" autocomplete="street-address"></div>
+      <div class="field" style="max-width:160px"><label class="lbl">Zip Code</label><input class="inp" id="fzp" type="text" inputmode="numeric" maxlength="5" placeholder="68102" value="${S.zip}"><div class="err" id="ezp">5-digit zip required</div></div>
+      <div style="font-size:13px;color:var(--gray-3);margin-top:6px;line-height:1.5">We serve the Omaha &amp; Lincoln, NE metro. If you're outside our area, we'll let you know — no wasted time on either side.</div>`;},
+    bind(){
+      $('ffn').oninput=e=>S.firstName=e.target.value.trim();
+      $('fln').oninput=e=>S.lastName=e.target.value.trim();
+      $('fph').oninput=e=>S.phone=e.target.value.trim();
+      $('fem').oninput=e=>S.email=e.target.value.trim();
+      $('fad').oninput=e=>S.address=e.target.value.trim();
+      $('fzp').oninput=e=>S.zip=e.target.value.trim();
+    },
+    validate(){
+      let ok=true;
+      const sh=(id,v)=>{$(id)?.classList.toggle('show',!v);if(!v)ok=false;};
+      S.firstName=$('ffn').value.trim(); S.lastName=$('fln').value.trim();
+      S.phone=$('fph').value.trim(); S.email=$('fem').value.trim();
+      S.address=$('fad').value.trim(); S.zip=$('fzp').value.trim();
+      sh('efn',S.firstName); sh('eln',S.lastName);
+      sh('eph',S.phone.replace(/\D/g,'').length>=10);
+      sh('eem',/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(S.email));
+      sh('ezp',/^\d{5}$/.test(S.zip));
+      return ok;
+    }}
+];
+
+// ============================================================
+//  SUBMIT
+// ============================================================
+function buildEstimateSummary() {
+  const {low,high,mat} = S.tileType ? calcEst() : {low:0,high:0,mat:0};
+  const tileMap   = {ceramic:'Ceramic/Subway',porcelain:'Porcelain',glass:'Glass Tile',stone:'Natural Stone',mosaic:'Mosaic Sheets','large-format':'Large Format Porcelain'};
+  const patMap    = {straight:'Straight Stack','running-bond':'Running Bond ½ Offset','third-offset':'Running Bond ⅓ Offset (Zipper)','third-stairstep':'Running Bond ⅓ Offset (Stair-Step)',vertical:'Vertical Stack',diagonal:'Diagonal 45°',herringbone:'Herringbone',chevron:'Chevron','random-stone':'Random Stone / Ledger',hexagon:'Hexagon',penny:'Penny / Round Mosaic',complex:'Custom Pattern'};
+  const edgeMap   = {bullnose:'Bullnose Tile','schluter-alum':'Schluter Aluminum','schluter-accent':'Schluter Matte Black/Brushed Nickel','pencil-liner':'Pencil Liner',mitered:'Mitered Edge',none:'No Trim'};
+  const groutJMap = {'no-spacer':'No Spacer — Tight Stack',sixteenth:'1/16" Spacer',eighth:'1/8" Spacer',quarter:'1/4" Spacer'};
+  const surfMap   = {'clean':'Clean wall (painted/drywall)','existing-tile':'Existing tile removed','other':'Surface TBD at measure'};
+  const rows = [
+    ['Project Address', S.address || S.zip || 'Not provided'],
+    ['Area', `${S.sqft || '—'} sq ft${S.sqft ? ` (${+(S.sqft*1.12).toFixed(0)} sq ft billed with waste)` : ''}`],
+    ['Tile Type', tileMap[S.tileType] || '—'],
+    ['Layout Pattern', patMap[S.pattern] || '—'],
+    ['Grout Joint', groutJMap[S.groutJoint] || '—'],
+    ['Grout Type', S.groutType==='epoxy' ? 'Epoxy (stain-proof, no sealing needed)' : 'Standard'],
+    ['Edge Treatment', edgeMap[S.edgeTreat] || '—'],
+    S.trimLinFt ? ['Trim Linear Footage', `${S.trimLinFt} ln ft`] : null,
+    ['Current Surface', surfMap[S.surfaceType] || '—'],
+    S.demo ? ['Demo Existing Tile', 'Yes — included in estimate'] : null,
+    S.drywallRepair ? ['Drywall / Backer', 'Likely needed (~$150–$300)'] : null,
+    S.outlets ? ['Outlet/Switch Cutouts', `${S.outlets} boxes`] : null,
+    S.special ? ['Special Features', 'Yes — detailed in written quote'] : null,
+  ].filter(Boolean);
+
+  // Plain text (for SMS)
+  const sms = [
+    `Hi ${S.firstName}! Here's your Crafted Backsplash estimate summary:`,
+    ``,
+    `📊 LABOR ESTIMATE: ${fmt(low)} – ${fmt(high)}`,
+    `🏠 TILE MATERIAL: ~${fmt(mat)}`,
+    `💰 ESTIMATED TOTAL: ~${fmt(low+mat)} – ${fmt(high+mat)}`,
+    ``,
+    ...rows.map(([k,v])=>`${k}: ${v}`),
+    ``,
+    `This is a planning estimate — we'll confirm exact pricing at your free on-site measure.`,
+    ``,
+    S.timeline ? `⏰ Timeline: ${{'asap':'ASAP / within a month','1-3mo':'1–3 months','3-6mo':'3–6 months','exploring':'Just exploring'}[S.timeline]||S.timeline}` : '',
+    `📅 Book your free measure: ${CFG.CALENDLY}`,
+    `📞 Or call/text us: ${CFG.PHONE}`,
+    ``,
+    `– ${CFG.BRAND}`,
+  ].join('\n');
+
+  // HTML email body
+  const html = `<!DOCTYPE html><html><body style="font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;background:#f5f2ee;margin:0;padding:20px">
+  <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.09)">
+    <div style="background:#222;padding:28px 32px;text-align:center">
+      <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#8B1A1A;font-weight:800;margin-bottom:6px">Crafted Backsplash · Omaha &amp; Lincoln, NE</div>
+      <div style="font-size:22px;font-weight:900;color:#fff">Your Estimate Summary</div>
+    </div>
+    <div style="padding:28px 32px">
+      <p style="font-size:16px;color:#444;margin:0 0 20px">Hi ${S.firstName},<br><br>Thanks for using our estimator! Here's a copy of your estimate details for your records.</p>
+      <div style="background:#222;border-radius:11px;padding:22px;text-align:center;margin-bottom:22px">
+        <div style="font-size:11px;color:#8B1A1A;letter-spacing:1px;text-transform:uppercase;font-weight:800;margin-bottom:4px">Estimated Installation Labor</div>
+        <div style="font-size:34px;font-weight:900;color:#fff;margin-bottom:2px">${fmt(low)} – ${fmt(high)}</div>
+        <div style="font-size:13px;color:#888">+ ~${fmt(mat)} tile materials &nbsp;·&nbsp; Total ~${fmt(low+mat)}–${fmt(high+mat)}</div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:20px">
+        ${rows.map(([k,v],i)=>`<tr style="background:${i%2===0?'#f8f5f1':'#fff'}">
+          <td style="padding:10px 12px;font-size:14px;color:#777;font-weight:600;width:45%">${k}</td>
+          <td style="padding:10px 12px;font-size:14px;color:#222;font-weight:700">${v}</td>
+        </tr>`).join('')}
+      </table>
+      <div style="background:#fdf0f0;border-left:4px solid #8B1A1A;border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:24px;font-size:14px;color:#3a1010">
+        This is a planning estimate based on the details you provided. Actual costs are confirmed in your written fixed-price quote after the free on-site measure — no surprises.
+      </div>
+      <div style="text-align:center">
+        <a href="${CFG.CALENDLY}" style="display:inline-block;background:#8B1A1A;color:#fff;font-weight:900;font-size:16px;padding:16px 32px;border-radius:10px;text-decoration:none;margin-bottom:12px">📅 Book Your Free Measure</a>
+        <div style="font-size:14px;color:#888;margin-top:8px">Or call/text us: <a href="tel:${CFG.PHONE_RAW}" style="color:#5c0f0f;font-weight:700">${CFG.PHONE}</a></div>
+      </div>
+    </div>
+    <div style="background:#f0ece6;padding:18px 32px;text-align:center;font-size:12px;color:#9a9188">
+      ${CFG.BRAND} &nbsp;·&nbsp; Omaha &amp; Lincoln, NE &nbsp;·&nbsp; ${CFG.PHONE}
+    </div>
+  </div></body></html>`;
+
+  return { sms, html, low, high, mat };
+}
+
+async function zapier(extra={}) {
+  const {low,high,mat,sms,html} = S.tileType ? buildEstimateSummary() : {low:0,high:0,mat:0,sms:'',html:''};
+  const payload = { ...extra,
+    name:`${S.firstName} ${S.lastName}`.trim(), firstName:S.firstName, lastName:S.lastName,
+    phone:S.phone, email:S.email, address:S.address, zip:S.zip,
+    measureMode:S.measureMode, sqft:S.sqft, tileType:S.tileType, tileFormat:S.tileFormat,
+    pattern:S.pattern, groutJoint:S.groutJoint, groutType:S.groutType,
+    edgeTreat:S.edgeTreat, trimLinFt:S.trimLinFt, demo:S.demo,
+    drywallRepair:S.drywallRepair, outlets:S.outlets, surfaceType:S.surfaceType, timeline:S.timeline,
+    laborLow:low, laborHigh:high, materialEst:mat, totalLow:low+mat, totalHigh:high+mat,
+    spacePhotoCount:S.spacePhotoCount, hasTilePhoto:S.hasTilePhoto, tileUrl:S.tileUrl,
+    // Pre-formatted content for Zapier to send directly:
+    estimateEmailHtml: html,
+    estimateSmsText:   sms,
+    emailSubject:      `Your Crafted Backsplash Estimate — ${fmt(low)}–${fmt(high)} labor`,
+    source:'Website Estimator Widget', submitted:new Date().toISOString(),
+  };
+  try {
+    if(CFG.ZAPIER && !CFG.ZAPIER.includes('YOUR_')) {
+      await fetch(CFG.ZAPIER,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),mode:'no-cors'});
+    }
+  } catch(e){ console.warn('Zapier:',e); }
+}
+
+async function handleSubmit() {
+  const btn=$('btn-next'); btn.textContent='Sending…'; btn.disabled=true;
+  await zapier();
+  try { sessionStorage.removeItem(SS_KEY); } catch(e) {}
+  showThanks();
+}
+
+function showThanks() {
+  $('cb-nav').style.display='none'; $('cb-est-bar').style.display='none';
+  $('cb-prog-fill').style.width='100%';
+  $('cb-prog-track').setAttribute('aria-valuenow', 100);
+  $('cb-step-lbl').textContent='✓ Estimate complete';
+  const {low,high,mat}=calcEst();
+  $('cb-content').innerHTML=`<div id="cb-ty">
+    <div class="ty-icon">🎉</div>
+    <div class="ty-title">You're all set, ${S.firstName}!</div>
+    <div class="ty-sub">A copy of your estimate was sent to <strong>${S.email}</strong>${S.phone ? ` and a summary text to <strong>${S.phone}</strong>` : ''}. Lock in your spot — pick a time below and we'll come to you.</div>
+    <div class="ty-est">
+      <div class="ty-est-lbl">Your Labor Estimate</div>
+      <div class="ty-est-val">${fmt(low)} – ${fmt(high)}</div>
+      <div class="ty-est-note">+ ~${fmt(mat)} tile materials · Total ~${fmt(low+mat)}–${fmt(high+mat)}</div>
+    </div>
+    <a class="ty-cta ty-book" href="${CFG.CALENDLY}" target="_blank" rel="noopener">📅 Book Your Free Measure</a>
+    <div class="ty-or">or</div>
+    <a class="ty-cta ty-call" href="tel:${CFG.PHONE_RAW}">📞 Call / Text: ${CFG.PHONE}</a>
+    <div class="ty-steps">
+      <div class="ty-step"><div class="ty-num">1</div><div class="ty-txt"><strong>Book your free measure</strong>Pick a time that works — most slots available within a few days.</div></div>
+      <div class="ty-step"><div class="ty-num">2</div><div class="ty-txt"><strong>We measure on-site</strong>We come to you, take exact measurements, review the surface.</div></div>
+      <div class="ty-step"><div class="ty-num">3</div><div class="ty-txt"><strong>Written fixed-price quote</strong>Detailed and itemized — no surprises. Usually within 24 hrs of the measure.</div></div>
+      <div class="ty-step"><div class="ty-num">4</div><div class="ty-txt"><strong>Schedule your install</strong>Most kitchen backsplashes take 1–2 days. We handle everything.</div></div>
+    </div>
+    <div class="ty-disc">This estimate is for planning purposes only, based on standard Omaha/Lincoln market rates. Actual costs may vary based on site conditions and tile selection. Crafted Backsplash provides a written fixed-price quote before any work begins — no surprises.</div>
+  </div>`;
+}
+
+// ============================================================
+//  RENDER ENGINE
+// ============================================================
+function renderStep() {
+  // Clear canvas buffer before DOM removal to prevent GPU-compositor ghost
+  if (DS.ctx) {
+    DS.ctx.clearRect(0, 0, DS.W, DS.H);
+  }
+  DS.canvas = null;
+  DS.ctx    = null;
+
+  const st = STEPS[S.step];
+  $('cb-prog-fill').style.width = st.prog+'%';
+  $('cb-prog-track').setAttribute('aria-valuenow', st.prog);
+  $('cb-step-lbl').textContent  = st.badge;
+  $('cb-content').innerHTML     = `<div class="cb-card">
+    <div class="cb-badge">${st.badge}</div>
+    <div class="cb-title">${st.title}</div>
+    <div class="cb-subtitle">${st.sub}</div>
+    ${st.render()}
+  </div>`;
+  if(st.bind) st.bind();
+  $('btn-back').style.display = S.step>0 ? '' : 'none';
+  $('btn-next').textContent   = S.step===STEPS.length-1 ? '📅 Send My Estimate & Book →' : S.step===STEPS.length-2 ? 'Continue to Book →' : S.step===STEPS.length-3 ? '📸 Continue →' : 'Continue →';
+  $('btn-next').disabled      = false;
+  updEstBar();
+}
+
+// ============================================================
+//  SESSION PERSISTENCE — saves form state to sessionStorage
+//  so a page refresh or accidental navigation doesn't wipe answers
+// ============================================================
+const SS_KEY = 'cb_est_v3';
+
+function saveSession() {
+  try {
+    const ser = {
+      S: Object.assign({}, S),
+      DS_shapes: DS.shapes.map(sh => ({
+        points: sh.points,
+        sqFt:   sh.sqFt,
+        edgeLabels: sh.edgeLabels,
+        outlets:  (sh.outlets  || []),
+        switches: (sh.switches || []),
+      })),
+      DS_SCALE: DS.SCALE,
+    };
+    sessionStorage.setItem(SS_KEY, JSON.stringify(ser));
+  } catch(e) { /* ignore quota errors */ }
+}
+
+function loadSession() {
+  try {
+    const raw = sessionStorage.getItem(SS_KEY);
+    if (!raw) return;
+    const ser = JSON.parse(raw);
+    // Restore scalar state (skip file objects — not serializable)
+    Object.assign(S, ser.S);
+    // Restore canvas shapes
+    DS.shapes = ser.DS_shapes || [];
+    DS.SCALE  = ser.DS_SCALE  || 6;
+  } catch(e) { sessionStorage.removeItem(SS_KEY); }
+}
+
+// ── Navigation ──
+$('btn-next').addEventListener('click', ()=>{
+  const st=STEPS[S.step];
+  if(st.validate && !st.validate()) return;
+  if(S.step<STEPS.length-1){ S.step++; renderStep(); saveSession(); scrollTo({top:0,behavior:'smooth'}); }
+  else handleSubmit();
+});
+$('btn-back').addEventListener('click', ()=>{
+  if(S.step>0){ S.step--; renderStep(); saveSession(); scrollTo({top:0,behavior:'smooth'}); }
+});
+
+// Restore any previous session, then render
+loadSession();
+renderStep();
+
+// ── postMessage height reporter (for iframe embed in index.html) ──
+// IMPORTANT: measure the content element (#cb-wrap + nav padding), NOT
+// document.body.scrollHeight — that value grows as the iframe grows,
+// creating a feedback loop that makes the parent page scroll forever.
+function reportHeight() {
+  const wrap = document.getElementById('cb-wrap');
+  if (!wrap) return;
+  // offsetHeight of the wrap + its top/bottom position + body padding
+  const h = wrap.offsetTop + wrap.offsetHeight + 80;
+  window.parent.postMessage({ type: 'cb-resize', height: h }, '*');
+}
+// Report after each render and whenever the content changes size
+reportHeight();
+const _ro = new ResizeObserver(reportHeight);
+_ro.observe(document.getElementById('cb-wrap') || document.body);
+</script>
+</body>
+</html>
