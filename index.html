@@ -44,7 +44,8 @@
     "alternateName": "Crafted Backsplash LLC",
     "description": "Professional kitchen tile backsplash installation serving Omaha, Lincoln, and surrounding Nebraska communities. Specializing in subway tile, natural stone, herringbone, and custom tile backsplash designs. Free online estimate tool — get an estimate in 2 minutes.",
     "url": "https://craftedbacksplash.com",
-    "email": "mitch@emailcph.com",
+    "email": "office@craftedbacksplash.com",
+    "telephone": "(402) 555-0000",
     "address": {
       "@type": "PostalAddress",
       "addressLocality": "Omaha",
@@ -487,9 +488,13 @@ body {
 
 .steps {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 32px;
   margin-top: 52px;
+}
+
+@media (min-width: 1000px) {
+  .steps { grid-template-columns: repeat(4, 1fr); }
 }
 
 .step {
@@ -530,8 +535,8 @@ body {
   line-height: 1.55;
 }
 
-/* Arrow connectors between steps (desktop only) */
-@media (min-width: 700px) {
+/* Arrow connectors between steps — only when all 4 fit in one row */
+@media (min-width: 1000px) {
   .step:not(:last-child)::after {
     content: '→';
     position: absolute;
@@ -1425,7 +1430,7 @@ body {
     <a href="backsplash-estimator-widget.html" target="_blank" rel="noopener">Get Estimate</a>
   </nav>
   <div style="margin-bottom:8px"><a href="tel:4025550000" style="color:var(--gold-bright);font-size:18px;font-weight:800;text-decoration:none">(402) 555-0000</a></div>
-  <div style="margin-bottom:16px"><a href="mailto:mitch@emailcph.com" style="color:rgba(255,255,255,0.5);font-size:14px;font-weight:600;text-decoration:none">mitch@emailcph.com</a></div>
+  <div style="margin-bottom:16px"><a href="mailto:office@craftedbacksplash.com" style="color:rgba(255,255,255,0.5);font-size:14px;font-weight:600;text-decoration:none">office@craftedbacksplash.com</a></div>
   <div class="footer-area">Serving Omaha · Lincoln · Bellevue · Papillion · La Vista · Gretna · Elkhorn · Fremont</div>
   <div class="footer-legal">
     &copy; 2026 Crafted Backsplash LLC &middot; Nebraska LLC<br>
@@ -1492,5 +1497,28 @@ document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
     document.getElementById('lb-prev').style.display = show ? '' : 'none';
     document.getElementById('lb-next').style.display = show ? '' : 'none';
   }
+  document.addEventListener('keydown', e => {
+    const open = document.getElementById('lb-overlay').classList.contains('open');
+    if (!open) return;
+    if (e.key === 'Escape')     lbClose();
+    if (e.key === 'ArrowLeft')  lbNav(-1);
+    if (e.key === 'ArrowRight') lbNav(1);
+  });
 
-  document.addEventListener('keydown', e =
+  document.getElementById('lb-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('lb-overlay')) lbClose();
+  });
+
+  let tX = null;
+  const ov = document.getElementById('lb-overlay');
+  ov.addEventListener('touchstart', e => { tX = e.touches[0].clientX; }, {passive:true});
+  ov.addEventListener('touchend', e => {
+    if (tX === null) return;
+    const dx = e.changedTouches[0].clientX - tX;
+    if (Math.abs(dx) > 50) lbNav(dx < 0 ? 1 : -1);
+    tX = null;
+  });
+})();
+</script>
+</body>
+</html>

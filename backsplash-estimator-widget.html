@@ -426,7 +426,7 @@ const CFG = {
   BRAND:        'Crafted Backsplash',
   PHONE:        '(402) 555-0000',
   PHONE_RAW:    '4025550000',
-  CALENDLY:     'https://calendly.com/YOUR_LINK',
+  CALENDLY:     'mailto:office@craftedbacksplash.com?subject=Free%20Measure%20Request%20%E2%80%94%20Crafted%20Backsplash',
   ZAPIER:       'https://hooks.zapier.com/hooks/catch/YOUR_ID/YOUR_KEY/',
 };
 
@@ -1901,14 +1901,14 @@ function showSkip() {
         <div class="field"><label class="lbl">First Name</label><input class="inp" id="sk-fn" type="text" placeholder="Jane" autocomplete="given-name"></div>
         <div class="field"><label class="lbl">Phone</label><input class="inp" id="sk-ph" type="tel" placeholder="(402) 555-0000" autocomplete="tel" inputmode="tel"></div>
       </div>
-      <button onclick="submitSkip()" style="width:100%;padding:14px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit">📅 Book My Free Measure</button>
+      <button onclick="submitSkip()" style="width:100%;padding:14px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit">📧 Request Your Free Measure</button>
     </div>`}
     <div class="sk-opts">
       <div class="sk-opt">
-        <div class="sk-opt-icon">📅</div>
-        <div class="sk-opt-title">Book Online</div>
-        <div class="sk-opt-sub">Pick any open time. Available most weekdays and Saturdays.</div>
-        <a class="sk-btn sk-gold" href="${CFG.CALENDLY}" target="_blank">📅 Choose a Time</a>
+        <div class="sk-opt-icon">📧</div>
+        <div class="sk-opt-title">Email Us</div>
+        <div class="sk-opt-sub">We'll reach out within one business day to schedule your free measure.</div>
+        <a class="sk-btn sk-gold" href="${CFG.CALENDLY}">📧 Send a Message</a>
       </div>
       <div class="sk-opt">
         <div class="sk-opt-icon">📞</div>
@@ -1973,12 +1973,27 @@ function genTileHatch(id, svgPxPerFt, offX, offY) {
   const minD = Math.min(tW, tH);
   if (minD < 8)  { tW *= 8/minD;  tH *= 8/minD;  }
   tW = +tW.toFixed(1); tH = +tH.toFixed(1);
-  const g  = +(Math.max(0.8, Math.min(2.5, tW * 0.07)).toFixed(1));
-  const TC = '#ede5d8';   // tile face
-  const GC = '#b0a090';   // grout
 
-  const rect = (x,y,w,h) =>
-    `<rect x="${+(x+g/2).toFixed(1)}" y="${+(y+g/2).toFixed(1)}" width="${+(w-g).toFixed(1)}" height="${+(h-g).toFixed(1)}" fill="${TC}"/>`;
+  // Grout line thickness from joint selection
+  const groutPx = {'no-spacer':0.7, sixteenth:1.2, eighth:1.9, quarter:3.2};
+  const g = groutPx[S.groutJoint] || 1.9;
+
+  // Tile + grout colors by tile type
+  const PAL = {
+    ceramic:        {tc:'#f4f0ea', tc2:'#ddd8ce', gc:'#c4bcb0'},
+    porcelain:      {tc:'#e6e4e0', tc2:'#d4d0cc', gc:'#b0ada8'},
+    glass:          {tc:'#c8dcea', tc2:'#a4c4da', gc:'#7aaac4'},
+    stone:          {tc:'#d8ccb8', tc2:'#c4b8a4', gc:'#a49070'},
+    mosaic:         {tc:'#e8d8c0', tc2:'#d4c4ac', gc:'#b09078'},
+    'large-format': {tc:'#dcdad4', tc2:'#c8c6c0', gc:'#a4a09a'},
+  };
+  const pal = PAL[S.tileType] || PAL.ceramic;
+  const TC  = pal.tc;   // primary tile face
+  const TC2 = pal.tc2;  // secondary tone (herringbone V-tiles)
+  const GC  = pal.gc;   // grout
+
+  const rect = (x,y,w,h,fill) =>
+    `<rect x="${+(x+g/2).toFixed(1)}" y="${+(y+g/2).toFixed(1)}" width="${+(w-g).toFixed(1)}" height="${+(h-g).toFixed(1)}" fill="${fill||TC}"/>`;
 
   let pW, pH, content = '', xfm = '';
 
@@ -2003,7 +2018,8 @@ function genTileHatch(id, svgPxPerFt, offX, offY) {
       xfm=`rotate(45 ${+offX.toFixed(1)} ${+offY.toFixed(1)})`; break;
     case 'herringbone': {
       const u=+(tW+tH).toFixed(1); pW=u; pH=u;
-      content=rect(0,0,tW,tH)+rect(tW,0,tH,tW)+rect(0,tH,tH,tW)+rect(tH,tW,tW,tH); break;
+      // Two-tone: H-tiles (TC) vs V-tiles (TC2) so pattern reads clearly
+      content=rect(0,0,tW,tH,TC)+rect(tW,0,tH,tW,TC2)+rect(0,tH,tH,tW,TC2)+rect(tH,tW,tW,tH,TC); break;
     }
     case 'chevron': {
       const dx=+(tH*0.5).toFixed(1); pW=+((tW+dx)*2).toFixed(1); pH=+(tH*2).toFixed(1);
@@ -3008,7 +3024,7 @@ const STEPS = [
 
 
   // 9 — Contact (moved to end — collect info at booking stage, less friction up front)
-  { badge:'Step 10 of 10', prog:100, title:"Lock in your free on-site measure.", sub:"We'll email your estimate summary and reach out to schedule. No obligation — free, always.",
+  { badge:'Step 10 of 10', prog:100, title:"Lock in your free on-site measure.", sub:"No obligation — free, always. We'll reach out within one business day to schedule your measure.",
     render(){return `
       <div class="field-row">
         <div class="field"><label class="lbl">First Name</label><input class="inp" id="ffn" type="text" placeholder="Jane" value="${S.firstName}" autocomplete="given-name"><div class="err" id="efn">Required</div></div>
@@ -3082,7 +3098,7 @@ function buildEstimateSummary() {
     `This is a planning estimate — we'll confirm exact pricing at your free on-site measure.`,
     ``,
     S.timeline ? `⏰ Timeline: ${{'asap':'ASAP / within a month','1-3mo':'1–3 months','3-6mo':'3–6 months','exploring':'Just exploring'}[S.timeline]||S.timeline}` : '',
-    `📅 Book your free measure: ${CFG.CALENDLY}`,
+    `📧 Request your free measure: office@craftedbacksplash.com`,
     `📞 Or call/text us: ${CFG.PHONE}`,
     ``,
     `– ${CFG.BRAND}`,
@@ -3112,7 +3128,7 @@ function buildEstimateSummary() {
         This is a planning estimate based on the details you provided. Actual costs are confirmed in your written fixed-price quote after the free on-site measure — no surprises.
       </div>
       <div style="text-align:center">
-        <a href="${CFG.CALENDLY}" style="display:inline-block;background:#8B1A1A;color:#fff;font-weight:900;font-size:16px;padding:16px 32px;border-radius:10px;text-decoration:none;margin-bottom:12px">📅 Book Your Free Measure</a>
+        <a href="${CFG.CALENDLY}" style="display:inline-block;background:#8B1A1A;color:#fff;font-weight:900;font-size:16px;padding:16px 32px;border-radius:10px;text-decoration:none;margin-bottom:12px">📧 Request Your Free Measure</a>
         <div style="font-size:14px;color:#888;margin-top:8px">Or call/text us: <a href="tel:${CFG.PHONE_RAW}" style="color:#5c0f0f;font-weight:700">${CFG.PHONE}</a></div>
       </div>
     </div>
@@ -3164,13 +3180,13 @@ function showThanks() {
   $('cb-content').innerHTML=`<div id="cb-ty">
     <div class="ty-icon">🎉</div>
     <div class="ty-title">You're all set, ${S.firstName}!</div>
-    <div class="ty-sub">A copy of your estimate was sent to <strong>${S.email}</strong>${S.phone ? ` and a summary text to <strong>${S.phone}</strong>` : ''}. Lock in your spot — pick a time below and we'll come to you.</div>
+    <div class="ty-sub">We've got your info, ${S.firstName}. Click below to email us and we'll reach out within one business day to schedule your free on-site measure — no obligation.</div>
     <div class="ty-est">
       <div class="ty-est-lbl">Your Labor Estimate</div>
       <div class="ty-est-val">${fmt(low)} – ${fmt(high)}</div>
       <div class="ty-est-note">+ ~${fmt(mat)} tile materials · Total ~${fmt(low+mat)}–${fmt(high+mat)}</div>
     </div>
-    <a class="ty-cta ty-book" href="${CFG.CALENDLY}" target="_blank" rel="noopener">📅 Book Your Free Measure</a>
+    <a class="ty-cta ty-book" href="${CFG.CALENDLY}">📧 Request Your Free Measure</a>
     <div class="ty-or">or</div>
     <a class="ty-cta ty-call" href="tel:${CFG.PHONE_RAW}">📞 Call / Text: ${CFG.PHONE}</a>
     <div class="ty-steps">
@@ -3206,7 +3222,7 @@ function renderStep() {
   </div>`;
   if(st.bind) st.bind();
   $('btn-back').style.display = S.step>0 ? '' : 'none';
-  $('btn-next').textContent   = S.step===STEPS.length-1 ? '📅 Send My Estimate & Book →' : S.step===STEPS.length-2 ? 'Continue to Book →' : S.step===STEPS.length-3 ? '📸 Continue →' : 'Continue →';
+  $('btn-next').textContent   = S.step===STEPS.length-1 ? '📧 Send My Estimate →' : S.step===STEPS.length-2 ? 'Continue →' : S.step===STEPS.length-3 ? '📸 Continue →' : 'Continue →';
   $('btn-next').disabled      = false;
   // Hide escape hatch on the final booking step — they're already committing
   $('btn-escape').style.display = S.step===STEPS.length-1 ? 'none' : '';
@@ -3263,7 +3279,6 @@ $('btn-back').addEventListener('click', ()=>{
 // Restore any previous session, then render
 loadSession();
 renderStep();
-
 // ── postMessage height reporter (for iframe embed in index.html) ──
 // IMPORTANT: measure the content element (#cb-wrap + nav padding), NOT
 // document.body.scrollHeight — that value grows as the iframe grows,
@@ -3281,4 +3296,4 @@ const _ro = new ResizeObserver(reportHeight);
 _ro.observe(document.getElementById('cb-wrap') || document.body);
 </script>
 </body>
-</html
+</html>
