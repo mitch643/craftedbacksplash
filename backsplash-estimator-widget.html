@@ -3383,9 +3383,12 @@ async function zapier(extra={}) {
   };
   try {
     // Route via Apps Script (Drive + forward to Zapier); fallback direct to Zapier
-    const endpoint = (CFG.SCRIPT && !CFG.SCRIPT.includes('YOUR_')) ? CFG.SCRIPT : CFG.ZAPIER;
-    if (endpoint && !endpoint.includes('YOUR_')) {
-      await fetch(endpoint, { method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(payload), mode:'no-cors' });
+    // Always post to Zapier for emails; also try Apps Script for Drive (fire-and-forget)
+    if (CFG.ZAPIER && !CFG.ZAPIER.includes('YOUR_')) {
+      await fetch(CFG.ZAPIER, { method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(payload), mode:'no-cors' });
+    }
+    if (CFG.SCRIPT && !CFG.SCRIPT.includes('YOUR_')) {
+      fetch(CFG.SCRIPT, { method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(payload), mode:'no-cors' }).catch(()=>{});
     }
   } catch(e){ console.warn('Submit:', e); }
 }
