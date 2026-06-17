@@ -428,6 +428,9 @@ const CFG = {
   PHONE_RAW:    '4025550000',
   CALENDLY:     'mailto:office@craftedbacksplash.com?subject=Free%20Measure%20Request%20%E2%80%94%20Crafted%20Backsplash',
   ZAPIER:       'https://hooks.zapier.com/hooks/catch/27968220/43qyb4h/',
+  // Google Apps Script web app — creates Drive folder, uploads photos, forwards to Zapier
+  // See _source/lead-handler.gs for setup. Paste deployed web app URL below.
+  SCRIPT:       'https://script.google.com/macros/s/AKfycbxfdUscaweTdappcoVHkOZwtRu1EcTHTmn1Z8L_6hEIoRH3oDnRzUhVCpLbLntxj9qXkQ/exec',
 };
 
 // ============================================================
@@ -454,8 +457,8 @@ const S = {
 };
 
 // File storage — not serializable so kept outside S
-let SPACE_FILES = [];
-let TILE_FILE   = null;
+let SPACE_FILES      = [];
+let TILE_FILE        = null;
 
 function rerenderPhotoStep() {
   const st = STEPS[S.step];
@@ -3079,7 +3082,7 @@ async function compressPhoto(file) {
 }
 
 function buildEstimateSummary() {
-  const {low,high,mat} = S.tileType ? calcEst() : {low:0,high:0,mat:0};
+  const {low,high,mat,bill,fixedCost,demoAmt,drywAmt,outAmt,tileAmt,trimAmt,totalHrs} = S.tileType ? calcEst() : {low:0,high:0,mat:0,bill:0,fixedCost:0,demoAmt:0,drywAmt:0,outAmt:0,tileAmt:0,trimAmt:0,totalHrs:0};
   const date = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
 
   // Label maps
@@ -3136,11 +3139,14 @@ function buildEstimateSummary() {
     return '';
   }
 
-  // Photo summary (Gmail blocks base64 data: URIs — show count instead)
-  const photoNote = (SPACE_FILES.length || TILE_FILE) ? `
-    <div style="border:1px solid #e0dbd4;border-top:none;padding:12px 16px;background:#f5f2ee;font-size:13px;color:#5c3a3a">
-      📷 <strong>${SPACE_FILES.length} space photo${SPACE_FILES.length!==1?'s':''} uploaded${TILE_FILE?' + tile photo':''}</strong> — bring these to the measure appointment or reply to this email to share them.
-    </div>` : '';
+  // ── Photo note blocks (Apps Script injects Drive folder link into office email) ─
+  const spacePhotosBlock = SPACE_FILES.length
+    ? `<div style="border:1px solid #e0dbd4;border-top:none;padding:12px 16px;background:#f5f2ee;font-size:13px;color:#5c3a3a">📷 <strong>${SPACE_FILES.length} space photo${SPACE_FILES.length!==1?'s':''} uploaded</strong> — saved to Google Drive lead folder</div>`
+    : '';
+
+  const tilePhotoBlock = (TILE_FILE || S.tileUrl)
+    ? `<div style="border:1px solid #e0dbd4;border-top:none;padding:12px 16px;background:#f5f2ee;font-size:13px;color:#5c3a3a">${TILE_FILE?'📷 Tile photo uploaded':''}${S.tileUrl?`${TILE_FILE?' &nbsp;·&nbsp; ':''}🔗 <a href="${S.tileUrl}" style="color:#8B1A1A">${S.tileUrl}</a>`:''}</div>`
+    : '';
 
   // Shared project detail rows
   const rows = [
@@ -3182,6 +3188,24 @@ function buildEstimateSummary() {
   const urgColor = S.timeline==='asap'?'#c0392b':S.timeline==='1-3mo'?'#d35400':'#1a6b3c';
   const urgLabel = tlMap[S.timeline] || 'Not specified';
 
+  // Estimate breakdown block for office email
+  const estBreakdownHtml = S.tileType ? `
+  <div style="border:1px solid #e0dbd4;border-top:none">
+    <div style="background:#f5f2ee;padding:9px 16px;border-bottom:1px solid #e0dbd4;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#5c0f0f">Estimate Breakdown</div>
+    <table style="width:100%;border-collapse:collapse">
+      <tr style="background:#faf9f7"><td style="padding:7px 16px;font-size:13px;color:#888;font-weight:600;width:56%">Overhead (drive, setup, cleanup)</td><td style="padding:7px 16px;font-size:13px;font-weight:700;color:#1a1a1a">${fmt(fixedCost)}</td></tr>
+      <tr style="background:#fff"><td style="padding:7px 16px;font-size:13px;color:#888;font-weight:600">Tile setting labor</td><td style="padding:7px 16px;font-size:13px;font-weight:700;color:#1a1a1a">~${fmt(tileAmt)}</td></tr>
+      ${demoAmt?`<tr style="background:#faf9f7"><td style="padding:7px 16px;font-size:13px;color:#888;font-weight:600">Demo existing tile</td><td style="padding:7px 16px;font-size:13px;font-weight:700;color:#1a1a1a">${fmt(demoAmt)}</td></tr>`:''}
+      ${drywAmt?`<tr style="background:#fff"><td style="padding:7px 16px;font-size:13px;color:#888;font-weight:600">Drywall / backer repair</td><td style="padding:7px 16px;font-size:13px;font-weight:700;color:#1a1a1a">~${fmt(drywAmt)}</td></tr>`:''}
+      ${trimAmt?`<tr style="background:#faf9f7"><td style="padding:7px 16px;font-size:13px;color:#888;font-weight:600">Edge trim (${S.trimLinFt} ln ft)</td><td style="padding:7px 16px;font-size:13px;font-weight:700;color:#1a1a1a">~${fmt(trimAmt)}</td></tr>`:''}
+      ${outAmt?`<tr style="background:#fff"><td style="padding:7px 16px;font-size:13px;color:#888;font-weight:600">Outlet / switch cutouts</td><td style="padding:7px 16px;font-size:13px;font-weight:700;color:#1a1a1a">${fmt(outAmt)}</td></tr>`:''}
+      <tr style="background:#f0ece6;border-top:2px solid #e0dbd4">
+        <td style="padding:9px 16px;font-size:13px;font-weight:800;color:#1a1a1a">Labor Range</td>
+        <td style="padding:9px 16px;font-size:14px;font-weight:900;color:#8B1A1A">${fmt(low)} – ${fmt(high)}</td>
+      </tr>
+    </table>
+  </div>` : '';
+
   const notificationHtml = `<!DOCTYPE html><html><body style="margin:0;padding:16px;background:#f0ece6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif">
 <div style="max-width:600px;margin:0 auto">
   <div style="background:${urgColor};color:#fff;padding:16px 20px;border-radius:10px 10px 0 0;text-align:center">
@@ -3192,11 +3216,23 @@ function buildEstimateSummary() {
   <div style="background:#1a1a1a;padding:18px 20px;text-align:center">
     <a href="tel:${S.phone.replace(/\D/g,'')}" style="display:inline-block;background:#c0392b;color:#fff;font-size:20px;font-weight:900;padding:10px 28px;border-radius:8px;text-decoration:none;margin-bottom:10px">📞 ${S.phone}</a>
     <div style="font-size:14px;color:#ccc">📧 <a href="mailto:${S.email}" style="color:#f5c0c0">${S.email}</a></div>
+    ${S.address?`<div style="font-size:13px;color:#999;margin-top:4px">📍 ${S.address}${S.zip?', '+S.zip:''}</div>`:''}
   </div>
-  <div style="background:#8B1A1A;color:#fff;padding:14px 20px;text-align:center">
-    <div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;opacity:.75;margin-bottom:4px">Labor Estimate</div>
-    <div style="font-size:30px;font-weight:900">${fmt(low)} – ${fmt(high)}</div>
-    <div style="font-size:12px;opacity:.7">+ ~${fmt(mat)} materials &nbsp;·&nbsp; Total ~${fmt(low+mat)}–${fmt(high+mat)}</div>
+  <div style="background:#8B1A1A;color:#fff;padding:14px 20px">
+    <table style="width:100%;border-collapse:collapse"><tr>
+      <td style="text-align:center;padding:6px 12px 6px 0;border-right:1px solid rgba(255,255,255,.25)">
+        <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;opacity:.7;margin-bottom:2px">Labor Estimate</div>
+        <div style="font-size:24px;font-weight:900;line-height:1">${fmt(low)} – ${fmt(high)}</div>
+      </td>
+      <td style="text-align:center;padding:6px 12px;border-right:1px solid rgba(255,255,255,.25)">
+        <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;opacity:.7;margin-bottom:2px">+ Materials</div>
+        <div style="font-size:18px;font-weight:900;line-height:1">~${fmt(mat)}</div>
+      </td>
+      <td style="text-align:center;padding:6px 0 6px 12px">
+        <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;opacity:.7;margin-bottom:2px">Total Range</div>
+        <div style="font-size:18px;font-weight:900;line-height:1">~${fmt(low+mat)}–${fmt(high+mat)}</div>
+      </td>
+    </tr></table>
   </div>
   <div style="background:#fff;border:1px solid #e0dbd4;border-top:none">
     <div style="background:#f5f2ee;padding:9px 16px;border-bottom:1px solid #e0dbd4;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#5c0f0f">Project Details</div>
@@ -3207,8 +3243,10 @@ function buildEstimateSummary() {
       </tr>`).join('')}
     </table>
     ${wallDimsHtml()}
-    ${photoNote}
   </div>
+  ${spacePhotosBlock}
+  ${tilePhotoBlock}
+  ${estBreakdownHtml}
   <div style="background:#f5f2ee;border:1px solid #e0dbd4;border-top:none;border-radius:0 0 10px 10px;padding:10px 16px;text-align:center;font-size:11px;color:#9a9188">
     Submitted ${new Date().toLocaleString('en-US')} · Crafted Backsplash Website Estimator
   </div>
@@ -3274,8 +3312,8 @@ function buildEstimateSummary() {
     <table style="width:100%;border-collapse:collapse">${clientRows}</table>
   </div>
   ${wallDimsHtml()}
-  ${S.tileUrl ? `<div style="border:1px solid #e0dbd4;border-top:none;padding:12px 16px;font-size:13px;color:#333">🔗 <strong>Your tile reference:</strong> <a href="${S.tileUrl}" style="color:#8B1A1A">${S.tileUrl}</a></div>` : ''}
-  ${photoNote}
+  ${tilePhotoBlock}
+  ${spacePhotosBlock}
   <div style="border:1px solid #e0dbd4;border-top:none;padding:12px 18px;background:#f5f2ee;font-size:12px;color:#7a7268">
     💡 <strong>Save as PDF:</strong> Open this email in a browser, then use File → Print → Save as PDF to keep a copy of your estimate.
   </div>
@@ -3301,8 +3339,21 @@ function buildEstimateSummary() {
 }
 
 async function zapier(extra={}) {
-  // Note: Gmail strips base64 data: images from email bodies — photos shown as count instead
-  const {low,high,mat,sms,notificationHtml,clientEstimateHtml} = S.tileType
+  // Read photos as full-res base64 — Apps Script stores originals in Google Drive
+  let spacePhotos = [];
+  let tilePhoto   = null;
+  if (SPACE_FILES.length || TILE_FILE) {
+    $('btn-next').textContent = 'Reading photos…';
+    const toBase64 = file => new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload  = e => resolve(e.target.result);  // full data: URI, no compression
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+    spacePhotos = await Promise.all(SPACE_FILES.map(toBase64));
+    if (TILE_FILE) tilePhoto = await toBase64(TILE_FILE);
+  }
+
     ? buildEstimateSummary()
     : {low:0,high:0,mat:0,sms:'',notificationHtml:'',clientEstimateHtml:''};
 
@@ -3319,6 +3370,8 @@ async function zapier(extra={}) {
     // Computed estimates
     laborLow:low, laborHigh:high, materialEst:mat, totalLow:low+mat, totalHigh:high+mat,
     spacePhotoCount:SPACE_FILES.length, hasTilePhoto:!!TILE_FILE,
+    spacePhotos,   // full-res base64 — Apps Script uploads to Google Drive
+    tilePhoto,     // full-res base64 or null
     // Formatted emails for Zapier actions
     notificationHtml,      // Action 1: send to office@craftedbacksplash.com (you)
     clientEstimateHtml,    // Action 2: send to {{email}} (the homeowner)
@@ -3329,10 +3382,12 @@ async function zapier(extra={}) {
     source:'Website Estimator Widget', submitted:new Date().toISOString(),
   };
   try {
-    if(CFG.ZAPIER && !CFG.ZAPIER.includes('YOUR_')) {
-      await fetch(CFG.ZAPIER,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),mode:'no-cors'});
+    // Route via Apps Script (Drive + forward to Zapier); fallback direct to Zapier
+    const endpoint = (CFG.SCRIPT && !CFG.SCRIPT.includes('YOUR_')) ? CFG.SCRIPT : CFG.ZAPIER;
+    if (endpoint && !endpoint.includes('YOUR_')) {
+      await fetch(endpoint, { method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(payload), mode:'no-cors' });
     }
-  } catch(e){ console.warn('Zapier:',e); }
+  } catch(e){ console.warn('Submit:', e); }
 }
 
 async function handleSubmit() {
