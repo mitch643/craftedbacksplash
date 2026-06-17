@@ -158,7 +158,7 @@ body {
 
 /* ── Est bar ── */
 #cb-est-bar {
-  background: var(--charcoal); border-radius: 11px;
+  background: #2c1a12; border-radius: 11px;
   padding: 14px 20px; display: flex; align-items: center;
   justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px;
 }
@@ -178,7 +178,7 @@ body {
 .btn-back:hover { border-color: var(--charcoal); color: var(--charcoal); }
 
 .btn-next {
-  flex: 1; background: var(--charcoal); border: none; border-radius: 9px;
+  flex: 1; background: var(--gold); border: none; border-radius: 9px;
   padding: 14px 20px; font-size: 17px; font-weight: 900; color: var(--white);
   cursor: pointer; transition: background .18s; font-family: inherit; min-height: 52px;
 }
@@ -252,8 +252,8 @@ body {
 #canvas-tip .ti { font-size: 40px; margin-bottom: 10px; }
 /* Instruction bar that lives BELOW the canvas, never overlaps the drawing */
 #canvas-hint {
-  background: #fdf0f0;
-  border: 1.5px solid var(--gold-lt);
+  background: #eef4f8;
+  border: 1.5px solid #93bcd4;
   border-top: none;
   border-radius: 0 0 10px 10px;
   padding: 10px 16px;
@@ -263,15 +263,15 @@ body {
   display: none;
 }
 #canvas-hint .hint-icon { font-size: 18px; margin-right: 6px; vertical-align: middle; }
-#canvas-hint strong { color: var(--gold-dk); }
+#canvas-hint strong { color: #17557a; }
 
 /* Edge label popup */
 #edge-label-ui {
   display: none;
-  background: #1e1e1e; border-radius: 0 0 10px 10px;
-  padding: 14px 16px; border-top: 3px solid var(--gold);
+  background: #faf7f4; border-radius: 0 0 10px 10px;
+  padding: 14px 16px; border: 1.5px solid var(--gray-2); border-top: 3px solid var(--gold);
 }
-.el-title { font-size: 14px; font-weight: 800; color: var(--white); margin-bottom: 10px; letter-spacing: 0.02em; }
+.el-title { font-size: 14px; font-weight: 800; color: var(--charcoal); margin-bottom: 10px; letter-spacing: 0.02em; }
 .el-btns  { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .el-btn   {
   border: 2.5px solid transparent; border-radius: 8px;
@@ -284,7 +284,7 @@ body {
 /* Canvas summary bar */
 #canvas-summary {
   display: none;
-  background: var(--charcoal); border-radius: 9px;
+  background: #2c1a12; border-radius: 9px;
   margin: 10px 0 4px; overflow: hidden;
 }
 #canvas-summary > div:first-child { display: flex; align-items: stretch; }
@@ -304,7 +304,7 @@ body {
 .mlbl { font-size: 14px; font-weight: 700; color: var(--gray-3); min-width: 58px; }
 .mx   { font-size: 18px; color: var(--gray-2); font-weight: 300; }
 .msf  { font-size: 14px; color: var(--gray-3); min-width: 74px; }
-.munit{ font-size: 13px; font-weight: 800; color: var(--white); background: var(--charcoal); border-radius: 5px; padding: 3px 7px; letter-spacing: .03em; }
+.munit{ font-size: 13px; font-weight: 800; color: var(--white); background: #2c1a12; border-radius: 5px; padding: 3px 7px; letter-spacing: .03em; }
 .msf span { font-weight: 800; color: var(--charcoal); }
 .rm-sec { background: none; border: none; color: var(--gray-3); font-size: 22px; cursor: pointer; padding: 0 6px; line-height: 1; }
 .rm-sec:hover { color: var(--red); }
@@ -336,7 +336,7 @@ body {
 .ty-icon  { font-size: 56px; margin-bottom: 14px; }
 .ty-title { font-size: 28px; font-weight: 900; color: var(--charcoal); margin-bottom: 8px; }
 .ty-sub   { font-size: 16px; color: var(--gray-3); line-height: 1.7; max-width: 420px; margin: 0 auto 26px; }
-.ty-est   { background: var(--charcoal); border-radius: 13px; padding: 22px; margin-bottom: 22px; }
+.ty-est   { background: #2c1a12; border-radius: 13px; padding: 22px; margin-bottom: 22px; }
 .ty-est-lbl { font-size: 12px; color: var(--gold-lt); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; font-weight: 800; }
 .ty-est-val { font-size: 36px; font-weight: 900; color: var(--white); margin-bottom: 4px; }
 .ty-est-note { font-size: 13px; color: var(--gray-3); }
@@ -356,7 +356,7 @@ body {
 .ty-disc { font-size: 13px; color: var(--gray-3); line-height: 1.6; margin-top: 14px; }
 
 /* Results */
-.res-box   { background: var(--charcoal); border-radius: 13px; padding: 22px; margin-bottom: 18px; text-align: center; }
+.res-box   { background: #2c1a12; border-radius: 13px; padding: 22px; margin-bottom: 18px; text-align: center; }
 .res-lbl   { font-size: 12px; color: var(--gold-lt); letter-spacing: 1px; text-transform: uppercase; font-weight: 800; margin-bottom: 5px; }
 .res-val   { font-size: 38px; font-weight: 900; color: var(--white); margin-bottom: 3px; }
 .res-note  { font-size: 13px; color: var(--gray-3); }
@@ -424,8 +424,8 @@ body {
 // ============================================================
 const CFG = {
   BRAND:        'Crafted Backsplash',
-  PHONE:        '(402) 555-0000',
-  PHONE_RAW:    '4025550000',
+  PHONE:        '(402) 581-9448',
+  PHONE_RAW:    '4025819448',
   CALENDLY:     'mailto:office@craftedbacksplash.com?subject=Free%20Measure%20Request%20%E2%80%94%20Crafted%20Backsplash',
   ZAPIER:       'https://hooks.zapier.com/hooks/catch/27968220/43qyb4h/',
   // Google Apps Script web app — creates Drive folder, uploads photos, forwards to Zapier
@@ -1254,7 +1254,7 @@ function showEdgeLblUI(edge) {
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
       <div class="el-title" style="margin:0">📍 What is this edge? <span style="font-size:12px;color:#aaa;font-weight:400">${lenIn}" long</span></div>
       <button class="el-btn" onclick="enterSplitMode(${edge.si},${edge.ei})"
-        style="background:#2a2a2a;color:#8B1A1A;border-color:#8B1A1A;font-size:13px"
+        style="background:#fff3f0;color:#8B1A1A;border-color:#c44040;font-size:13px"
         title="Divide this edge into two separately-labeled segments">
         ✂ Split edge
       </button>
@@ -1264,14 +1264,14 @@ function showEdgeLblUI(edge) {
         <button class="el-btn" onclick="setEdgeLabel(${edge.si},${edge.ei},'${k}')"
           style="${cur===k
             ? `background:${v.col};color:#fff;border-color:${v.col};box-shadow:0 0 0 3px ${v.col}44`
-            : `background:#2a2a2a;color:#e0e0e0;border-color:#444`}">
+            : `background:#fff;color:#1a1a1a;border-color:#d5cec4`}">
           <span class="el-swatch" style="background:${v.col};${cur===k?'box-shadow:0 0 0 2px rgba(255,255,255,0.5)':''}"></span>
           ${v.label}
         </button>`).join('')}
       ${cur ? `<button class="el-btn" onclick="setEdgeLabel(${edge.si},${edge.ei},'clear')"
-        style="background:none;color:#888;border-color:#444;grid-column:1/-1">✕ Clear label</button>` : ''}
+        style="background:none;color:#7a7268;border-color:#d5cec4;grid-column:1/-1">✕ Clear label</button>` : ''}
     </div>
-    ${cur==='corner' ? `<div style="font-size:12px;color:#d35400;margin-top:9px;line-height:1.5">
+    ${cur==='corner' ? `<div style="font-size:12px;color:#b84c00;margin-top:9px;line-height:1.5">
       ↳ Inside corners are caulked (not grouted) to allow flex as the house settles — included in standard labor.
     </div>` : ''}`;
   el.style.display = 'block';
@@ -1290,7 +1290,7 @@ window.enterSplitMode = function(si, ei) {
     </div>
     <div style="margin-top:8px">
       <button class="el-btn" onclick="cancelSplitMode()"
-        style="background:none;color:#888;border-color:#555">✕ Cancel split</button>
+        style="background:none;color:#7a7268;border-color:#d5cec4">✕ Cancel split</button>
     </div>`;
   el.style.display = 'block';
   // Switch cursor to crosshair to signal split mode
@@ -1902,7 +1902,7 @@ function showSkip() {
       <div style="font-size:15px;font-weight:800;color:var(--charcoal);margin-bottom:12px">Drop your name and number — we'll reach out:</div>
       <div class="field-row" style="margin-bottom:10px">
         <div class="field"><label class="lbl">First Name</label><input class="inp" id="sk-fn" type="text" placeholder="Jane" autocomplete="given-name"></div>
-        <div class="field"><label class="lbl">Phone</label><input class="inp" id="sk-ph" type="tel" placeholder="(402) 555-0000" autocomplete="tel" inputmode="tel"></div>
+        <div class="field"><label class="lbl">Phone</label><input class="inp" id="sk-ph" type="tel" placeholder="(402) 555-1234" autocomplete="tel" inputmode="tel"></div>
       </div>
       <button onclick="submitSkip()" style="width:100%;padding:14px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit">📧 Request Your Free Measure</button>
     </div>`}
@@ -3026,7 +3026,7 @@ const STEPS = [
         <div class="field"><label class="lbl">Last Name</label><input class="inp" id="fln" type="text" placeholder="Smith" value="${S.lastName}" autocomplete="family-name"><div class="err" id="eln">Required</div></div>
       </div>
       <div class="field-row">
-        <div class="field"><label class="lbl">Best Phone Number</label><input class="inp" id="fph" type="tel" placeholder="(402) 555-0000" value="${S.phone}" inputmode="tel" autocomplete="tel"><div class="err" id="eph">Please enter a valid phone number</div></div>
+        <div class="field"><label class="lbl">Best Phone Number</label><input class="inp" id="fph" type="tel" placeholder="(402) 555-1234" value="${S.phone}" inputmode="tel" autocomplete="tel"><div class="err" id="eph">Please enter a valid phone number</div></div>
         <div class="field"><label class="lbl">Email Address</label><input class="inp" id="fem" type="email" placeholder="jane@example.com" value="${S.email}" autocomplete="email"><div class="err" id="eem">Please enter a valid email</div></div>
       </div>
       <div class="field"><label class="lbl">Street Address <span class="opt-note">(optional)</span></label><input class="inp" id="fad" type="text" placeholder="1234 Oak St, Omaha, NE" value="${S.address}" autocomplete="street-address"></div>
