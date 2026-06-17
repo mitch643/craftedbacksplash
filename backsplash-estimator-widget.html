@@ -3353,7 +3353,7 @@ async function zapier(extra={}) {
     spacePhotos = await Promise.all(SPACE_FILES.map(toBase64));
     if (TILE_FILE) tilePhoto = await toBase64(TILE_FILE);
   }
-
+  const {sms, notificationHtml, clientEstimateHtml, low, high, mat} = S.tileType
     ? buildEstimateSummary()
     : {low:0,high:0,mat:0,sms:'',notificationHtml:'',clientEstimateHtml:''};
 
