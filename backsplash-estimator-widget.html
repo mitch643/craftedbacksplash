@@ -3383,7 +3383,7 @@ async function zapier(extra={}) {
   };
   try {
     // Route via Apps Script (Drive + forward to Zapier); fallback direct to Zapier
-    const endpoint = (CFG.SCRIPT && !CFG.SCRIPT.includes('YOUR_')) ? CFG.SCRIPT : CFG.ZAPIER;
+    const endpoint = CFG.ZAPIER;  // TEMP: bypass Apps Script, go direct to Zapier
     if (endpoint && !endpoint.includes('YOUR_')) {
       await fetch(endpoint, { method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(payload), mode:'no-cors' });
     }
