@@ -588,20 +588,6 @@ body {
   aspect-ratio: 16/9;
 }
 
-.gallery-caption {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(transparent, rgba(0,0,0,0.65));
-  color: var(--white);
-  font-size: 13px;
-  font-weight: 700;
-  padding: 24px 14px 12px;
-  opacity: 0;
-  transition: opacity .3s;
-}
-.gallery-item:hover .gallery-caption { opacity: 1; }
 
 .gallery-note {
   margin-top: 16px;
@@ -936,8 +922,6 @@ body {
   .trust-divider { display: none; }
   .hero-btns { flex-direction: column; align-items: center; }
   .btn-primary, .btn-secondary { width: 100%; max-width: 320px; text-align: center; }
-  /* Gallery captions always visible on mobile (no hover) */
-  .gallery-caption { opacity: 1; background: linear-gradient(transparent, rgba(0,0,0,0.72)); }
   /* Reduce section padding on small screens */
   .section { padding: 60px 20px; }
   #gallery { padding: 60px 20px; }
@@ -965,7 +949,11 @@ body {
 }
 
 /* ── LIGHTBOX ── */
-.gallery-item { cursor: zoom-in; }
+.gallery-item {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
 .gallery-item::after {
   content: '⊕';
   position: absolute; top: 10px; right: 12px;
@@ -990,12 +978,7 @@ body {
   box-shadow: 0 8px 48px rgba(0,0,0,0.7);
   user-select: none; -webkit-user-drag: none;
 }
-#lb-caption {
-  position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
-  background: rgba(0,0,0,0.6); color: #fff; font-size: 14px;
-  padding: 7px 18px; border-radius: 20px; white-space: nowrap;
-  pointer-events: none;
-}
+#lb-caption { display: none; }
 #lb-close {
   position: fixed; top: 18px; right: 22px;
   background: rgba(255,255,255,0.12); border: none; color: #fff;
@@ -1106,27 +1089,21 @@ body {
     <div class="gallery-grid fade-up">
       <div class="gallery-item featured">
         <img src="images/gallery-2.jpg" alt="Natural stone travertine backsplash with cherry wood cabinets in Omaha kitchen" loading="lazy">
-        <div class="gallery-caption">Natural stone travertine, cherry cabinets — Omaha</div>
       </div>
       <div class="gallery-item">
         <img src="images/gallery-3.jpg" alt="Dark vertical-stack tile on custom coffee bar niche in Omaha home" loading="lazy">
-        <div class="gallery-caption">Vertical stack tile, custom bar niche</div>
       </div>
       <div class="gallery-item">
         <img src="images/hero.jpg" alt="White subway tile backsplash with dark charcoal cabinets in Omaha kitchen" loading="lazy">
-        <div class="gallery-caption">White subway tile — charcoal cabinets</div>
       </div>
       <div class="gallery-item">
         <img src="images/gallery-4.jpg" alt="Natural stone tile wrapping sink area and window sill in Omaha kitchen" loading="lazy">
-        <div class="gallery-caption">Stone tile wrapping the sink window</div>
       </div>
       <div class="gallery-item">
         <img src="images/gallery-5.jpg" alt="Natural stone mosaic backsplash with honey oak cabinets in Nebraska kitchen" loading="lazy">
-        <div class="gallery-caption">Stone mosaic, honey oak cabinets</div>
       </div>
       <div class="gallery-item">
         <img src="images/gallery-6.jpg" alt="Travertine tile inside corner detail in Omaha kitchen with dark cabinets" loading="lazy">
-        <div class="gallery-caption">Travertine inside corner, tight detail</div>
       </div>
     </div>
     <div style="text-align:center;margin-top:40px" class="fade-up">
@@ -1522,3 +1499,4 @@ document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
 </script>
 </body>
 </html>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
