@@ -427,6 +427,7 @@ const CFG = {
   PHONE:        '(402) 581-9448',
   PHONE_RAW:    '4025819448',
   CALENDLY:     'mailto:office@craftedbacksplash.com?subject=Free%20Measure%20Request%20%E2%80%94%20Crafted%20Backsplash',
+  BOOKING:      'https://calendar.app.google/Gy5ueDCHXucqrVzN7',
   ZAPIER:       'https://hooks.zapier.com/hooks/catch/27968220/43qyb4h/',
   // Google Apps Script web app — creates Drive folder, uploads photos, forwards to Zapier
   // See _source/lead-handler.gs for setup. Paste deployed web app URL below.
@@ -1906,19 +1907,22 @@ function showSkip() {
       </div>
       <button onclick="submitSkip()" style="width:100%;padding:14px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit">📧 Request Your Free Measure</button>
     </div>`}
-    <div class="sk-opts">
-      <div class="sk-opt">
-        <div class="sk-opt-icon">📧</div>
-        <div class="sk-opt-title">Email Us</div>
-        <div class="sk-opt-sub">We'll reach out within one business day to schedule your free measure.</div>
-        <a class="sk-btn sk-gold" href="${CFG.CALENDLY}">📧 Send a Message</a>
+    <div style="margin-bottom:16px">
+      ${CFG.BOOKING && !CFG.BOOKING.includes('YOUR_') ? `
+      <a class="sk-btn sk-gold" href="${CFG.BOOKING}" target="_blank" rel="noopener"
+        style="display:flex;align-items:center;justify-content:center;gap:10px;font-size:17px;padding:18px;margin-bottom:12px;border-radius:11px;text-decoration:none">
+        📅 <span>Schedule Your Free Measure</span>
+      </a>
+      <div style="font-size:13px;color:var(--gray-3);text-align:center;margin-bottom:14px">Pick a time that works — it goes straight on the calendar.</div>
+      ` : `
+      <div style="background:#fff8e1;border:1.5px solid #f9a825;border-radius:10px;padding:12px 16px;margin-bottom:14px;font-size:14px;color:#6d5000;text-align:center">
+        📅 Online scheduling coming soon — use the options below.
       </div>
-      <div class="sk-opt">
-        <div class="sk-opt-icon">📞</div>
-        <div class="sk-opt-title">Prefer a Call?</div>
-        <div class="sk-opt-sub">Call or text us and we'll find a time together. Usually same or next day.</div>
-        <a class="sk-btn sk-out" href="tel:${CFG.PHONE_RAW}">📞 ${CFG.PHONE}</a>
-      </div>
+      `}
+      <a class="sk-btn sk-out" href="tel:${CFG.PHONE_RAW}"
+        style="display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;border-radius:11px;padding:14px">
+        📞 <span>Call / Text: ${CFG.PHONE}</span>
+      </a>
     </div>
     <div class="sk-resume">Changed your mind? <a onclick="resumeEst()">Continue the estimate instead →</a></div>
   </div>`;
@@ -1933,7 +1937,11 @@ window.submitSkip = function() {
   zapier({skipped:true});
   const miniForm = $('sk-mini-form');
   if(miniForm) miniForm.outerHTML = `<div style="background:#eaf5ed;border:1px solid #27ae60;border-radius:11px;padding:14px 20px;margin-bottom:18px">
-    <div style="font-size:15px;font-weight:800;color:#2a6a3a">✅ Got it${S.firstName?`, ${S.firstName}`:''}! We'll reach out to schedule your measure.</div>
+    <div style="font-size:15px;font-weight:800;color:#2a6a3a;margin-bottom:${CFG.BOOKING&&!CFG.BOOKING.includes('YOUR_')?'10':'0'}px">✅ Got it${S.firstName?`, ${S.firstName}`:''}! We'll reach out to schedule your measure.</div>
+    ${CFG.BOOKING&&!CFG.BOOKING.includes('YOUR_') ? `<a href="${CFG.BOOKING}" target="_blank" rel="noopener"
+      style="display:flex;align-items:center;justify-content:center;gap:8px;background:var(--gold);color:#fff;text-decoration:none;border-radius:9px;padding:13px;font-size:16px;font-weight:800;margin-top:8px">
+      📅 Pick a Time on the Calendar →
+    </a>` : ''}
   </div>`;
 };
 
