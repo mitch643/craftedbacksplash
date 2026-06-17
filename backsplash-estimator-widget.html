@@ -3078,7 +3078,7 @@ async function compressPhoto(file) {
   });
 }
 
-function buildEstimateSummary(photoDataUrls=[], tilePhotoDataUrl=null) {
+function buildEstimateSummary() {
   const {low,high,mat} = S.tileType ? calcEst() : {low:0,high:0,mat:0};
   const date = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
 
@@ -3093,6 +3093,54 @@ function buildEstimateSummary(photoDataUrls=[], tilePhotoDataUrl=null) {
   const compMap  = {simple:'Simple (rectangular)',moderate:'Moderate (L-shape / window)',complex:'Complex (multiple angles)'};
 
   const nameStr = [S.firstName, S.lastName].filter(Boolean).join(' ');
+
+  // Wall / section dimension block (email-safe — no SVGs, no CSS variables)
+  function wallDimsHtml(headerStyle='') {
+    if (S.measureMode === 'manual') {
+      const confirmed = (S._sections||[]).filter(s=>s.confirmed);
+      if (!confirmed.length) return '';
+      const rowsHtml = confirmed.map((s,i)=>{
+        const sf = dimsToSqft(s.lft,s.lin,s.hft,s.hin);
+        return `<tr style="background:${i%2===0?'#f8f5f1':'#fff'}">
+          <td style="padding:8px 16px;font-size:13px;color:#888;font-weight:600;width:38%">Wall ${i+1}</td>
+          <td style="padding:8px 16px;font-size:13px;color:#1a1a1a;font-weight:700">${fmtFtIn(s.lft,s.lin)} wide &times; ${fmtFtIn(s.hft,s.hin)} tall = <strong>${sf} sq ft</strong></td>
+        </tr>`;
+      }).join('');
+      return `<div style="border:1px solid #e0dbd4;border-top:none">
+        <div style="background:#f5f2ee;padding:9px 16px;border-bottom:1px solid #e0dbd4;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#5c0f0f${headerStyle}">Wall Measurements</div>
+        <table style="width:100%;border-collapse:collapse">
+          ${rowsHtml}
+          <tr style="border-top:2px solid #e0dbd4">
+            <td style="padding:8px 16px;font-size:13px;color:#888;font-weight:600">Total</td>
+            <td style="padding:8px 16px;font-size:13px;color:#1a1a1a;font-weight:800">${S.sqft} sq ft &nbsp;·&nbsp; ${Math.round(S.sqft*1.12)} sq ft billed (12% waste)</td>
+          </tr>
+        </table>
+      </div>`;
+    }
+    if (S.measureMode === 'draw' && DS.shapes.length) {
+      const rowsHtml = DS.shapes.map((sh,i)=>`<tr style="background:${i%2===0?'#f8f5f1':'#fff'}">
+        <td style="padding:8px 16px;font-size:13px;color:#888;font-weight:600;width:38%">Section ${i+1}</td>
+        <td style="padding:8px 16px;font-size:13px;color:#1a1a1a;font-weight:700"><strong>${sh.sqFt} sq ft</strong></td>
+      </tr>`).join('');
+      return `<div style="border:1px solid #e0dbd4;border-top:none">
+        <div style="background:#f5f2ee;padding:9px 16px;border-bottom:1px solid #e0dbd4;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#5c0f0f${headerStyle}">Drawn Sections</div>
+        <table style="width:100%;border-collapse:collapse">
+          ${rowsHtml}
+          <tr style="border-top:2px solid #e0dbd4">
+            <td style="padding:8px 16px;font-size:13px;color:#888;font-weight:600">Total</td>
+            <td style="padding:8px 16px;font-size:13px;color:#1a1a1a;font-weight:800">${S.sqft} sq ft &nbsp;·&nbsp; ${Math.round(S.sqft*1.12)} sq ft billed (12% waste)</td>
+          </tr>
+        </table>
+      </div>`;
+    }
+    return '';
+  }
+
+  // Photo summary (Gmail blocks base64 data: URIs — show count instead)
+  const photoNote = (SPACE_FILES.length || TILE_FILE) ? `
+    <div style="border:1px solid #e0dbd4;border-top:none;padding:12px 16px;background:#f5f2ee;font-size:13px;color:#5c3a3a">
+      📷 <strong>${SPACE_FILES.length} space photo${SPACE_FILES.length!==1?'s':''} uploaded${TILE_FILE?' + tile photo':''}</strong> — bring these to the measure appointment or reply to this email to share them.
+    </div>` : '';
 
   // Shared project detail rows
   const rows = [
@@ -3134,16 +3182,6 @@ function buildEstimateSummary(photoDataUrls=[], tilePhotoDataUrl=null) {
   const urgColor = S.timeline==='asap'?'#c0392b':S.timeline==='1-3mo'?'#d35400':'#1a6b3c';
   const urgLabel = tlMap[S.timeline] || 'Not specified';
 
-  const photosHtml = photoDataUrls.length ? `
-    <div style="background:#f5f2ee;padding:9px 16px;border-top:1px solid #e0dbd4;border-bottom:1px solid #e0dbd4;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#5c0f0f">Space Photos (${photoDataUrls.length})</div>
-    <div style="padding:14px 16px">
-      <table><tr>${photoDataUrls.map(url=>`<td style="padding:4px"><img src="${url}" style="width:160px;height:120px;object-fit:cover;border-radius:7px;border:1px solid #e0dbd4"></td>`).join('')}</tr></table>
-    </div>` : '';
-
-  const tilePhotoNotifHtml = tilePhotoDataUrl ? `
-    <div style="background:#f5f2ee;padding:9px 16px;border-top:1px solid #e0dbd4;border-bottom:1px solid #e0dbd4;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#5c0f0f">Selected Tile Photo</div>
-    <div style="padding:14px 16px"><img src="${tilePhotoDataUrl}" style="max-width:260px;border-radius:7px;border:1px solid #e0dbd4"></div>` : '';
-
   const notificationHtml = `<!DOCTYPE html><html><body style="margin:0;padding:16px;background:#f0ece6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif">
 <div style="max-width:600px;margin:0 auto">
   <div style="background:${urgColor};color:#fff;padding:16px 20px;border-radius:10px 10px 0 0;text-align:center">
@@ -3168,7 +3206,8 @@ function buildEstimateSummary(photoDataUrls=[], tilePhotoDataUrl=null) {
         <td style="padding:8px 16px;font-size:13px;color:#1a1a1a;font-weight:700">${v}</td>
       </tr>`).join('')}
     </table>
-    ${photosHtml}${tilePhotoNotifHtml}
+    ${wallDimsHtml()}
+    ${photoNote}
   </div>
   <div style="background:#f5f2ee;border:1px solid #e0dbd4;border-top:none;border-radius:0 0 10px 10px;padding:10px 16px;text-align:center;font-size:11px;color:#9a9188">
     Submitted ${new Date().toLocaleString('en-US')} · Crafted Backsplash Website Estimator
@@ -3181,15 +3220,6 @@ function buildEstimateSummary(photoDataUrls=[], tilePhotoDataUrl=null) {
       <td style="padding:9px 16px;font-size:13px;color:#7a7268;font-weight:600;width:44%;border-bottom:1px solid #f0ece6">${k}</td>
       <td style="padding:9px 16px;font-size:13px;color:#1a1a1a;font-weight:700;border-bottom:1px solid #f0ece6">${v}</td>
     </tr>`).join('');
-
-  const tilePhotoClientHtml = (tilePhotoDataUrl || S.tileUrl) ? `
-    <div style="background:#fff;border:1px solid #e0dbd4;border-top:none;margin-bottom:2px">
-      <div style="background:#f5f2ee;padding:9px 16px;border-bottom:1px solid #e0dbd4;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#5c0f0f">Your Selected Tile</div>
-      <div style="padding:14px 16px">
-        ${tilePhotoDataUrl?`<img src="${tilePhotoDataUrl}" style="max-width:260px;border-radius:8px;border:1px solid #e0dbd4;display:block;margin-bottom:8px">`:''}
-        ${S.tileUrl?`<div style="font-size:13px"><a href="${S.tileUrl}" style="color:#8B1A1A">${S.tileUrl}</a></div>`:''}
-      </div>
-    </div>` : '';
 
   const includedRows = [
     ['✅','Thinset / adhesive','Included'],
@@ -3243,6 +3273,193 @@ function buildEstimateSummary(photoDataUrls=[], tilePhotoDataUrl=null) {
     <div style="background:#f5f2ee;padding:9px 16px;border-bottom:1px solid #e0dbd4;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#5c0f0f">Project Details</div>
     <table style="width:100%;border-collapse:collapse">${clientRows}</table>
   </div>
-  ${tilePhotoClientHtml}
+  ${wallDimsHtml()}
+  ${S.tileUrl ? `<div style="border:1px solid #e0dbd4;border-top:none;padding:12px 16px;font-size:13px;color:#333">🔗 <strong>Your tile reference:</strong> <a href="${S.tileUrl}" style="color:#8B1A1A">${S.tileUrl}</a></div>` : ''}
+  ${photoNote}
+  <div style="border:1px solid #e0dbd4;border-top:none;padding:12px 18px;background:#f5f2ee;font-size:12px;color:#7a7268">
+    💡 <strong>Save as PDF:</strong> Open this email in a browser, then use File → Print → Save as PDF to keep a copy of your estimate.
+  </div>
   <div style="background:#fff;border:1px solid #e0dbd4;border-top:none;margin-top:2px">
-    <div style="background:#f5f2ee;padding:9px 16px;bo
+    <div style="background:#f5f2ee;padding:9px 16px;border-bottom:1px solid #e0dbd4;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#5c0f0f">What's Included in Your Estimate</div>
+    <table style="width:100%;border-collapse:collapse">${includedRows}</table>
+  </div>
+  <div style="background:#fdf0f0;border:1px solid #e8d0d0;border-top:none;border-radius:0;padding:14px 18px;margin-top:2px">
+    <p style="font-size:13px;color:#5c1a1a;margin:0;line-height:1.6">⚠️ <strong>Planning estimate only.</strong> Actual costs depend on site conditions, tile selection, and final measurements. Crafted Backsplash provides a written fixed-price quote before any work begins — no surprises, ever.</p>
+  </div>
+  <div style="background:#1a1a1a;padding:22px 28px;text-align:center;border-radius:0 0 10px 10px;margin-top:2px;margin-bottom:16px">
+    <div style="font-size:14px;color:#ccc;margin-bottom:14px">Ready to lock in your free on-site measure?</div>
+    <a href="mailto:office@craftedbacksplash.com?subject=Free%20Measure%20Request%20%E2%80%94%20${encodeURIComponent(nameStr)}" style="display:inline-block;background:#8B1A1A;color:#fff;font-weight:900;font-size:15px;padding:14px 28px;border-radius:9px;text-decoration:none;margin-bottom:12px">📧 Request Your Free Measure</a>
+    <div style="font-size:13px;color:#888;margin-top:4px">Or call/text: <strong style="color:#c44040">${CFG.PHONE}</strong></div>
+    <div style="font-size:11px;color:#666;margin-top:6px">Serving Omaha, Lincoln, and the surrounding metro</div>
+  </div>
+  <div style="font-size:11px;color:#9a9188;text-align:center;padding:0 0 8px">
+    Crafted Backsplash LLC &nbsp;·&nbsp; Omaha &amp; Lincoln, NE &nbsp;·&nbsp; office@craftedbacksplash.com
+  </div>
+</div></body></html>`;
+
+  return { sms, notificationHtml, clientEstimateHtml, low, high, mat };
+}
+
+async function zapier(extra={}) {
+  // Note: Gmail strips base64 data: images from email bodies — photos shown as count instead
+  const {low,high,mat,sms,notificationHtml,clientEstimateHtml} = S.tileType
+    ? buildEstimateSummary()
+    : {low:0,high:0,mat:0,sms:'',notificationHtml:'',clientEstimateHtml:''};
+
+  const payload = { ...extra,
+    // Lead contact
+    name:`${S.firstName} ${S.lastName}`.trim(), firstName:S.firstName, lastName:S.lastName,
+    phone:S.phone, email:S.email, address:S.address, zip:S.zip,
+    // Project data
+    measureMode:S.measureMode, sqft:S.sqft, tileType:S.tileType, tileFormat:S.tileFormat,
+    pattern:S.pattern, groutJoint:S.groutJoint, groutType:S.groutType,
+    edgeTreat:S.edgeTreat, trimLinFt:S.trimLinFt, demo:S.demo,
+    drywallRepair:S.drywallRepair, outlets:S.outlets, surfaceType:S.surfaceType,
+    timeline:S.timeline, tileUrl:S.tileUrl,
+    // Computed estimates
+    laborLow:low, laborHigh:high, materialEst:mat, totalLow:low+mat, totalHigh:high+mat,
+    spacePhotoCount:SPACE_FILES.length, hasTilePhoto:!!TILE_FILE,
+    // Formatted emails for Zapier actions
+    notificationHtml,      // Action 1: send to office@craftedbacksplash.com (you)
+    clientEstimateHtml,    // Action 2: send to {{email}} (the homeowner)
+    clientEmail: S.email,
+    estimateSmsText: sms,                   // plain-text fallback
+    estimateEmailHtml: clientEstimateHtml,  // backward compat alias
+    emailSubject:`Your Crafted Backsplash Estimate — ${fmt(low)}–${fmt(high)} labor`,
+    source:'Website Estimator Widget', submitted:new Date().toISOString(),
+  };
+  try {
+    if(CFG.ZAPIER && !CFG.ZAPIER.includes('YOUR_')) {
+      await fetch(CFG.ZAPIER,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),mode:'no-cors'});
+    }
+  } catch(e){ console.warn('Zapier:',e); }
+}
+
+async function handleSubmit() {
+  const btn=$('btn-next'); btn.textContent='Sending…'; btn.disabled=true;
+  await zapier();
+  try { sessionStorage.removeItem(SS_KEY); } catch(e) {}
+  showThanks();
+}
+
+function showThanks() {
+  $('cb-nav').style.display='none'; $('cb-est-bar').style.display='none';
+  $('cb-prog-fill').style.width='100%';
+  $('cb-prog-track').setAttribute('aria-valuenow', 100);
+  $('cb-step-lbl').textContent='✓ Estimate complete';
+  const {low,high,mat}=calcEst();
+  $('cb-content').innerHTML=`<div id="cb-ty">
+    <div class="ty-icon">🎉</div>
+    <div class="ty-title">You're all set, ${S.firstName}!</div>
+    <div class="ty-sub">We've got your info, ${S.firstName}. Click below to email us and we'll reach out within one business day to schedule your free on-site measure — no obligation.</div>
+    <div class="ty-est">
+      <div class="ty-est-lbl">Your Labor Estimate</div>
+      <div class="ty-est-val">${fmt(low)} – ${fmt(high)}</div>
+      <div class="ty-est-note">+ ~${fmt(mat)} tile materials · Total ~${fmt(low+mat)}–${fmt(high+mat)}</div>
+    </div>
+    <a class="ty-cta ty-book" href="${CFG.CALENDLY}">📧 Request Your Free Measure</a>
+    <div class="ty-or">or</div>
+    <a class="ty-cta ty-call" href="tel:${CFG.PHONE_RAW}">📞 Call / Text: ${CFG.PHONE}</a>
+    <div class="ty-steps">
+      <div class="ty-step"><div class="ty-num">1</div><div class="ty-txt"><strong>Book your free measure</strong>Pick a time that works — most slots available within a few days.</div></div>
+      <div class="ty-step"><div class="ty-num">2</div><div class="ty-txt"><strong>We measure on-site</strong>We come to you, take exact measurements, review the surface.</div></div>
+      <div class="ty-step"><div class="ty-num">3</div><div class="ty-txt"><strong>Written fixed-price quote</strong>Detailed and itemized — no surprises. Usually within 24 hrs of the measure.</div></div>
+      <div class="ty-step"><div class="ty-num">4</div><div class="ty-txt"><strong>Schedule your install</strong>Most kitchen backsplashes take 1–2 days. We handle everything.</div></div>
+    </div>
+    <div class="ty-disc">This estimate is for planning purposes only, based on standard Omaha/Lincoln market rates. Actual costs may vary based on site conditions and tile selection. Crafted Backsplash provides a written fixed-price quote before any work begins — no surprises.</div>
+  </div>`;
+}
+
+// ============================================================
+//  RENDER ENGINE
+// ============================================================
+function renderStep() {
+  // Clear canvas buffer before DOM removal to prevent GPU-compositor ghost
+  if (DS.ctx) {
+    DS.ctx.clearRect(0, 0, DS.W, DS.H);
+  }
+  DS.canvas = null;
+  DS.ctx    = null;
+
+  const st = STEPS[S.step];
+  $('cb-prog-fill').style.width = st.prog+'%';
+  $('cb-prog-track').setAttribute('aria-valuenow', st.prog);
+  $('cb-step-lbl').textContent  = st.badge;
+  $('cb-content').innerHTML     = `<div class="cb-card">
+    <div class="cb-badge">${st.badge}</div>
+    <div class="cb-title">${st.title}</div>
+    <div class="cb-subtitle">${st.sub}</div>
+    ${st.render()}
+  </div>`;
+  if(st.bind) st.bind();
+  $('btn-back').style.display = S.step>0 ? '' : 'none';
+  $('btn-next').textContent   = S.step===STEPS.length-1 ? '📧 Send My Estimate →' : S.step===STEPS.length-2 ? 'Continue →' : S.step===STEPS.length-3 ? '📸 Continue →' : 'Continue →';
+  $('btn-next').disabled      = false;
+  // Hide escape hatch on the final booking step — they're already committing
+  $('btn-escape').style.display = S.step===STEPS.length-1 ? 'none' : '';
+  updEstBar();
+}
+
+// ============================================================
+//  SESSION PERSISTENCE — saves form state to sessionStorage
+//  so a page refresh or accidental navigation doesn't wipe answers
+// ============================================================
+const SS_KEY = 'cb_est_v3';
+
+function saveSession() {
+  try {
+    const ser = {
+      S: Object.assign({}, S),
+      DS_shapes: DS.shapes.map(sh => ({
+        points: sh.points,
+        sqFt:   sh.sqFt,
+        edgeLabels: sh.edgeLabels,
+        outlets:  (sh.outlets  || []),
+        switches: (sh.switches || []),
+      })),
+      DS_SCALE: DS.SCALE,
+    };
+    sessionStorage.setItem(SS_KEY, JSON.stringify(ser));
+  } catch(e) { /* ignore quota errors */ }
+}
+
+function loadSession() {
+  try {
+    const raw = sessionStorage.getItem(SS_KEY);
+    if (!raw) return;
+    const ser = JSON.parse(raw);
+    // Restore scalar state (skip file objects — not serializable)
+    Object.assign(S, ser.S);
+    // Restore canvas shapes
+    DS.shapes = ser.DS_shapes || [];
+    DS.SCALE  = ser.DS_SCALE  || 6;
+  } catch(e) { sessionStorage.removeItem(SS_KEY); }
+}
+
+// Navigation
+$('btn-next').addEventListener('click', ()=>{
+  const st=STEPS[S.step];
+  if(st.validate && !st.validate()) return;
+  if(S.step<STEPS.length-1){ S.step++; renderStep(); saveSession(); scrollTo({top:0,behavior:'smooth'}); }
+  else handleSubmit();
+});
+$('btn-back').addEventListener('click', ()=>{
+  if(S.step>0){ S.step--; renderStep(); saveSession(); scrollTo({top:0,behavior:'smooth'}); }
+});
+
+// Restore any previous session, then render
+loadSession();
+renderStep();
+// postMessage height reporter
+function reportHeight() {
+  const wrap = document.getElementById('cb-wrap');
+  if (!wrap) return;
+  const h = wrap.offsetTop + wrap.offsetHeight + 80;
+  window.parent.postMessage({ type: 'cb-resize', height: h }, '*');
+}
+reportHeight();
+const _ro = new ResizeObserver(reportHeight);
+_ro.observe(document.getElementById('cb-wrap') || document.body);
+</script>
+</body>
+</html>
