@@ -3405,18 +3405,32 @@ function showThanks() {
   $('cb-prog-fill').style.width='100%';
   $('cb-prog-track').setAttribute('aria-valuenow', 100);
   $('cb-step-lbl').textContent='✓ Estimate complete';
-  const {low,high,mat}=calcEst();
+  const {low,high,mat,bill,fixedCost,demoAmt,drywAmt,outAmt,tileAmt,trimAmt,totalHrs} = S.tileType ? calcEst() : {low:0,high:0,mat:0,bill:0,fixedCost:0,demoAmt:0,drywAmt:0,outAmt:0,tileAmt:0,trimAmt:0,totalHrs:0};
+  const fmt = n => '$'+Math.round(n).toLocaleString();
+  const tileLabels = {ceramic:'Ceramic / Subway',porcelain:'Porcelain',glass:'Glass Tile',stone:'Natural Stone',mosaic:'Mosaic Sheets','large-format':'Large Format Porcelain'};
+  const patLabels  = {straight:'Straight Stack','running-bond':'Running Bond ½ Offset','third-offset':'Running Bond ⅓ Offset','third-stairstep':'Running Bond ⅓ Offset (Stair-Step)',vertical:'Vertical Stack',diagonal:'Diagonal 45°',herringbone:'Herringbone',chevron:'Chevron','random-stone':'Random Stone / Ledger',hexagon:'Hexagon',penny:'Penny / Round Mosaic',complex:'Custom Pattern'};
+
+  const breakdownRows = S.tileType ? `
+    <tr><td>Overhead (drive, setup, cleanup)</td><td style="text-align:right;font-weight:700">${fmt(fixedCost)}</td></tr>
+    <tr><td>Tile setting labor</td><td style="text-align:right;font-weight:700">~${fmt(tileAmt)}</td></tr>
+    ${demoAmt ? `<tr><td>Demo existing tile</td><td style="text-align:right;font-weight:700">${fmt(demoAmt)}</td></tr>` : ''}
+    ${drywAmt ? `<tr><td>Drywall / backer repair</td><td style="text-align:right;font-weight:700">~${fmt(drywAmt)}</td></tr>` : ''}
+    ${trimAmt ? `<tr><td>Edge trim (${S.trimLinFt} ln ft)</td><td style="text-align:right;font-weight:700">~${fmt(trimAmt)}</td></tr>` : ''}
+    ${outAmt  ? `<tr><td>Outlet / switch cutouts</td><td style="text-align:right;font-weight:700">${fmt(outAmt)}</td></tr>` : ''}
+    <tr style="background:#f5f2ee;border-top:2px solid #e0dbd4"><td style="font-weight:900">Labor Range</td><td style="text-align:right;font-weight:900;color:#8B1A1A">${fmt(low)} – ${fmt(high)}</td></tr>
+    <tr style="background:#f5f2ee"><td style="color:#7a7268">Tile materials (est.)</td><td style="text-align:right;color:#7a7268">~${fmt(mat)}</td></tr>
+    <tr style="background:#f5f2ee"><td style="color:#7a7268">Total range</td><td style="text-align:right;color:#7a7268">~${fmt(low+mat)} – ${fmt(high+mat)}</td></tr>
+  ` : '';
+
   $('cb-content').innerHTML=`<div id="cb-ty">
     <div class="ty-icon">🎉</div>
     <div class="ty-title">You're all set, ${S.firstName}!</div>
-    <div class="ty-sub">We've got your info, ${S.firstName}. Click below to email us and we'll reach out within one business day to schedule your free on-site measure — no obligation.</div>
+    <div class="ty-sub">Your estimate details have been emailed to you. We'll reach out within one business day to schedule your free on-site measure — no obligation.</div>
     <div class="ty-est">
       <div class="ty-est-lbl">Your Labor Estimate</div>
       <div class="ty-est-val">${fmt(low)} – ${fmt(high)}</div>
       <div class="ty-est-note">+ ~${fmt(mat)} tile materials · Total ~${fmt(low+mat)}–${fmt(high+mat)}</div>
     </div>
-    <a class="ty-cta ty-book" href="${CFG.CALENDLY}">📧 Request Your Free Measure</a>
-    <div class="ty-or">or</div>
     <a class="ty-cta ty-call" href="tel:${CFG.PHONE_RAW}">📞 Call / Text: ${CFG.PHONE}</a>
     <div class="ty-steps">
       <div class="ty-step"><div class="ty-num">1</div><div class="ty-txt"><strong>Book your free measure</strong>Pick a time that works — most slots available within a few days.</div></div>
@@ -3424,9 +3438,25 @@ function showThanks() {
       <div class="ty-step"><div class="ty-num">3</div><div class="ty-txt"><strong>Written fixed-price quote</strong>Detailed and itemized — no surprises. Usually within 24 hrs of the measure.</div></div>
       <div class="ty-step"><div class="ty-num">4</div><div class="ty-txt"><strong>Schedule your install</strong>Most kitchen backsplashes take 1–2 days. We handle everything.</div></div>
     </div>
+    ${S.tileType ? `
+    <div style="border:1px solid #e0dbd4;border-radius:11px;overflow:hidden;margin-bottom:22px;text-align:left">
+      <div style="background:#f5f2ee;padding:10px 16px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#5c0f0f;border-bottom:1px solid #e0dbd4;display:flex;justify-content:space-between;align-items:center">
+        <span>Estimate Breakdown</span>
+        <span style="font-size:12px;color:#7a7268;font-weight:600;text-transform:none;letter-spacing:0">${S.sqft} sq ft · ${tileLabels[S.tileType]||''} · ${patLabels[S.pattern]||''}</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse">
+        ${breakdownRows}
+      </table>
+      <div style="padding:12px 16px;border-top:1px solid #e0dbd4">
+        <button onclick="printEstimate()" style="width:100%;padding:12px;background:var(--charcoal);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">
+          🖨️ Save / Download Full PDF Report
+        </button>
+      </div>
+    </div>` : ''}
     <div class="ty-disc">This estimate is for planning purposes only, based on standard Omaha/Lincoln market rates. Actual costs may vary based on site conditions and tile selection. Crafted Backsplash provides a written fixed-price quote before any work begins — no surprises.</div>
   </div>`;
 }
+
 
 // ============================================================
 //  RENDER ENGINE
