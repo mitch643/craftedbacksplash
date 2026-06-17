@@ -3383,11 +3383,9 @@ async function zapier(extra={}) {
   };
   try {
     // Route via Apps Script (Drive + forward to Zapier); fallback direct to Zapier
-    const endpoint = CFG.ZAPIER;  // TEMP: bypass Apps Script, go direct to Zapier
+    const endpoint = (CFG.SCRIPT && !CFG.SCRIPT.includes('YOUR_')) ? CFG.SCRIPT : CFG.ZAPIER;
     if (endpoint && !endpoint.includes('YOUR_')) {
-      fetch(endpoint, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) })
-        .then(r => console.log('Zapier response:', r.status, r.ok))
-        .catch(err => console.error('Fetch failed:', err));
+      await fetch(endpoint, { method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(payload), mode:'no-cors' });
     }
   } catch(e){ console.warn('Submit:', e); }
 }
