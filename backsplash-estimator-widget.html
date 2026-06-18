@@ -6,6 +6,16 @@
   <title>Free Backsplash Estimate Tool | Crafted Backsplash — Omaha &amp; Lincoln, NE</title>
   <meta name="description" content="Get a free, instant kitchen backsplash labor estimate in about 2 minutes. Draw your space, pick your tile, and see a price range — no contractor visit needed. Serving Omaha, Lincoln, and surrounding Nebraska.">
   <link rel="icon" href="images/logo.png" type="image/png">
+
+  <!-- Google tag (gtag.js) — Google Ads AW-18249046666 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18249046666"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'AW-18249046666');
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -432,7 +442,19 @@ const CFG = {
   // Google Apps Script web app — creates Drive folder, uploads photos, forwards to Zapier
   // See _source/lead-handler.gs for setup. Paste deployed web app URL below.
   SCRIPT:       'https://script.google.com/macros/s/AKfycbxfdUscaweTdappcoVHkOZwtRu1EcTHTmn1Z8L_6hEIoRH3oDnRzUhVCpLbLntxj9qXkQ/exec',
+  // Google Ads conversion label — get from Google Ads > Goals > Conversions > your conversion action
+  // Paste the label portion only (the part after the slash in 'AW-18249046666/LABEL')
+  GADS_LABEL:   'PASTE_CONVERSION_LABEL_HERE',
 };
+
+// ── Google Ads conversion helper ──────────────────────────────
+function fireConversion() {
+  try {
+    if (typeof gtag === 'function' && CFG.GADS_LABEL && !CFG.GADS_LABEL.includes('PASTE_')) {
+      gtag('event', 'conversion', { send_to: `AW-18249046666/${CFG.GADS_LABEL}` });
+    }
+  } catch(e) { /* silent — never block submission */ }
+}
 
 // ============================================================
 //  FORM STATE
@@ -1900,12 +1922,13 @@ function showSkip() {
       <div style="font-size:15px;color:var(--gray-3)">${S.firstName} ${S.lastName} · ${S.phone} · ${S.email}</div>
       <div style="font-size:14px;color:var(--gray-3);margin-top:4px">We'll follow up within <strong style="color:var(--charcoal)">24 hours</strong>.</div>
     </div>` : `<div id="sk-mini-form" style="background:var(--gray-1);border-radius:11px;padding:18px 20px;margin-bottom:18px;text-align:left">
-      <div style="font-size:15px;font-weight:800;color:var(--charcoal);margin-bottom:12px">Drop your name and number — we'll reach out:</div>
+      <div style="font-size:15px;font-weight:800;color:var(--charcoal);margin-bottom:12px">Drop your info — we'll reach out:</div>
       <div class="field-row" style="margin-bottom:10px">
         <div class="field"><label class="lbl">First Name</label><input class="inp" id="sk-fn" type="text" placeholder="Jane" autocomplete="given-name"></div>
         <div class="field"><label class="lbl">Phone</label><input class="inp" id="sk-ph" type="tel" placeholder="(402) 555-1234" autocomplete="tel" inputmode="tel"></div>
       </div>
-      <button onclick="submitSkip()" style="width:100%;padding:14px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit">📧 Request Your Free Measure</button>
+      <div class="field" style="margin-bottom:10px"><label class="lbl">Email</label><input class="inp" id="sk-em" type="email" placeholder="jane@example.com" autocomplete="email" inputmode="email"></div>
+      <button onclick="submitSkip()" style="width:100%;padding:14px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit">📅 Request Your Free Measure</button>
     </div>`}
     <div style="margin-bottom:16px">
       ${CFG.BOOKING && !CFG.BOOKING.includes('YOUR_') ? `
@@ -1926,15 +1949,18 @@ function showSkip() {
     </div>
     <div class="sk-resume">Changed your mind? <a onclick="resumeEst()">Continue the estimate instead →</a></div>
   </div>`;
-  if(hasContact) zapier({skipped:true});
+  if(hasContact) { zapier({skipped:true}); fireConversion(); } // Google Ads — direct skip (already had contact info)
 }
 
 window.submitSkip = function() {
   const fn = $('sk-fn')?.value.trim();
   const ph = $('sk-ph')?.value.trim();
+  const em = $('sk-em')?.value.trim();
   if(fn) S.firstName = fn;
   if(ph) S.phone = ph;
+  if(em) S.email = em;
   zapier({skipped:true});
+  fireConversion(); // Google Ads — skip mini-form path
   const miniForm = $('sk-mini-form');
   if(miniForm) miniForm.outerHTML = `<div style="background:#eaf5ed;border:1px solid #27ae60;border-radius:11px;padding:14px 20px;margin-bottom:18px">
     <div style="font-size:15px;font-weight:800;color:#2a6a3a;margin-bottom:${CFG.BOOKING&&!CFG.BOOKING.includes('YOUR_')?'10':'0'}px">✅ Got it${S.firstName?`, ${S.firstName}`:''}! We'll reach out to schedule your measure.</div>
@@ -3404,6 +3430,7 @@ async function zapier(extra={}) {
 async function handleSubmit() {
   const btn=$('btn-next'); btn.textContent='Sending…'; btn.disabled=true;
   await zapier();
+  fireConversion(); // Google Ads — full estimate path
   try { sessionStorage.removeItem(SS_KEY); } catch(e) {}
   showThanks();
 }
@@ -3439,9 +3466,12 @@ function showThanks() {
       <div class="ty-est-val">${fmt(low)} – ${fmt(high)}</div>
       <div class="ty-est-note">+ ~${fmt(mat)} tile materials · Total ~${fmt(low+mat)}–${fmt(high+mat)}</div>
     </div>
+    <a class="ty-cta ty-book" href="${CFG.BOOKING}" target="_blank" rel="noopener">
+      📅 Schedule Your Free Measure
+    </a>
     <a class="ty-cta ty-call" href="tel:${CFG.PHONE_RAW}">📞 Call / Text: ${CFG.PHONE}</a>
     <div class="ty-steps">
-      <div class="ty-step"><div class="ty-num">1</div><div class="ty-txt"><strong>Book your free measure</strong>Pick a time that works — most slots available within a few days.</div></div>
+      <div class="ty-step"><div class="ty-num">1</div><div class="ty-txt"><strong>Book your free measure</strong>Use the button above to pick a time — usually available within a few days.</div></div>
       <div class="ty-step"><div class="ty-num">2</div><div class="ty-txt"><strong>We measure on-site</strong>We come to you, take exact measurements, review the surface.</div></div>
       <div class="ty-step"><div class="ty-num">3</div><div class="ty-txt"><strong>Written fixed-price quote</strong>Detailed and itemized — no surprises. Usually within 24 hrs of the measure.</div></div>
       <div class="ty-step"><div class="ty-num">4</div><div class="ty-txt"><strong>Schedule your install</strong>Most kitchen backsplashes take 1–2 days. We handle everything.</div></div>
